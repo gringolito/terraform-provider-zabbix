@@ -31,9 +31,9 @@ func rpcServer(t *testing.T, handler http.HandlerFunc) *httptest.Server {
 
 // captureHandler records the last request and delegates to inner.
 type captureHandler struct {
-	last   *http.Request
-	body   []byte
-	inner  http.HandlerFunc
+	last  *http.Request
+	body  []byte
+	inner http.HandlerFunc
 }
 
 func (c *captureHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -55,16 +55,16 @@ func TestNew_DetectsVersion(t *testing.T) {
 }
 
 func TestCall_SendsBearerAuth(t *testing.T) {
-	cap := &captureHandler{}
-	cap.inner = versionHandler("7.0.0")
-	srv := rpcServer(t, cap.ServeHTTP)
+	ch := &captureHandler{}
+	ch.inner = versionHandler("7.0.0")
+	srv := rpcServer(t, ch.ServeHTTP)
 
 	_, err := New(context.Background(), srv.URL, "my-secret-token")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
-	got := cap.last.Header.Get("Authorization")
+	got := ch.last.Header.Get("Authorization")
 	if got != "Bearer my-secret-token" {
 		t.Errorf("Authorization = %q, want %q", got, "Bearer my-secret-token")
 	}
