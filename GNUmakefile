@@ -15,10 +15,21 @@ generate:
 fmt:
 	gofmt -s -w -e .
 
-test:
+unit-tests:
 	go test -v -cover -timeout=120s -parallel=10 ./...
 
-testacc:
-	TF_ACC=1 go test -v -cover -timeout 120m ./...
+testacc-up:
+	docker compose up -d
+	scripts/testacc-bootstrap.sh > .testacc.env
 
-.PHONY: fmt lint test testacc build install generate
+testacc:
+	@set -a && [ -f .testacc.env ] && . ./.testacc.env; set +a && \
+		TF_ACC=1 go test -v -cover -timeout 120m ./...
+
+testacc-down:
+	docker compose down -v
+	rm -f .testacc.env
+
+acc-tests: testacc-up testacc testacc-down
+
+.PHONY: fmt lint unit-tests testacc testacc-up testacc-down acc-tests build install generate
