@@ -1,3 +1,18 @@
+# Project conventions
+
+## Git conventions
+
+All commits must be signed and signed-off. Use `git commit -S -s` or configure `commit.gpgsign = true` and always pass `-s`.
+
+## PR checklist
+
+Before opening any PR that is not documentation-only, run:
+
+1. `make generate` — regenerate any auto-generated files
+2. Build — ensure the project compiles
+3. Lint — ensure there are no lint errors
+4. Tests — run both unit tests and acceptance tests
+
 ## Agent skills
 
 ### Issue tracker
