@@ -10,7 +10,7 @@ lint:
 	golangci-lint run
 
 generate:
-	cd tools; go generate ./...
+	go tool tfplugindocs generate -provider-name zabbix
 
 fmt:
 	gofmt -s -w -e .
