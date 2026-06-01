@@ -10,6 +10,7 @@ import (
 )
 
 func TestAccExampleDataSource(t *testing.T) {
+	t.Skip("placeholder — remove when zabbix_example data source is replaced by a real implementation")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

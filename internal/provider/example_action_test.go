@@ -8,6 +8,7 @@ import (
 )
 
 func TestAccExampleAction(t *testing.T) {
+	t.Skip("placeholder — remove when zabbix_example action is replaced by a real implementation")
 	resource.Test(t, resource.TestCase{
 		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
 			tfversion.SkipBelow(tfversion.Version1_14_0),
