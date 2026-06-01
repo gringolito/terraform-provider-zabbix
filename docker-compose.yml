@@ -13,6 +13,22 @@ services:
       timeout: 5s
       retries: 10
 
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:7.0-ubuntu-latest
+    environment:
+      DB_SERVER_HOST: zabbix-db
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+    depends_on:
+      zabbix-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=zabbix psql -h zabbix-db -U zabbix -d zabbix -c 'SELECT 1 FROM dbversion' -q --tuples-only 2>/dev/null | grep -q 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   zabbix-web:
     image: zabbix/zabbix-web-nginx-pgsql:7.0-ubuntu-latest
     ports:
@@ -24,7 +40,7 @@ services:
       POSTGRES_USER: zabbix
       POSTGRES_PASSWORD: zabbix
     depends_on:
-      zabbix-db:
+      zabbix-server:
         condition: service_healthy
 
 volumes:
