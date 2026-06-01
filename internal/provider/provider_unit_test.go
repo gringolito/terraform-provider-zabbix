@@ -134,7 +134,7 @@ func makeConfig(t *testing.T, urlVal, tokenVal tftypes.Value) tfsdk.Config {
 	}
 }
 
-func nullStr() tftypes.Value  { return tftypes.NewValue(tftypes.String, nil) }
+func nullStr() tftypes.Value        { return tftypes.NewValue(tftypes.String, nil) }
 func strVal(s string) tftypes.Value { return tftypes.NewValue(tftypes.String, s) }
 
 func configureProv(t *testing.T, cfg tfsdk.Config) *tfwprovider.ConfigureResponse {
