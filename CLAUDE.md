@@ -9,9 +9,9 @@ All commits must be signed and signed-off. Use `git commit -S -s` or configure `
 Before opening any PR that is not documentation-only, run:
 
 1. `make generate` — regenerate any auto-generated files
-2. Build — ensure the project compiles
-3. Lint — ensure there are no lint errors
-4. Tests — run both unit tests and acceptance tests
+2. `make build` — ensure the project compiles
+3. `make lint` — ensure there are no lint errors
+4. `make acc-tests` — run both unit tests and acceptance tests
 
 ## Agent skills
 
