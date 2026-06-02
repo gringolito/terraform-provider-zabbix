@@ -8,9 +8,9 @@ import (
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 )
 
-// FakeClient is a test double for client.Client that returns pre-configured
+// TestClient is a test double for client.Client that returns pre-configured
 // responses. Either Response or Error must be set before calling Call.
-type FakeClient struct {
+type TestClient struct {
 	// Response is marshalled to JSON and returned by Call when Error is nil.
 	Response any
 	// Error is returned by Call instead of a response when non-nil.
@@ -21,7 +21,7 @@ type FakeClient struct {
 	LastParams any
 }
 
-func (f *FakeClient) Call(_ context.Context, method string, params any) (json.RawMessage, error) {
+func (f *TestClient) Call(_ context.Context, method string, params any) (json.RawMessage, error) {
 	f.LastMethod = method
 	f.LastParams = params
 	if f.Error != nil {
@@ -34,5 +34,5 @@ func (f *FakeClient) Call(_ context.Context, method string, params any) (json.Ra
 	return b, nil
 }
 
-func (f *FakeClient) APIVersion() string { return "7.0.0" }
-func (f *FakeClient) Tier() client.Tier  { return client.Targeted }
+func (f *TestClient) APIVersion() string { return "7.0.0" }
+func (f *TestClient) Tier() client.Tier  { return client.Targeted }
