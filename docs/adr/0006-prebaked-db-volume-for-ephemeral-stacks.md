@@ -4,12 +4,15 @@ status: proposed
 
 # Pre-baked DB volume for fast, fully-ephemeral acceptance stacks
 
-The first milestone runs acceptance tests against a **shared** docker-compose web+db stack, whose
-boot is dominated by Postgres's one-time schema import — which is why the stack is shared per run
-and isolation is logical (unique-prefixed objects + `CheckDestroy`). **Evaluate** baking a
-pre-initialized Postgres data volume (or a custom image with the schema pre-loaded) so the stack
-boots near-instantly and can be brought up/down **fully ephemerally** per run — or per parallel
-version shard — removing the shared-stack constraint entirely.
+The first milestone runs acceptance tests against a **shared** docker-compose stack
+(`zabbix-server-pgsql` + `zabbix-web-nginx-pgsql` + `postgres`). The server is required because it
+owns the one-time schema import that creates the `dbversion` table; the web container starts against
+an empty database without it. Boot is dominated by that schema import (~60–120 s on cold postgres)
+— which is why the stack is shared per run and isolation is logical (unique-prefixed objects +
+`CheckDestroy`). **Evaluate** baking a pre-initialized Postgres data volume (or a custom image with
+the schema pre-loaded) so the stack boots near-instantly and can be brought up/down **fully
+ephemerally** per run — or per parallel version shard — removing the shared-stack constraint
+entirely.
 
 ## Trade-off to evaluate
 
