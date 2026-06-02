@@ -48,7 +48,7 @@ func (p *ZabbixProvider) Schema(_ context.Context, _ provider.SchemaRequest, res
 				MarkdownDescription: "Base URL of the Zabbix frontend (e.g. `https://zabbix.example.com`). " +
 					"May also be set via the `ZABBIX_URL` environment variable.",
 				Optional:   true,
-				Validators: []validator.String{urlValidator{}},
+				Validators: []validator.String{URLValidator{}},
 			},
 			"api_token": schema.StringAttribute{
 				MarkdownDescription: "Zabbix API token for authentication. " +

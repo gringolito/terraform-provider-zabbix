@@ -1,4 +1,4 @@
-package provider
+package provider_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gringolito/terraform-provider-zabbix/internal/provider"
 	tfwprovider "github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -24,7 +25,7 @@ func TestURLValidator_Valid(t *testing.T) {
 		"http://localhost:8080",
 		"https://192.168.1.1/zabbix",
 	}
-	v := urlValidator{}
+	v := provider.URLValidator{}
 	for _, tc := range cases {
 		t.Run(tc, func(t *testing.T) {
 			resp := &validator.StringResponse{}
@@ -46,7 +47,7 @@ func TestURLValidator_Invalid(t *testing.T) {
 		"zabbix.example.com",
 		"",
 	}
-	v := urlValidator{}
+	v := provider.URLValidator{}
 	for _, tc := range cases {
 		t.Run(tc, func(t *testing.T) {
 			resp := &validator.StringResponse{}
@@ -61,7 +62,7 @@ func TestURLValidator_Invalid(t *testing.T) {
 }
 
 func TestURLValidator_SkipsNullAndUnknown(t *testing.T) {
-	v := urlValidator{}
+	v := provider.URLValidator{}
 
 	nullResp := &validator.StringResponse{}
 	v.ValidateString(context.Background(), validator.StringRequest{
@@ -83,7 +84,7 @@ func TestURLValidator_SkipsNullAndUnknown(t *testing.T) {
 // ---- Schema ----
 
 func TestProviderSchema_Attributes(t *testing.T) {
-	p := &ZabbixProvider{version: "test"}
+	p := provider.New("test")()
 	resp := &tfwprovider.SchemaResponse{}
 	p.Schema(context.Background(), tfwprovider.SchemaRequest{}, resp)
 
@@ -117,7 +118,7 @@ func versionServer(t *testing.T, version string) *httptest.Server {
 
 func makeConfig(t *testing.T, urlVal, tokenVal tftypes.Value) tfsdk.Config {
 	t.Helper()
-	p := &ZabbixProvider{}
+	p := provider.New("")()
 	schemaResp := &tfwprovider.SchemaResponse{}
 	p.Schema(context.Background(), tfwprovider.SchemaRequest{}, schemaResp)
 	return tfsdk.Config{
@@ -139,7 +140,7 @@ func strVal(s string) tftypes.Value { return tftypes.NewValue(tftypes.String, s)
 
 func configureProv(t *testing.T, cfg tfsdk.Config) *tfwprovider.ConfigureResponse {
 	t.Helper()
-	p := &ZabbixProvider{version: "test"}
+	p := provider.New("test")()
 	resp := &tfwprovider.ConfigureResponse{}
 	p.Configure(context.Background(), tfwprovider.ConfigureRequest{Config: cfg}, resp)
 	return resp
@@ -188,7 +189,6 @@ func TestProviderConfigure_Targeted(t *testing.T) {
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("unexpected errors: %s", resp.Diagnostics)
 	}
-	// no warnings expected for Targeted
 	for _, d := range resp.Diagnostics {
 		if d.Severity().String() == "Warning" {
 			t.Errorf("unexpected warning for Targeted version: %s", d.Summary())
@@ -234,8 +234,6 @@ func TestProviderConfigure_Unsupported(t *testing.T) {
 func TestProviderConfigure_MalformedURL(t *testing.T) {
 	t.Setenv("ZABBIX_URL", "")
 	t.Setenv("ZABBIX_TOKEN", "")
-	// Schema-level URL validation: the validator should catch this, but
-	// Configure also handles a connection error gracefully.
 	resp := configureProv(t, makeConfig(t, strVal("not-a-url"), strVal("tok")))
 	if !resp.Diagnostics.HasError() {
 		t.Fatal("expected error for malformed URL, got none")
@@ -247,15 +245,12 @@ func TestProviderConfigure_EnvVarURLOverridesEmpty(t *testing.T) {
 	t.Setenv("ZABBIX_URL", srv.URL)
 	t.Setenv("ZABBIX_TOKEN", "tok")
 
-	// Explicit empty string in config should fall back to env var.
 	resp := configureProv(t, makeConfig(t, nullStr(), nullStr()))
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("unexpected errors: %s", resp.Diagnostics)
 	}
 }
 
-// Ensure t.Setenv cleans up after the test; this is a sentinel that os.Getenv
-// reads the env correctly during the test.
 func TestEnvVarSentinel(t *testing.T) {
 	key := "ZABBIX_SENTINEL_TEST_" + t.Name()
 	os.Unsetenv(key)

@@ -1,21 +1,18 @@
-package provider
+package provider_test
 
 import (
 	"testing"
 
+	"github.com/gringolito/terraform-provider-zabbix/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 )
 
-// testAccProtoV6ProviderFactories is used to instantiate a provider during acceptance testing.
-// The factory function is called for each Terraform CLI command to create a provider
-// server that the CLI can connect to and interact with.
+// testAccProtoV6ProviderFactories instantiates the provider for acceptance tests.
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"zabbix": providerserver.NewProtocol6WithError(New("test")()),
+	"zabbix": providerserver.NewProtocol6WithError(provider.New("test")()),
 }
 
 func testAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
+	t.Helper()
 }
