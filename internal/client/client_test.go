@@ -60,7 +60,7 @@ func TestNew_DetectsVersion(t *testing.T) {
 	}
 }
 
-func TestCall_SendsBearerAuth(t *testing.T) {
+func TestNew_VersionDetection_NoAuth(t *testing.T) {
 	ch := &captureHandler{}
 	ch.inner = versionHandler("7.0.0")
 	srv := rpcServer(t, ch.ServeHTTP)
@@ -69,6 +69,37 @@ func TestCall_SendsBearerAuth(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
+
+	got := ch.last.Header.Get("Authorization")
+	if got != "" {
+		t.Errorf("Authorization = %q, want empty (apiinfo.version must not send auth header)", got)
+	}
+}
+
+func TestCall_SendsBearerAuth(t *testing.T) {
+	ch := &captureHandler{}
+	ch.inner = func(w http.ResponseWriter, r *http.Request) {
+		var req rpcMethod
+		_ = json.Unmarshal(ch.body, &req)
+		w.Header().Set("Content-Type", "application/json")
+		if req.Method == "apiinfo.version" {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"jsonrpc": "2.0", "result": "7.0.0", "id": 1,
+			})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"jsonrpc": "2.0", "result": json.RawMessage(`"ok"`), "id": 1,
+		})
+	}
+	srv := rpcServer(t, ch.ServeHTTP)
+
+	c, err := client.New(t.Context(), srv.URL, "my-secret-token")
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	_, _ = c.Call(t.Context(), "some.method", nil)
 
 	got := ch.last.Header.Get("Authorization")
 	if got != "Bearer my-secret-token" {

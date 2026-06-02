@@ -65,7 +65,8 @@ func (c *jsonrpcClient) Call(ctx context.Context, method string, params any) (js
 		return nil, fmt.Errorf("build request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	if c.token != "" {
+	// apiinfo.version must be called without an Authorization header (Zabbix 7.x requirement).
+	if c.token != "" && method != "apiinfo.version" {
 		httpReq.Header.Set("Authorization", "Bearer "+c.token)
 	}
 
