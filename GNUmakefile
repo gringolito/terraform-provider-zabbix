@@ -30,6 +30,7 @@ testacc-down:
 	docker compose down -v
 	rm -f .testacc.env
 
-acc-tests: testacc-up testacc testacc-down
+acc-tests:
+	$(MAKE) testacc-up && $(MAKE) testacc; STATUS=$$?; $(MAKE) testacc-down; exit $$STATUS
 
 .PHONY: fmt lint unit-tests testacc testacc-up testacc-down acc-tests build install generate
