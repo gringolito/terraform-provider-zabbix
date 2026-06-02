@@ -1,14 +1,20 @@
-package client
+package client_test
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 )
+
+// rpcMethod is a minimal struct used to dispatch handlers by RPC method name.
+type rpcMethod struct {
+	Method string `json:"method"`
+}
 
 func versionHandler(version string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +51,7 @@ func (c *captureHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func TestNew_DetectsVersion(t *testing.T) {
 	srv := rpcServer(t, versionHandler("7.0.3"))
-	c, err := New(context.Background(), srv.URL, "token")
+	c, err := client.New(t.Context(), srv.URL, "token")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -59,7 +65,7 @@ func TestCall_SendsBearerAuth(t *testing.T) {
 	ch.inner = versionHandler("7.0.0")
 	srv := rpcServer(t, ch.ServeHTTP)
 
-	_, err := New(context.Background(), srv.URL, "my-secret-token")
+	_, err := client.New(t.Context(), srv.URL, "my-secret-token")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -72,7 +78,7 @@ func TestCall_SendsBearerAuth(t *testing.T) {
 
 func TestCall_SuccessResponse(t *testing.T) {
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		var req rpcRequest
+		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
 
 		w.Header().Set("Content-Type", "application/json")
@@ -87,12 +93,12 @@ func TestCall_SuccessResponse(t *testing.T) {
 		})
 	})
 
-	c, err := New(context.Background(), srv.URL, "tok")
+	c, err := client.New(t.Context(), srv.URL, "tok")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
-	result, err := c.Call(context.Background(), "host.create", map[string]any{"host": "test"})
+	result, err := c.Call(t.Context(), "host.create", map[string]any{"host": "test"})
 	if err != nil {
 		t.Fatalf("Call: %v", err)
 	}
@@ -107,7 +113,7 @@ func TestCall_SuccessResponse(t *testing.T) {
 
 func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		var req rpcRequest
+		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
 
 		w.Header().Set("Content-Type", "application/json")
@@ -128,19 +134,19 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 		})
 	})
 
-	c, err := New(context.Background(), srv.URL, "tok")
+	c, err := client.New(t.Context(), srv.URL, "tok")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
-	_, err = c.Call(context.Background(), "host.get", map[string]any{"hostids": "999"})
+	_, err = c.Call(t.Context(), "host.get", map[string]any{"hostids": "999"})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 
-	rpcErr, ok := err.(*RPCError)
+	rpcErr, ok := err.(*client.RPCError)
 	if !ok {
-		t.Fatalf("expected *RPCError, got %T: %v", err, err)
+		t.Fatalf("expected *client.RPCError, got %T: %v", err, err)
 	}
 	if rpcErr.Code != -32602 {
 		t.Errorf("Code = %d, want -32602", rpcErr.Code)
@@ -155,7 +161,7 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 
 func TestCall_MalformedJSON(t *testing.T) {
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		var req rpcRequest
+		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
 
 		w.Header().Set("Content-Type", "application/json")
@@ -168,12 +174,12 @@ func TestCall_MalformedJSON(t *testing.T) {
 		_, _ = w.Write([]byte("{not valid json"))
 	})
 
-	c, err := New(context.Background(), srv.URL, "tok")
+	c, err := client.New(t.Context(), srv.URL, "tok")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
-	_, err = c.Call(context.Background(), "host.get", nil)
+	_, err = c.Call(t.Context(), "host.get", nil)
 	if err == nil {
 		t.Fatal("expected error for malformed JSON, got nil")
 	}
@@ -181,7 +187,7 @@ func TestCall_MalformedJSON(t *testing.T) {
 
 func TestCall_HTTPNon2xx(t *testing.T) {
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
-		var req rpcRequest
+		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
 
 		if req.Method == "apiinfo.version" {
@@ -194,12 +200,12 @@ func TestCall_HTTPNon2xx(t *testing.T) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 	})
 
-	c, err := New(context.Background(), srv.URL, "tok")
+	c, err := client.New(t.Context(), srv.URL, "tok")
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
 
-	_, err = c.Call(context.Background(), "host.get", nil)
+	_, err = c.Call(t.Context(), "host.get", nil)
 	if err == nil {
 		t.Fatal("expected error for HTTP 500, got nil")
 	}
