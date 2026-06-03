@@ -16,7 +16,7 @@ fmt:
 	gofmt -s -w -e .
 
 unit-tests:
-	go test -v -cover -timeout=120s -parallel=10 ./...
+	go test -v -coverprofile=coverage.out -covermode=atomic -timeout=120s -parallel=10 ./...
 
 testacc-up:
 	docker compose up -d
@@ -24,7 +24,7 @@ testacc-up:
 
 testacc:
 	@set -a && [ -f .testacc.env ] && . ./.testacc.env; set +a && \
-		TF_ACC=1 go test -v -cover -timeout 120m ./...
+		TF_ACC=1 go test -v -coverprofile=coverage.out -covermode=atomic -timeout 120m ./...
 
 testacc-down:
 	docker compose down -v
