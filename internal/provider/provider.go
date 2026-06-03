@@ -127,7 +127,10 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 	return []func() resource.Resource{
 		NewHostGroupResource,
 		NewTemplateGroupResource,
-		NewMediaTypeResource,
+		NewMediaTypeEmailResource,
+		NewMediaTypeSMSResource,
+		NewMediaTypeScriptResource,
+		NewMediaTypeWebhookResource,
 	}
 }
 
@@ -135,7 +138,10 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 	return []func() datasource.DataSource{
 		NewHostGroupDataSource,
 		NewTemplateGroupDataSource,
-		NewMediaTypeDataSource,
+		NewMediaTypeEmailDataSource,
+		NewMediaTypeSMSDataSource,
+		NewMediaTypeScriptDataSource,
+		NewMediaTypeWebhookDataSource,
 	}
 }
 

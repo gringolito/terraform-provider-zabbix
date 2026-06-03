@@ -8,8 +8,8 @@ import (
 
 const (
 	MediaTypeTypeEmail   = 0
-	MediaTypeTypeSMS     = 1
-	MediaTypeTypeScript  = 2
+	MediaTypeTypeScript  = 1
+	MediaTypeTypeSMS     = 2
 	MediaTypeTypeWebhook = 4
 
 	MediaTypeStatusEnabled  = 0
