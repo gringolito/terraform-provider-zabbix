@@ -6,14 +6,20 @@ import (
 	"fmt"
 )
 
-const (
-	MediaTypeTypeEmail   = 0
-	MediaTypeTypeScript  = 1
-	MediaTypeTypeSMS     = 2
-	MediaTypeTypeWebhook = 4
+type MediaTypeType int
 
-	MediaTypeStatusEnabled  = 0
-	MediaTypeStatusDisabled = 1
+const (
+	MediaTypeTypeEmail   MediaTypeType = 0
+	MediaTypeTypeScript  MediaTypeType = 1
+	MediaTypeTypeSMS     MediaTypeType = 2
+	MediaTypeTypeWebhook MediaTypeType = 4
+)
+
+type MediaTypeStatus int
+
+const (
+	MediaTypeStatusEnabled  MediaTypeStatus = 0
+	MediaTypeStatusDisabled MediaTypeStatus = 1
 )
 
 // MediaTypeParameter is a key/value pair passed to a webhook media type.
@@ -34,14 +40,14 @@ type MessageTemplate struct {
 // MediaType represents a Zabbix media type.
 // Zabbix 7.0 JSON-RPC returns integer fields as JSON strings.
 type MediaType struct {
-	ID              string `json:"mediatypeid"`
-	Name            string `json:"name"`
-	Type            int    `json:"type,string"`
-	Status          int    `json:"status,string"`
-	Description     string `json:"description"`
-	MaxSessions     int    `json:"maxsessions,string"`
-	MaxAttempts     int    `json:"maxattempts,string"`
-	AttemptInterval string `json:"attempt_interval"`
+	ID              string          `json:"mediatypeid"`
+	Name            string          `json:"name"`
+	Type            MediaTypeType   `json:"type,string"`
+	Status          MediaTypeStatus `json:"status,string"`
+	Description     string          `json:"description"`
+	MaxSessions     int             `json:"maxsessions,string"`
+	MaxAttempts     int             `json:"maxattempts,string"`
+	AttemptInterval string          `json:"attempt_interval"`
 	// Email settings
 	SMTPServer         string `json:"smtp_server"`
 	SMTPPort           int    `json:"smtp_port,string"`

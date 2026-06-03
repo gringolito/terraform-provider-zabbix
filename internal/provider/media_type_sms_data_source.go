@@ -26,6 +26,8 @@ func (d *MediaTypeSMSDataSource) Metadata(_ context.Context, req datasource.Meta
 
 func (d *MediaTypeSMSDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	attrs := commonMediaTypeDataSourceAttributes()
+	// SMS always has max_sessions=1 (API-enforced); omit to avoid misleading the reader.
+	delete(attrs, "max_sessions")
 	attrs["gsm_modem"] = dschema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "Serial device path of the GSM modem.",

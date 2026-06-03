@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -24,8 +26,8 @@ var (
 		"value": types.StringType,
 	}
 	msgTemplateAttrTypes = map[string]attr.Type{
-		"eventsource": types.Int64Type,
-		"recovery":    types.Int64Type,
+		"eventsource": types.StringType,
+		"recovery":    types.StringType,
 		"subject":     types.StringType,
 		"message":     types.StringType,
 	}
@@ -48,8 +50,8 @@ type MediaTypeBaseModel struct {
 }
 
 type MessageTemplateModel struct {
-	EventSource types.Int64  `tfsdk:"eventsource"`
-	Recovery    types.Int64  `tfsdk:"recovery"`
+	EventSource types.String `tfsdk:"eventsource"`
+	Recovery    types.String `tfsdk:"recovery"`
 	Subject     types.String `tfsdk:"subject"`
 	Message     types.String `tfsdk:"message"`
 }
@@ -62,13 +64,42 @@ type WebhookParameterModel struct {
 // --- Shared status maps ---
 
 var (
-	mediaTypeStatusMap = map[string]int{
+	mediaTypeStatusMap = map[string]client.MediaTypeStatus{
 		"enabled":  client.MediaTypeStatusEnabled,
 		"disabled": client.MediaTypeStatusDisabled,
 	}
-	mediaTypeStatusReverseMap = map[int]string{
+	mediaTypeStatusReverseMap = map[client.MediaTypeStatus]string{
 		client.MediaTypeStatusEnabled:  "enabled",
 		client.MediaTypeStatusDisabled: "disabled",
+	}
+)
+
+// --- Shared eventsource/recovery maps ---
+
+var (
+	eventsourceMap = map[string]int{
+		"trigger":          0,
+		"discovery":        1,
+		"autoregistration": 2,
+		"internal":         3,
+		"service":          4,
+	}
+	eventsourceReverseMap = map[int]string{
+		0: "trigger",
+		1: "discovery",
+		2: "autoregistration",
+		3: "internal",
+		4: "service",
+	}
+	recoveryMap = map[string]int{
+		"operation": 0,
+		"recovery":  1,
+		"update":    2,
+	}
+	recoveryReverseMap = map[int]string{
+		0: "operation",
+		1: "recovery",
+		2: "update",
 	}
 )
 
@@ -105,13 +136,19 @@ func commonMediaTypeResourceAttributes() map[string]rschema.Attribute {
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(1),
-			MarkdownDescription: "Maximum number of concurrent sessions. Defaults to `1`.",
+			MarkdownDescription: "Maximum number of concurrent sessions (1–100). Defaults to `1`.",
+			Validators: []validator.Int64{
+				int64validator.Between(1, 100),
+			},
 		},
 		"max_attempts": rschema.Int64Attribute{
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(3),
-			MarkdownDescription: "Maximum number of delivery attempts. Defaults to `3`.",
+			MarkdownDescription: "Maximum number of delivery attempts (1–10). Defaults to `3`.",
+			Validators: []validator.Int64{
+				int64validator.Between(1, 10),
+			},
 		},
 		"attempt_interval": rschema.StringAttribute{
 			Optional:            true,
@@ -125,13 +162,13 @@ func commonMediaTypeResourceAttributes() map[string]rschema.Attribute {
 			MarkdownDescription: "Per-event-source notification templates. If unset, Zabbix defaults are used.",
 			NestedObject: rschema.NestedAttributeObject{
 				Attributes: map[string]rschema.Attribute{
-					"eventsource": rschema.Int64Attribute{
+					"eventsource": rschema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: "Event source: 0=triggers, 1=discovery, 2=autoregistration, 3=internal, 4=services.",
+						MarkdownDescription: "Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.",
 					},
-					"recovery": rschema.Int64Attribute{
+					"recovery": rschema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: "Recovery: 0=operations, 1=recovery, 2=update.",
+						MarkdownDescription: "Recovery mode. One of: `operation`, `recovery`, `update`.",
 					},
 					"subject": rschema.StringAttribute{
 						Required:            true,
@@ -186,8 +223,8 @@ func commonMediaTypeDataSourceAttributes() map[string]dschema.Attribute {
 			MarkdownDescription: "Per-event-source notification templates.",
 			NestedObject: dschema.NestedAttributeObject{
 				Attributes: map[string]dschema.Attribute{
-					"eventsource": dschema.Int64Attribute{Computed: true, MarkdownDescription: "Event source type."},
-					"recovery":    dschema.Int64Attribute{Computed: true, MarkdownDescription: "Recovery type."},
+					"eventsource": dschema.StringAttribute{Computed: true, MarkdownDescription: "Event source type."},
+					"recovery":    dschema.StringAttribute{Computed: true, MarkdownDescription: "Recovery type."},
 					"subject":     dschema.StringAttribute{Computed: true, MarkdownDescription: "Message subject."},
 					"message":     dschema.StringAttribute{Computed: true, MarkdownDescription: "Message body."},
 				},
@@ -217,8 +254,8 @@ func mediaTypeBaseFromModel(ctx context.Context, m MediaTypeBaseModel) (client.M
 			tmpl := make([]client.MessageTemplate, len(tmplModels))
 			for i, t := range tmplModels {
 				tmpl[i] = client.MessageTemplate{
-					EventSource: int(t.EventSource.ValueInt64()),
-					Recovery:    int(t.Recovery.ValueInt64()),
+					EventSource: eventsourceMap[t.EventSource.ValueString()],
+					Recovery:    recoveryMap[t.Recovery.ValueString()],
 					Subject:     t.Subject.ValueString(),
 					Message:     t.Message.ValueString(),
 				}
@@ -245,9 +282,19 @@ func mediaTypeBaseToModel(ctx context.Context, mt *client.MediaType, m *MediaTyp
 		if len(mt.MessageTemplates) > 0 {
 			tmplModels := make([]MessageTemplateModel, len(mt.MessageTemplates))
 			for i, t := range mt.MessageTemplates {
+				src, ok := eventsourceReverseMap[t.EventSource]
+				if !ok {
+					diags.AddError("Unknown eventsource", fmt.Sprintf("Unrecognized eventsource value %d from API.", t.EventSource))
+					return diags
+				}
+				rec, ok := recoveryReverseMap[t.Recovery]
+				if !ok {
+					diags.AddError("Unknown recovery", fmt.Sprintf("Unrecognized recovery value %d from API.", t.Recovery))
+					return diags
+				}
 				tmplModels[i] = MessageTemplateModel{
-					EventSource: types.Int64Value(int64(t.EventSource)),
-					Recovery:    types.Int64Value(int64(t.Recovery)),
+					EventSource: types.StringValue(src),
+					Recovery:    types.StringValue(rec),
 					Subject:     types.StringValue(t.Subject),
 					Message:     types.StringValue(t.Message),
 				}

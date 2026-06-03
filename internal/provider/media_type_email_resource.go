@@ -105,10 +105,8 @@ func (r *MediaTypeEmailResource) Schema(_ context.Context, _ resource.SchemaRequ
 	}
 	attrs["password"] = rschema.StringAttribute{
 		Optional:            true,
-		Computed:            true,
-		Sensitive:           true,
-		Default:             stringdefault.StaticString(""),
-		MarkdownDescription: "SMTP authentication password. Sensitive; not returned by the API after creation.",
+		WriteOnly:           true,
+		MarkdownDescription: "SMTP authentication password. Write-only; not stored in state or returned by the API.",
 	}
 	attrs["content_type"] = rschema.StringAttribute{
 		Optional:            true,
@@ -142,9 +140,6 @@ func (r *MediaTypeEmailResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	// Save password before the read-after-write clears it (API does not echo passwd).
-	savedPassword := data.Password
-
 	mt, diags := emailModelToMediaType(ctx, data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -172,7 +167,6 @@ func (r *MediaTypeEmailResource) Create(ctx context.Context, req resource.Create
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	data.Password = savedPassword
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -194,12 +188,10 @@ func (r *MediaTypeEmailResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	savedPassword := data.Password
 	resp.Diagnostics.Append(mediaTypeToEmailModel(ctx, mt, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	data.Password = savedPassword
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -210,19 +202,6 @@ func (r *MediaTypeEmailResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	var state MediaTypeEmailModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Preserve password from state; plan has the user-declared value but we need
-	// the previously stored value if the user hasn't changed it.
-	if data.Password.IsNull() || data.Password.ValueString() == "" {
-		data.Password = state.Password
-	}
-	savedPassword := data.Password
 
 	mt, diags := emailModelToMediaType(ctx, data)
 	resp.Diagnostics.Append(diags...)
@@ -249,7 +228,6 @@ func (r *MediaTypeEmailResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	data.Password = savedPassword
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -287,8 +265,7 @@ func emailModelToMediaType(ctx context.Context, m MediaTypeEmailModel) (client.M
 }
 
 // mediaTypeToEmailModel populates the email model from an API response.
-// Password is set to "" — callers must restore it from prior state or plan since
-// the API does not return it.
+// Password is not set here — it is write-only and not returned by the API.
 func mediaTypeToEmailModel(ctx context.Context, mt *client.MediaType, m *MediaTypeEmailModel) diag.Diagnostics {
 	diags := mediaTypeBaseToModel(ctx, mt, &m.MediaTypeBaseModel)
 	m.SMTPServer = types.StringValue(mt.SMTPServer)
@@ -298,7 +275,6 @@ func mediaTypeToEmailModel(ctx context.Context, mt *client.MediaType, m *MediaTy
 	m.SMTPSecurity = types.StringValue(smtpSecurityReverseMap[mt.SMTPSecurity])
 	m.SMTPAuthentication = types.StringValue(smtpAuthReverseMap[mt.SMTPAuthentication])
 	m.Username = types.StringValue(mt.Username)
-	m.Password = types.StringValue("") // API does not return passwd
 	m.ContentType = types.StringValue(contentTypeReverseMap[mt.ContentType])
 	return diags
 }

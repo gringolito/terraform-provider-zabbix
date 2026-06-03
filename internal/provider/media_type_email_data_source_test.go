@@ -141,7 +141,7 @@ func buildMediaTypeEmailDataSourceConfig(t *testing.T, id, name string) tfsdk.Co
 	nullStr := tftypes.NewValue(tftypes.String, nil)
 	nullNum := tftypes.NewValue(tftypes.Number, nil)
 	msgTemplateType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
-		"eventsource": tftypes.Number, "recovery": tftypes.Number, "subject": tftypes.String, "message": tftypes.String,
+		"eventsource": tftypes.String, "recovery": tftypes.String, "subject": tftypes.String, "message": tftypes.String,
 	}}
 
 	objType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
@@ -151,7 +151,7 @@ func buildMediaTypeEmailDataSourceConfig(t *testing.T, id, name string) tfsdk.Co
 		"smtp_server": tftypes.String, "smtp_port": tftypes.Number,
 		"smtp_helo": tftypes.String, "smtp_email": tftypes.String,
 		"smtp_security": tftypes.String, "smtp_authentication": tftypes.String,
-		"username": tftypes.String, "password": tftypes.String, "content_type": tftypes.String,
+		"username": tftypes.String, "content_type": tftypes.String,
 		"message_templates": tftypes.List{ElementType: msgTemplateType},
 	}}
 
@@ -166,7 +166,7 @@ func buildMediaTypeEmailDataSourceConfig(t *testing.T, id, name string) tfsdk.Co
 			"smtp_server": nullStr, "smtp_port": nullNum,
 			"smtp_helo": nullStr, "smtp_email": nullStr,
 			"smtp_security": nullStr, "smtp_authentication": nullStr,
-			"username": nullStr, "password": nullStr, "content_type": nullStr,
+			"username": nullStr, "content_type": nullStr,
 			"message_templates": tftypes.NewValue(tftypes.List{ElementType: msgTemplateType}, nil),
 		}),
 		Schema: schemaResp.Schema,

@@ -23,9 +23,16 @@ type MediaTypeSMSResource struct {
 	client client.Client
 }
 
+// MediaTypeSMSModel is a flat struct without max_sessions — Zabbix enforces maxsessions=1 for SMS.
 type MediaTypeSMSModel struct {
-	MediaTypeBaseModel
-	GSMModem types.String `tfsdk:"gsm_modem"`
+	ID               types.String `tfsdk:"id"`
+	Name             types.String `tfsdk:"name"`
+	Status           types.String `tfsdk:"status"`
+	Description      types.String `tfsdk:"description"`
+	MaxAttempts      types.Int64  `tfsdk:"max_attempts"`
+	AttemptInterval  types.String `tfsdk:"attempt_interval"`
+	MessageTemplates types.List   `tfsdk:"message_templates"`
+	GSMModem         types.String `tfsdk:"gsm_modem"`
 }
 
 func (r *MediaTypeSMSResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -34,12 +41,14 @@ func (r *MediaTypeSMSResource) Metadata(_ context.Context, req resource.Metadata
 
 func (r *MediaTypeSMSResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	attrs := commonMediaTypeResourceAttributes()
+	// SMS enforces max_sessions=1 at the API level; remove it from the schema.
+	delete(attrs, "max_sessions")
 	attrs["gsm_modem"] = rschema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "Serial device path of the GSM modem (e.g. `/dev/ttyS0`).",
 	}
 	resp.Schema = rschema.Schema{
-		MarkdownDescription: "Manages a Zabbix SMS media type (notification channel via GSM modem).",
+		MarkdownDescription: "Manages a Zabbix SMS media type (notification channel via GSM modem). The `max_sessions` field is not configurable for SMS — Zabbix enforces a value of `1`.",
 		Attributes:          attrs,
 	}
 }
@@ -172,14 +181,33 @@ func (r *MediaTypeSMSResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func smsModelToMediaType(ctx context.Context, m MediaTypeSMSModel) (client.MediaType, diag.Diagnostics) {
-	mt, diags := mediaTypeBaseFromModel(ctx, m.MediaTypeBaseModel)
+	base := MediaTypeBaseModel{
+		ID:               m.ID,
+		Name:             m.Name,
+		Status:           m.Status,
+		Description:      m.Description,
+		MaxSessions:      types.Int64Value(1),
+		MaxAttempts:      m.MaxAttempts,
+		AttemptInterval:  m.AttemptInterval,
+		MessageTemplates: m.MessageTemplates,
+	}
+	mt, diags := mediaTypeBaseFromModel(ctx, base)
 	mt.Type = client.MediaTypeTypeSMS
 	mt.GSMModem = m.GSMModem.ValueString()
 	return mt, diags
 }
 
 func mediaTypeToSMSModel(ctx context.Context, mt *client.MediaType, m *MediaTypeSMSModel) diag.Diagnostics {
-	diags := mediaTypeBaseToModel(ctx, mt, &m.MediaTypeBaseModel)
+	base := &MediaTypeBaseModel{
+		MessageTemplates: m.MessageTemplates,
+	}
+	diags := mediaTypeBaseToModel(ctx, mt, base)
+	m.Name = base.Name
+	m.Status = base.Status
+	m.Description = base.Description
+	m.MaxAttempts = base.MaxAttempts
+	m.AttemptInterval = base.AttemptInterval
+	m.MessageTemplates = base.MessageTemplates
 	m.GSMModem = types.StringValue(mt.GSMModem)
 	return diags
 }

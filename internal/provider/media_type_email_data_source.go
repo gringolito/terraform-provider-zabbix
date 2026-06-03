@@ -7,6 +7,7 @@ import (
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -18,6 +19,20 @@ func NewMediaTypeEmailDataSource() datasource.DataSource {
 
 type MediaTypeEmailDataSource struct {
 	client client.Client
+}
+
+// MediaTypeEmailDataSourceModel is the data source model for the email media type.
+// It does not include password — the API never returns it.
+type MediaTypeEmailDataSourceModel struct {
+	MediaTypeBaseModel
+	SMTPServer         types.String `tfsdk:"smtp_server"`
+	SMTPPort           types.Int64  `tfsdk:"smtp_port"`
+	SMTPHelo           types.String `tfsdk:"smtp_helo"`
+	SMTPEmail          types.String `tfsdk:"smtp_email"`
+	SMTPSecurity       types.String `tfsdk:"smtp_security"`
+	SMTPAuthentication types.String `tfsdk:"smtp_authentication"`
+	Username           types.String `tfsdk:"username"`
+	ContentType        types.String `tfsdk:"content_type"`
 }
 
 func (d *MediaTypeEmailDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -33,11 +48,6 @@ func (d *MediaTypeEmailDataSource) Schema(_ context.Context, _ datasource.Schema
 	attrs["smtp_security"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP connection security."}
 	attrs["smtp_authentication"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP authentication method."}
 	attrs["username"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP authentication username."}
-	attrs["password"] = dschema.StringAttribute{
-		Computed:            true,
-		Sensitive:           true,
-		MarkdownDescription: "SMTP authentication password. Always empty — the API does not return passwords.",
-	}
 	attrs["content_type"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "Email content type."}
 	resp.Schema = dschema.Schema{
 		MarkdownDescription: "Fetches a Zabbix email media type by `id` or `name`. Exactly one of `id` or `name` must be provided.",
@@ -59,7 +69,7 @@ func (d *MediaTypeEmailDataSource) Configure(_ context.Context, req datasource.C
 }
 
 func (d *MediaTypeEmailDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data MediaTypeEmailModel
+	var data MediaTypeEmailDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -75,10 +85,23 @@ func (d *MediaTypeEmailDataSource) Read(ctx context.Context, req datasource.Read
 	data.MessageTemplates = types.ListValueMust(types.ObjectType{AttrTypes: msgTemplateAttrTypes}, nil)
 	data.ID = types.StringValue(mt.ID)
 
-	resp.Diagnostics.Append(mediaTypeToEmailModel(ctx, mt, &data)...)
+	resp.Diagnostics.Append(mediaTypeToEmailDataSourceModel(ctx, mt, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func mediaTypeToEmailDataSourceModel(ctx context.Context, mt *client.MediaType, m *MediaTypeEmailDataSourceModel) diag.Diagnostics {
+	diags := mediaTypeBaseToModel(ctx, mt, &m.MediaTypeBaseModel)
+	m.SMTPServer = types.StringValue(mt.SMTPServer)
+	m.SMTPPort = types.Int64Value(int64(mt.SMTPPort))
+	m.SMTPHelo = types.StringValue(mt.SMTPHelo)
+	m.SMTPEmail = types.StringValue(mt.SMTPEmail)
+	m.SMTPSecurity = types.StringValue(smtpSecurityReverseMap[mt.SMTPSecurity])
+	m.SMTPAuthentication = types.StringValue(smtpAuthReverseMap[mt.SMTPAuthentication])
+	m.Username = types.StringValue(mt.Username)
+	m.ContentType = types.StringValue(contentTypeReverseMap[mt.ContentType])
+	return diags
 }

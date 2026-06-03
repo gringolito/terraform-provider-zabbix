@@ -40,7 +40,7 @@ func TestAccMediaTypeWebhookDataSource_ByID(t *testing.T) {
 // ---- Unit tests ----
 
 func TestMediaTypeWebhookDataSource_MultipleMatchError(t *testing.T) {
-	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String, "value": tftypes.String}}
+	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String}}
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"mediatypeid": "1", "name": "Webhook", "type": "4", "status": "0", "maxsessions": "1", "maxattempts": "3", "attempt_interval": "10s", "description": "", "script": "", "timeout": "30s", "process_tags": "0", "show_event_menu": "0", "event_menu_url": "", "event_menu_name": "", "parameters": []map[string]any{}, "message_templates": []map[string]any{}},
@@ -68,7 +68,7 @@ func TestMediaTypeWebhookDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestMediaTypeWebhookDataSource_MissingKeyError(t *testing.T) {
-	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String, "value": tftypes.String}}
+	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String}}
 	ds := newFakeMediaTypeWebhookDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildMediaTypeWebhookDataSourceConfig(t, webhookParam, "", "")}
 	resp := &datasource.ReadResponse{}
@@ -106,7 +106,7 @@ func buildMediaTypeWebhookDataSourceConfig(t *testing.T, webhookParam tftypes.Ob
 	nullStr := tftypes.NewValue(tftypes.String, nil)
 	nullNum := tftypes.NewValue(tftypes.Number, nil)
 	msgTemplateType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
-		"eventsource": tftypes.Number, "recovery": tftypes.Number, "subject": tftypes.String, "message": tftypes.String,
+		"eventsource": tftypes.String, "recovery": tftypes.String, "subject": tftypes.String, "message": tftypes.String,
 	}}
 
 	objType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{

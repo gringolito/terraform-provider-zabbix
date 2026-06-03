@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -18,6 +20,28 @@ func NewMediaTypeWebhookDataSource() datasource.DataSource {
 
 type MediaTypeWebhookDataSource struct {
 	client client.Client
+}
+
+var webhookParamDSAttrTypes = map[string]attr.Type{
+	"name": types.StringType,
+}
+
+// WebhookParameterDataSourceModel holds only the parameter name for data source reads.
+// Parameter values are never returned by the Zabbix API.
+type WebhookParameterDataSourceModel struct {
+	Name types.String `tfsdk:"name"`
+}
+
+// MediaTypeWebhookDataSourceModel is the data source model for the webhook media type.
+type MediaTypeWebhookDataSourceModel struct {
+	MediaTypeBaseModel
+	Script        types.String `tfsdk:"script"`
+	Timeout       types.String `tfsdk:"timeout"`
+	ProcessTags   types.Bool   `tfsdk:"process_tags"`
+	ShowEventMenu types.Bool   `tfsdk:"show_event_menu"`
+	EventMenuURL  types.String `tfsdk:"event_menu_url"`
+	EventMenuName types.String `tfsdk:"event_menu_name"`
+	Parameters    types.List   `tfsdk:"parameters"`
 }
 
 func (d *MediaTypeWebhookDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -34,11 +58,10 @@ func (d *MediaTypeWebhookDataSource) Schema(_ context.Context, _ datasource.Sche
 	attrs["event_menu_name"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "Label for the event menu entry."}
 	attrs["parameters"] = dschema.ListNestedAttribute{
 		Computed:            true,
-		MarkdownDescription: "Key/value pairs passed to the webhook script. Parameter values are always empty — the API does not return sensitive values.",
+		MarkdownDescription: "Key names of the parameters passed to the webhook script. Parameter values are not returned by the API.",
 		NestedObject: dschema.NestedAttributeObject{
 			Attributes: map[string]dschema.Attribute{
-				"name":  dschema.StringAttribute{Computed: true, MarkdownDescription: "Parameter name."},
-				"value": dschema.StringAttribute{Computed: true, Sensitive: true, MarkdownDescription: "Parameter value. Always empty — the API does not return sensitive values."},
+				"name": dschema.StringAttribute{Computed: true, MarkdownDescription: "Parameter name."},
 			},
 		},
 	}
@@ -62,7 +85,7 @@ func (d *MediaTypeWebhookDataSource) Configure(_ context.Context, req datasource
 }
 
 func (d *MediaTypeWebhookDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data MediaTypeWebhookModel
+	var data MediaTypeWebhookDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -77,10 +100,31 @@ func (d *MediaTypeWebhookDataSource) Read(ctx context.Context, req datasource.Re
 	data.MessageTemplates = types.ListValueMust(types.ObjectType{AttrTypes: msgTemplateAttrTypes}, nil)
 	data.ID = types.StringValue(mt.ID)
 
-	resp.Diagnostics.Append(mediaTypeToWebhookModel(ctx, mt, &data)...)
+	resp.Diagnostics.Append(mediaTypeToWebhookDataSourceModel(ctx, mt, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func mediaTypeToWebhookDataSourceModel(ctx context.Context, mt *client.MediaType, m *MediaTypeWebhookDataSourceModel) diag.Diagnostics {
+	diags := mediaTypeBaseToModel(ctx, mt, &m.MediaTypeBaseModel)
+	m.Script = types.StringValue(mt.Script)
+	m.Timeout = types.StringValue(mt.Timeout)
+	m.ProcessTags = types.BoolValue(intToBool(mt.ProcessTags))
+	m.ShowEventMenu = types.BoolValue(intToBool(mt.ShowEventMenu))
+	m.EventMenuURL = types.StringValue(mt.EventMenuURL)
+	m.EventMenuName = types.StringValue(mt.EventMenuName)
+
+	paramModels := make([]WebhookParameterDataSourceModel, len(mt.Parameters))
+	for i, p := range mt.Parameters {
+		paramModels[i] = WebhookParameterDataSourceModel{
+			Name: types.StringValue(p.Name),
+		}
+	}
+	var d diag.Diagnostics
+	m.Parameters, d = types.ListValueFrom(ctx, types.ObjectType{AttrTypes: webhookParamDSAttrTypes}, paramModels)
+	diags.Append(d...)
+	return diags
 }
