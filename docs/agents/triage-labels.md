@@ -1,17 +1,10 @@
 # Triage Labels
 
-The skills speak in terms of five canonical triage roles. This file maps those roles to the actual label strings used in this repo's issue tracker.
+This repo uses the `github-backlog-management-skill`'s own label classification system rather than the canonical five triage roles. Do not apply `needs-triage`, `ready-for-agent`, etc. — use the labels defined by the skill instead.
 
-| Label in mattpocock/skills | Label in our tracker | Meaning                                  |
-| -------------------------- | -------------------- | ---------------------------------------- |
-| `needs-triage`             | `needs-triage`       | Maintainer needs to evaluate this issue  |
-| `needs-info`               | `needs-info`         | Waiting on reporter for more information |
-| `ready-for-agent`          | `ready-for-agent`    | Fully specified, ready for an AFK agent  |
-| `ready-for-human`          | `ready-for-human`    | Requires human implementation            |
-| `wontfix`                  | `wontfix`            | Will not be actioned                     |
+## Label catalog
 
-When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
-
-Edit the right-hand column to match whatever vocabulary you actually use.
-
-*DO NOT USE* this for instance until I figure out how to pair with the `github-backlog-management` plugin.
+- **Type**: `type:feature`, `type:bug`, `type:security`, `type:performance`, `type:dx`, `type:tech-debt`, `type:reliability`, `type:compliance`, `type:spike`, `type:external-blocker`
+- **Priority**: `priority:P0`, `priority:P1`, `priority:P2`, `priority:P3`
+- **Effort**: `effort:XS`, `effort:S`, `effort:M`, `effort:L`, `effort:XL`
+- **Special**: `needs-clarification`
