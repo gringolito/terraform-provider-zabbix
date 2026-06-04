@@ -34,6 +34,6 @@ data "zabbix_user_group" "by_name" {
 
 ### Read-Only
 
-- `debug_mode` (Number) Debug mode: `0` = disabled, `1` = enabled.
-- `gui_access` (Number) Frontend authentication method: `0` = system default, `1` = internal, `2` = disabled.
-- `users_status` (Number) Status of the users in this group: `0` = enabled, `1` = disabled.
+- `debug_mode` (String) Debug mode for the group: `disabled` or `enabled`.
+- `gui_access` (String) Frontend authentication method: `system_default`, `internal`, or `disabled`.
+- `users_status` (String) Status of the users in this group: `enabled` or `disabled`.

@@ -8,14 +8,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ resource.Resource = &UserGroupResource{}
 var _ resource.ResourceWithImportState = &UserGroupResource{}
+
+var (
+	guiAccessMap = map[string]int64{
+		"system_default": 0, "internal": 1, "disabled": 2,
+	}
+	guiAccessReverseMap = map[int64]string{
+		0: "system_default", 1: "internal", 2: "disabled",
+	}
+	debugModeMap = map[string]int64{
+		"disabled": 0, "enabled": 1,
+	}
+	debugModeReverseMap = map[int64]string{
+		0: "disabled", 1: "enabled",
+	}
+	usersStatusMap = map[string]int64{
+		"enabled": 0, "disabled": 1,
+	}
+	usersStatusReverseMap = map[int64]string{
+		0: "enabled", 1: "disabled",
+	}
+)
 
 func NewUserGroupResource() resource.Resource {
 	return &UserGroupResource{}
@@ -28,9 +49,9 @@ type UserGroupResource struct {
 type UserGroupResourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
-	GUIAccess   types.Int64  `tfsdk:"gui_access"`
-	DebugMode   types.Int64  `tfsdk:"debug_mode"`
-	UsersStatus types.Int64  `tfsdk:"users_status"`
+	GUIAccess   types.String `tfsdk:"gui_access"`
+	DebugMode   types.String `tfsdk:"debug_mode"`
+	UsersStatus types.String `tfsdk:"users_status"`
 }
 
 func (r *UserGroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -52,23 +73,23 @@ func (r *UserGroupResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Required:            true,
 				MarkdownDescription: "Display name of the user group. Must be unique within Zabbix.",
 			},
-			"gui_access": schema.Int64Attribute{
+			"gui_access": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Default:             int64default.StaticInt64(0),
-				MarkdownDescription: "Frontend authentication method: `0` = system default, `1` = internal, `2` = disabled. Defaults to `0`.",
+				Default:             stringdefault.StaticString("system_default"),
+				MarkdownDescription: "Frontend authentication method. One of: `system_default`, `internal`, `disabled`. Defaults to `system_default`.",
 			},
-			"debug_mode": schema.Int64Attribute{
+			"debug_mode": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Default:             int64default.StaticInt64(0),
-				MarkdownDescription: "Debug mode: `0` = disabled, `1` = enabled. Defaults to `0`.",
+				Default:             stringdefault.StaticString("disabled"),
+				MarkdownDescription: "Debug mode for the group. One of: `disabled`, `enabled`. Defaults to `disabled`.",
 			},
-			"users_status": schema.Int64Attribute{
+			"users_status": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Default:             int64default.StaticInt64(0),
-				MarkdownDescription: "Status of the users in this group: `0` = enabled, `1` = disabled. Defaults to `0`.",
+				Default:             stringdefault.StaticString("enabled"),
+				MarkdownDescription: "Status of the users in this group. One of: `enabled`, `disabled`. Defaults to `enabled`.",
 			},
 		},
 	}
@@ -98,9 +119,9 @@ func (r *UserGroupResource) Create(ctx context.Context, req resource.CreateReque
 
 	ug := client.UserGroup{
 		Name:        data.Name.ValueString(),
-		GUIAccess:   data.GUIAccess.ValueInt64(),
-		DebugMode:   data.DebugMode.ValueInt64(),
-		UsersStatus: data.UsersStatus.ValueInt64(),
+		GUIAccess:   guiAccessMap[data.GUIAccess.ValueString()],
+		DebugMode:   debugModeMap[data.DebugMode.ValueString()],
+		UsersStatus: usersStatusMap[data.UsersStatus.ValueString()],
 	}
 	id, err := client.UserGroupCreate(ctx, r.client, ug)
 	if err != nil {
@@ -128,9 +149,9 @@ func (r *UserGroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	data.Name = types.StringValue(ug.Name)
-	data.GUIAccess = types.Int64Value(ug.GUIAccess)
-	data.DebugMode = types.Int64Value(ug.DebugMode)
-	data.UsersStatus = types.Int64Value(ug.UsersStatus)
+	data.GUIAccess = types.StringValue(guiAccessReverseMap[ug.GUIAccess])
+	data.DebugMode = types.StringValue(debugModeReverseMap[ug.DebugMode])
+	data.UsersStatus = types.StringValue(usersStatusReverseMap[ug.UsersStatus])
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -144,9 +165,9 @@ func (r *UserGroupResource) Update(ctx context.Context, req resource.UpdateReque
 	ug := client.UserGroup{
 		ID:          data.ID.ValueString(),
 		Name:        data.Name.ValueString(),
-		GUIAccess:   data.GUIAccess.ValueInt64(),
-		DebugMode:   data.DebugMode.ValueInt64(),
-		UsersStatus: data.UsersStatus.ValueInt64(),
+		GUIAccess:   guiAccessMap[data.GUIAccess.ValueString()],
+		DebugMode:   debugModeMap[data.DebugMode.ValueString()],
+		UsersStatus: usersStatusMap[data.UsersStatus.ValueString()],
 	}
 	if err := client.UserGroupUpdate(ctx, r.client, ug); err != nil {
 		resp.Diagnostics.AddError("Error updating user group", err.Error())

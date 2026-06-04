@@ -162,16 +162,16 @@ func buildUserGroupDataSourceConfig(t *testing.T, id, name string) tfsdk.Config 
 			AttributeTypes: map[string]tftypes.Type{
 				"id":           tftypes.String,
 				"name":         tftypes.String,
-				"gui_access":   tftypes.Number,
-				"debug_mode":   tftypes.Number,
-				"users_status": tftypes.Number,
+				"gui_access":   tftypes.String,
+				"debug_mode":   tftypes.String,
+				"users_status": tftypes.String,
 			},
 		}, map[string]tftypes.Value{
 			"id":           toVal(id),
 			"name":         toVal(name),
-			"gui_access":   tftypes.NewValue(tftypes.Number, nil),
-			"debug_mode":   tftypes.NewValue(tftypes.Number, nil),
-			"users_status": tftypes.NewValue(tftypes.Number, nil),
+			"gui_access":   tftypes.NewValue(tftypes.String, nil),
+			"debug_mode":   tftypes.NewValue(tftypes.String, nil),
+			"users_status": tftypes.NewValue(tftypes.String, nil),
 		}),
 		Schema: schemaResp.Schema,
 	}

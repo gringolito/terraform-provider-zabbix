@@ -23,9 +23,9 @@ type UserGroupDataSource struct {
 type UserGroupDataSourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
-	GUIAccess   types.Int64  `tfsdk:"gui_access"`
-	DebugMode   types.Int64  `tfsdk:"debug_mode"`
-	UsersStatus types.Int64  `tfsdk:"users_status"`
+	GUIAccess   types.String `tfsdk:"gui_access"`
+	DebugMode   types.String `tfsdk:"debug_mode"`
+	UsersStatus types.String `tfsdk:"users_status"`
 }
 
 func (d *UserGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -46,17 +46,17 @@ func (d *UserGroupDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 				Computed:            true,
 				MarkdownDescription: "Display name of the user group. One of `id` or `name` must be set.",
 			},
-			"gui_access": schema.Int64Attribute{
+			"gui_access": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Frontend authentication method: `0` = system default, `1` = internal, `2` = disabled.",
+				MarkdownDescription: "Frontend authentication method: `system_default`, `internal`, or `disabled`.",
 			},
-			"debug_mode": schema.Int64Attribute{
+			"debug_mode": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Debug mode: `0` = disabled, `1` = enabled.",
+				MarkdownDescription: "Debug mode for the group: `disabled` or `enabled`.",
 			},
-			"users_status": schema.Int64Attribute{
+			"users_status": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Status of the users in this group: `0` = enabled, `1` = disabled.",
+				MarkdownDescription: "Status of the users in this group: `enabled` or `disabled`.",
 			},
 		},
 	}
@@ -107,9 +107,9 @@ func (d *UserGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		}
 		data.ID = types.StringValue(ug.ID)
 		data.Name = types.StringValue(ug.Name)
-		data.GUIAccess = types.Int64Value(ug.GUIAccess)
-		data.DebugMode = types.Int64Value(ug.DebugMode)
-		data.UsersStatus = types.Int64Value(ug.UsersStatus)
+		data.GUIAccess = types.StringValue(guiAccessReverseMap[ug.GUIAccess])
+		data.DebugMode = types.StringValue(debugModeReverseMap[ug.DebugMode])
+		data.UsersStatus = types.StringValue(usersStatusReverseMap[ug.UsersStatus])
 	} else {
 		groups, err := client.UserGroupGetByName(ctx, d.client, data.Name.ValueString())
 		if err != nil {
@@ -126,9 +126,9 @@ func (d *UserGroupDataSource) Read(ctx context.Context, req datasource.ReadReque
 		case 1:
 			data.ID = types.StringValue(groups[0].ID)
 			data.Name = types.StringValue(groups[0].Name)
-			data.GUIAccess = types.Int64Value(groups[0].GUIAccess)
-			data.DebugMode = types.Int64Value(groups[0].DebugMode)
-			data.UsersStatus = types.Int64Value(groups[0].UsersStatus)
+			data.GUIAccess = types.StringValue(guiAccessReverseMap[groups[0].GUIAccess])
+			data.DebugMode = types.StringValue(debugModeReverseMap[groups[0].DebugMode])
+			data.UsersStatus = types.StringValue(usersStatusReverseMap[groups[0].UsersStatus])
 		default:
 			resp.Diagnostics.AddError(
 				"Multiple user groups found",

@@ -40,17 +40,17 @@ func TestAccUserGroupResource_CRUD(t *testing.T) {
 					statecheck.ExpectKnownValue(
 						"zabbix_user_group.test",
 						tfjsonpath.New("gui_access"),
-						knownvalue.Int64Exact(0),
+						knownvalue.StringExact("system_default"),
 					),
 					statecheck.ExpectKnownValue(
 						"zabbix_user_group.test",
 						tfjsonpath.New("debug_mode"),
-						knownvalue.Int64Exact(0),
+						knownvalue.StringExact("disabled"),
 					),
 					statecheck.ExpectKnownValue(
 						"zabbix_user_group.test",
 						tfjsonpath.New("users_status"),
-						knownvalue.Int64Exact(0),
+						knownvalue.StringExact("enabled"),
 					),
 				},
 			},

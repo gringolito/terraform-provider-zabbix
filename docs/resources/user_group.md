@@ -15,9 +15,9 @@ Manages a Zabbix user group.
 ```terraform
 resource "zabbix_user_group" "network_admins" {
   name         = "Network administrators"
-  gui_access   = 0
-  debug_mode   = 0
-  users_status = 0
+  gui_access   = "system_default"
+  debug_mode   = "disabled"
+  users_status = "enabled"
 }
 ```
 
@@ -30,9 +30,9 @@ resource "zabbix_user_group" "network_admins" {
 
 ### Optional
 
-- `debug_mode` (Number) Debug mode: `0` = disabled, `1` = enabled. Defaults to `0`.
-- `gui_access` (Number) Frontend authentication method: `0` = system default, `1` = internal, `2` = disabled. Defaults to `0`.
-- `users_status` (Number) Status of the users in this group: `0` = enabled, `1` = disabled. Defaults to `0`.
+- `debug_mode` (String) Debug mode for the group. One of: `disabled`, `enabled`. Defaults to `disabled`.
+- `gui_access` (String) Frontend authentication method. One of: `system_default`, `internal`, `disabled`. Defaults to `system_default`.
+- `users_status` (String) Status of the users in this group. One of: `enabled`, `disabled`. Defaults to `enabled`.
 
 ### Read-Only
 
