@@ -5,12 +5,14 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -78,18 +80,27 @@ func (r *UserGroupResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Computed:            true,
 				Default:             stringdefault.StaticString("system_default"),
 				MarkdownDescription: "Frontend authentication method. One of: `system_default`, `internal`, `disabled`. Defaults to `system_default`.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("system_default", "internal", "disabled"),
+				},
 			},
 			"debug_mode": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString("disabled"),
 				MarkdownDescription: "Debug mode for the group. One of: `disabled`, `enabled`. Defaults to `disabled`.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("disabled", "enabled"),
+				},
 			},
 			"users_status": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString("enabled"),
 				MarkdownDescription: "Status of the users in this group. One of: `enabled`, `disabled`. Defaults to `enabled`.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("enabled", "disabled"),
+				},
 			},
 		},
 	}

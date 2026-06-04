@@ -30,6 +30,5 @@ human-readable string is negligible.
 - String values follow the Zabbix UI/documentation vocabulary in snake_case (e.g.
   `"system_default"`, `"normal_password"`, `"ssl_tls"`). When the API name is a single word,
   it is used as-is (e.g. `"internal"`, `"disabled"`, `"enabled"`).
-- Valid values are enumerated in the attribute's `MarkdownDescription`. No plan-time
-  `stringvalidator.OneOf` is added — consistent with how the pattern was established in the
-  media type resources.
+- Valid values are rejected at plan time via `stringvalidator.OneOf`; `terraform validate`
+  catches typos before any API call is made.
