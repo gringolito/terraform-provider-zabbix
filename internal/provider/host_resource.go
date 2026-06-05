@@ -36,11 +36,6 @@ var (
 	hostInventoryModeReverseMap = map[int64]string{
 		-1: "disabled", 0: "manual", 1: "automatic",
 	}
-
-	hostTagAttrTypes = map[string]attr.Type{
-		"name":  types.StringType,
-		"value": types.StringType,
-	}
 )
 
 func NewHostResource() resource.Resource {
@@ -61,11 +56,6 @@ type HostResourceModel struct {
 	Tags          types.Set    `tfsdk:"tags"`
 	InventoryMode types.String `tfsdk:"inventory_mode"`
 	ProxyID       types.String `tfsdk:"proxy_id"`
-}
-
-type HostTagModel struct {
-	Name  types.String `tfsdk:"name"`
-	Value types.String `tfsdk:"value"`
 }
 
 func (r *HostResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -132,8 +122,10 @@ func (r *HostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 							MarkdownDescription: "Tag name.",
 						},
 						"value": schema.StringAttribute{
-							Required:            true,
-							MarkdownDescription: "Tag value.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+							MarkdownDescription: "Tag value. Defaults to `\"\"`.",
 						},
 					},
 				},
@@ -286,7 +278,7 @@ func modelToClientHost(ctx context.Context, data HostResourceModel) (client.Host
 		groups[i] = client.HostGroupRef{GroupID: id}
 	}
 
-	var tagModels []HostTagModel
+	var tagModels []TagModel
 	if !data.Tags.IsNull() && !data.Tags.IsUnknown() {
 		diags.Append(data.Tags.ElementsAs(ctx, &tagModels, false)...)
 		if diags.HasError() {
@@ -334,7 +326,7 @@ func clientHostToModel(_ context.Context, h client.Host, data *HostResourceModel
 
 	tagVals := make([]attr.Value, len(h.Tags))
 	for i, t := range h.Tags {
-		obj, d := types.ObjectValue(hostTagAttrTypes, map[string]attr.Value{
+		obj, d := types.ObjectValue(tagAttrTypes, map[string]attr.Value{
 			"name":  types.StringValue(t.Tag),
 			"value": types.StringValue(t.Value),
 		})
@@ -344,7 +336,7 @@ func clientHostToModel(_ context.Context, h client.Host, data *HostResourceModel
 		}
 		tagVals[i] = obj
 	}
-	tagSet, d := types.SetValue(types.ObjectType{AttrTypes: hostTagAttrTypes}, tagVals)
+	tagSet, d := types.SetValue(types.ObjectType{AttrTypes: tagAttrTypes}, tagVals)
 	diags.Append(d...)
 	if !d.HasError() {
 		data.Tags = tagSet

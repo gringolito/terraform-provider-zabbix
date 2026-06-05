@@ -60,4 +60,7 @@ resource "zabbix_host" "web_server" {
 Required:
 
 - `name` (String) Tag name.
-- `value` (String) Tag value.
+
+Optional:
+
+- `value` (String) Tag value. Defaults to `""`.
