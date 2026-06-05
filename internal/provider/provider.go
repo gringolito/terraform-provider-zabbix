@@ -133,6 +133,7 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 		NewMediaTypeScriptResource,
 		NewMediaTypeWebhookResource,
 		NewRoleResource,
+		NewHostResource,
 	}
 }
 
@@ -146,6 +147,7 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 		NewMediaTypeScriptDataSource,
 		NewMediaTypeWebhookDataSource,
 		NewRoleDataSource,
+		NewHostDataSource,
 	}
 }
 
