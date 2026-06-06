@@ -61,9 +61,9 @@ resource. Used when the API forbids creating the consumer without the link (a ho
 created without a host group).
 
 **Attachment resource**:
-An **optional** many-to-many relationship is modeled as a standalone resource (e.g.
-`zabbix_host_template_link`) backed by `*.massadd`/`*.massremove`. The same relationship is
-**never** also exposed as an inline list — mixing the two causes perpetual diffs.
+An **optional** many-to-many relationship is modeled as a standalone resource backed by
+`*.massadd`/`*.massremove`. The same relationship is **never** also exposed as an inline list
+— mixing the two causes perpetual diffs.
 
 **Owned child resource**:
 An **owned 1:N** entity with an independent CRUD endpoint and id but no independent identity
