@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -32,13 +31,12 @@ type TemplateResource struct {
 }
 
 type TemplateResourceModel struct {
-	ID                types.String `tfsdk:"id"`
-	Host              types.String `tfsdk:"host"`
-	Name              types.String `tfsdk:"name"`
-	Description       types.String `tfsdk:"description"`
-	TemplateGroupIDs  types.Set    `tfsdk:"template_group_ids"`
-	Macros            types.Map    `tfsdk:"macros"`
-	LinkedTemplateIDs types.Set    `tfsdk:"linked_template_ids"`
+	ID               types.String `tfsdk:"id"`
+	Host             types.String `tfsdk:"host"`
+	Name             types.String `tfsdk:"name"`
+	Description      types.String `tfsdk:"description"`
+	TemplateGroupIDs types.Set    `tfsdk:"template_group_ids"`
+	Macros           types.Map    `tfsdk:"macros"`
 }
 
 func (r *TemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -47,7 +45,6 @@ func (r *TemplateResource) Metadata(_ context.Context, req resource.MetadataRequ
 
 func (r *TemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	emptyMap, _ := types.MapValue(types.StringType, map[string]attr.Value{})
-	emptySet, _ := types.SetValue(types.StringType, []attr.Value{})
 
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a Zabbix template.",
@@ -91,13 +88,6 @@ func (r *TemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				ElementType:         types.StringType,
 				Default:             mapdefault.StaticValue(emptyMap),
 				MarkdownDescription: "Map of user macro names to values. Macro names must use the `{$NAME}` format. This map is authoritative — any macros not listed here are removed on apply.",
-			},
-			"linked_template_ids": schema.SetAttribute{
-				Optional:            true,
-				Computed:            true,
-				ElementType:         types.StringType,
-				Default:             setdefault.StaticValue(emptySet),
-				MarkdownDescription: "Set of template IDs this template links to (inherits from). This set is authoritative — any linked templates not listed here are unlinked on apply.",
 			},
 		},
 	}
@@ -243,31 +233,18 @@ func modelToClientTemplate(ctx context.Context, data TemplateResourceModel) (cli
 		macros = append(macros, client.TemplateMacro{Macro: macro, Value: value})
 	}
 
-	var linkedIDStrings []string
-	if !data.LinkedTemplateIDs.IsNull() && !data.LinkedTemplateIDs.IsUnknown() {
-		diags.Append(data.LinkedTemplateIDs.ElementsAs(ctx, &linkedIDStrings, false)...)
-		if diags.HasError() {
-			return client.Template{}, diags
-		}
-	}
-	parentTemplates := make([]client.TemplateRef, len(linkedIDStrings))
-	for i, id := range linkedIDStrings {
-		parentTemplates[i] = client.TemplateRef{TemplateID: id}
-	}
-
 	name := data.Name.ValueString()
 	if name == "" {
 		name = data.Host.ValueString()
 	}
 
 	return client.Template{
-		TemplateID:      data.ID.ValueString(),
-		Host:            data.Host.ValueString(),
-		Name:            name,
-		Description:     data.Description.ValueString(),
-		Groups:          groups,
-		Macros:          macros,
-		ParentTemplates: parentTemplates,
+		TemplateID:  data.ID.ValueString(),
+		Host:        data.Host.ValueString(),
+		Name:        name,
+		Description: data.Description.ValueString(),
+		Groups:      groups,
+		Macros:      macros,
 	}, diags
 }
 
@@ -296,16 +273,6 @@ func clientTemplateToModel(_ context.Context, t client.Template, data *TemplateR
 	diags.Append(d...)
 	if !d.HasError() {
 		data.Macros = macroMap
-	}
-
-	linkedIDVals := make([]attr.Value, len(t.ParentTemplates))
-	for i, ref := range t.ParentTemplates {
-		linkedIDVals[i] = types.StringValue(ref.TemplateID)
-	}
-	linkedSet, d := types.SetValue(types.StringType, linkedIDVals)
-	diags.Append(d...)
-	if !d.HasError() {
-		data.LinkedTemplateIDs = linkedSet
 	}
 
 	return diags

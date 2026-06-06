@@ -220,3 +220,52 @@ func TestTemplateDelete_ErrorEnvelope(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 }
+
+// ---- TemplateLinkAdd ----
+
+func TestTemplateLinkAdd_Success(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"template.massadd": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
+	})
+	if err := client.TemplateLinkAdd(t.Context(), c, "10", []string{"20", "30"}); err != nil {
+		t.Fatalf("TemplateLinkAdd: %v", err)
+	}
+}
+
+func TestTemplateLinkAdd_ErrorEnvelope(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"template.massadd": rpcErr(t, -32602, "Invalid params."),
+	})
+	if err := client.TemplateLinkAdd(t.Context(), c, "10", []string{"20"}); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// ---- TemplateLinkRemove ----
+
+func TestTemplateLinkRemove_Unlink_Success(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"template.massremove": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
+	})
+	if err := client.TemplateLinkRemove(t.Context(), c, "10", "20", false); err != nil {
+		t.Fatalf("TemplateLinkRemove unlink: %v", err)
+	}
+}
+
+func TestTemplateLinkRemove_Clear_Success(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"template.massremove": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
+	})
+	if err := client.TemplateLinkRemove(t.Context(), c, "10", "20", true); err != nil {
+		t.Fatalf("TemplateLinkRemove clear: %v", err)
+	}
+}
+
+func TestTemplateLinkRemove_ErrorEnvelope(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"template.massremove": rpcErr(t, -32500, "Application error."),
+	})
+	if err := client.TemplateLinkRemove(t.Context(), c, "10", "20", false); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -147,10 +148,9 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	data.ID = types.StringValue(t.TemplateID)
 	rm := &TemplateResourceModel{
-		ID:                data.ID,
-		TemplateGroupIDs:  data.TemplateGroupIDs,
-		Macros:            data.Macros,
-		LinkedTemplateIDs: data.LinkedTemplateIDs,
+		ID:               data.ID,
+		TemplateGroupIDs: data.TemplateGroupIDs,
+		Macros:           data.Macros,
 	}
 	resp.Diagnostics.Append(clientTemplateToModel(ctx, *t, rm)...)
 	if resp.Diagnostics.HasError() {
@@ -162,7 +162,16 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.Description = rm.Description
 	data.TemplateGroupIDs = rm.TemplateGroupIDs
 	data.Macros = rm.Macros
-	data.LinkedTemplateIDs = rm.LinkedTemplateIDs
+
+	linkedIDVals := make([]attr.Value, len(t.ParentTemplates))
+	for i, ref := range t.ParentTemplates {
+		linkedIDVals[i] = types.StringValue(ref.TemplateID)
+	}
+	linkedSet, dSet := types.SetValue(types.StringType, linkedIDVals)
+	resp.Diagnostics.Append(dSet...)
+	if !dSet.HasError() {
+		data.LinkedTemplateIDs = linkedSet
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

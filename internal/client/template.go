@@ -114,15 +114,12 @@ func TemplateGetByHost(ctx context.Context, c Client, host string) ([]Template, 
 	return templates, nil
 }
 
-// TemplateUpdate updates an existing template.
+// TemplateUpdate updates an existing template's core fields (name, description, groups, macros).
+// Template links are managed separately via TemplateLinkAdd/TemplateLinkRemove.
 func TemplateUpdate(ctx context.Context, c Client, t Template) error {
 	groups := make([]map[string]any, len(t.Groups))
 	for i, g := range t.Groups {
 		groups[i] = map[string]any{"groupid": g.GroupID}
-	}
-	linkedTemplates := make([]map[string]any, len(t.ParentTemplates))
-	for i, ref := range t.ParentTemplates {
-		linkedTemplates[i] = map[string]any{"templateid": ref.TemplateID}
 	}
 	params := map[string]any{
 		"templateid":  t.TemplateID,
@@ -131,9 +128,37 @@ func TemplateUpdate(ctx context.Context, c Client, t Template) error {
 		"description": t.Description,
 		"groups":      groups,
 		"macros":      t.Macros,
-		"templates":   linkedTemplates,
 	}
 	_, err := c.Call(ctx, "template.update", params)
+	return err
+}
+
+// TemplateLinkAdd links parent templates to a template via template.massadd.
+func TemplateLinkAdd(ctx context.Context, c Client, templateID string, linkedTemplateIDs []string) error {
+	link := make([]map[string]any, len(linkedTemplateIDs))
+	for i, id := range linkedTemplateIDs {
+		link[i] = map[string]any{"templateid": id}
+	}
+	params := map[string]any{
+		"templates":      []map[string]any{{"templateid": templateID}},
+		"templates_link": link,
+	}
+	_, err := c.Call(ctx, "template.massadd", params)
+	return err
+}
+
+// TemplateLinkRemove unlinks a parent template from a template via template.massremove.
+// If doClear is true, inherited items/triggers/graphs are deleted from the child template.
+func TemplateLinkRemove(ctx context.Context, c Client, templateID, linkedTemplateID string, doClear bool) error {
+	key := "templateids_link"
+	if doClear {
+		key = "templateids_clear"
+	}
+	params := map[string]any{
+		"templateids": []string{templateID},
+		key:           []string{linkedTemplateID},
+	}
+	_, err := c.Call(ctx, "template.massremove", params)
 	return err
 }
 

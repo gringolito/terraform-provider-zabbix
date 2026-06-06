@@ -1,12 +1,14 @@
-# `zabbix_host_template_link` delete defaults to clear
+# Template link resources delete defaults to clear
 
-On destroy, the link maps to Zabbix's `templates_clear` (delete inherited items, triggers,
-graphs from the host) rather than bare `host.massremove templateids` (unlink only, leaving the
-inherited entities as host-local orphans with `templateid=0`). This matches Terraform's
-"destroy removes what this resource created" mental model. The behavior is configurable via
-`on_destroy = "clear" | "unlink"` (default `"clear"`) so operators can opt out for
-history-sensitive migrations (preserve `itemid` continuity across re-linking) or any case
-where preserving inherited entities is intentional.
+Applies to: `zabbix_host_template_link` and `zabbix_template_link`.
+
+On destroy, the link maps to the `templateids_clear` param (`host.massremove` /
+`template.massremove`) which deletes inherited items, triggers, and graphs from the consumer,
+rather than bare `templateids_link` (unlink only, leaving inherited entities as local orphans
+with `templateid=0`). This matches Terraform's "destroy removes what this resource created"
+mental model. The behavior is configurable via `on_destroy = "clear" | "unlink"` (default
+`"clear"`) so operators can opt out for history-sensitive migrations (preserve `itemid`
+continuity across re-linking) or any case where preserving inherited entities is intentional.
 
 ## Considered Options
 

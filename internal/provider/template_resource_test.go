@@ -132,42 +132,6 @@ func TestAccTemplateResource_Macros(t *testing.T) {
 	})
 }
 
-func TestAccTemplateResource_LinkedTemplates(t *testing.T) {
-	cfg := testhelper.Setup(t)
-	tgName := cfg.NamePrefix + "-tg"
-	parentName := cfg.NamePrefix + "-parent-tmpl"
-	childName := cfg.NamePrefix + "-child-tmpl"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create child linking to parent
-			{
-				Config: testAccTemplateResourceWithLinkedConfig(cfg, tgName, parentName, childName),
-				ConfigStateChecks: []statecheck.StateCheck{
-					statecheck.ExpectKnownValue(
-						"zabbix_template.child",
-						tfjsonpath.New("linked_template_ids"),
-						knownvalue.SetSizeExact(1),
-					),
-				},
-			},
-			// Unlink template by updating the same resource (removing linked_template_ids)
-			{
-				Config: testAccTemplateResourceWithUnlinkedConfig(cfg, tgName, parentName, childName),
-				ConfigStateChecks: []statecheck.StateCheck{
-					statecheck.ExpectKnownValue(
-						"zabbix_template.child",
-						tfjsonpath.New("linked_template_ids"),
-						knownvalue.SetSizeExact(0),
-					),
-				},
-			},
-		},
-	})
-}
-
 func TestAccTemplateResource_Drift(t *testing.T) {
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
@@ -266,52 +230,4 @@ resource "zabbix_template" "test" {
 %[5]s  }
 }
 `, cfg.URL, cfg.Token, tgName, host, macroLines)
-}
-
-func testAccTemplateResourceWithUnlinkedConfig(cfg *testhelper.Config, tgName, parentHost, childHost string) string {
-	return fmt.Sprintf(`
-provider "zabbix" {
-  zabbix_url = %[1]q
-  api_token  = %[2]q
-}
-
-resource "zabbix_template_group" "test" {
-  name = %[3]q
-}
-
-resource "zabbix_template" "parent" {
-  host               = %[4]q
-  template_group_ids = [zabbix_template_group.test.id]
-}
-
-resource "zabbix_template" "child" {
-  host               = %[5]q
-  template_group_ids = [zabbix_template_group.test.id]
-  linked_template_ids = []
-}
-`, cfg.URL, cfg.Token, tgName, parentHost, childHost)
-}
-
-func testAccTemplateResourceWithLinkedConfig(cfg *testhelper.Config, tgName, parentHost, childHost string) string {
-	return fmt.Sprintf(`
-provider "zabbix" {
-  zabbix_url = %[1]q
-  api_token  = %[2]q
-}
-
-resource "zabbix_template_group" "test" {
-  name = %[3]q
-}
-
-resource "zabbix_template" "parent" {
-  host               = %[4]q
-  template_group_ids = [zabbix_template_group.test.id]
-}
-
-resource "zabbix_template" "child" {
-  host                 = %[5]q
-  template_group_ids   = [zabbix_template_group.test.id]
-  linked_template_ids  = [zabbix_template.parent.id]
-}
-`, cfg.URL, cfg.Token, tgName, parentHost, childHost)
 }

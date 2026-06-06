@@ -49,7 +49,6 @@ resource "zabbix_template" "linux_extended" {
 ### Optional
 
 - `description` (String) Description of the template.
-- `linked_template_ids` (Set of String) Set of template IDs this template links to (inherits from). This set is authoritative — any linked templates not listed here are unlinked on apply.
 - `macros` (Map of String) Map of user macro names to values. Macro names must use the `{$NAME}` format. This map is authoritative — any macros not listed here are removed on apply.
 - `name` (String) Visible display name of the template. Defaults to the technical name if not set.
 
