@@ -13,6 +13,19 @@ Before opening any PR that is not documentation-only, run:
 3. `make lint` — ensure there are no lint errors
 4. `make acc-tests` — run both unit tests and acceptance tests
 
+## Docs generation
+
+`make generate` uses `tfplugindocs` to auto-generate `docs/resources/*.md` and
+`docs/data-sources/*.md` from two sources:
+
+- **Schema descriptions** — the `MarkdownDescription` fields on each resource/data source schema attribute.
+- **Examples** — `.tf` files under `examples/resources/<resource_name>/resource.tf` and
+  `examples/data-sources/<data_source_name>/data-source.tf`.
+
+When adding or changing a resource or data source, always update the corresponding example file
+under `examples/` before running `make generate`. Never edit the generated files under `docs/`
+directly — they will be overwritten.
+
 ## Agent skills
 
 ### Issue tracker
