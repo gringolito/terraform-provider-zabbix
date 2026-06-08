@@ -159,7 +159,7 @@ func TestAccHostInterfaceResource_Drift(t *testing.T) {
 					},
 				),
 			},
-			// Delete out-of-band to trigger drift detection
+			// Delete out-of-band; apply should detect drift and recreate the interface
 			{
 				PreConfig: func() {
 					c, err := client.New(context.Background(), cfg.URL, cfg.Token)
@@ -170,9 +170,24 @@ func TestAccHostInterfaceResource_Drift(t *testing.T) {
 						t.Fatalf("drift PreConfig: HostInterfaceDelete: %v", err)
 					}
 				},
-				Config:             testAccHostInterfaceResourceAgentConfig(cfg, hgName, hostName, "10050"),
-				ExpectNonEmptyPlan: true,
-				// Plan should detect drift and recreate
+				Config: testAccHostInterfaceResourceAgentConfig(cfg, hgName, hostName, "10050"),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(
+						"zabbix_host_interface.test",
+						tfjsonpath.New("id"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"zabbix_host_interface.test",
+						tfjsonpath.New("type"),
+						knownvalue.StringExact("agent"),
+					),
+					statecheck.ExpectKnownValue(
+						"zabbix_host_interface.test",
+						tfjsonpath.New("port"),
+						knownvalue.StringExact("10050"),
+					),
+				},
 			},
 		},
 	})
