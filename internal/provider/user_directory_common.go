@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -194,6 +195,9 @@ func commonUserDirectoryResourceAttributes() map[string]rschema.Attribute {
 						Computed:            true,
 						Default:             int64default.StaticInt64(63),
 						MarkdownDescription: "Severity bitmask (0-63). Defaults to `63` (all severities).",
+						Validators: []validator.Int64{
+							int64validator.Between(0, 63),
+						},
 					},
 					"period": rschema.StringAttribute{
 						Optional:            true,
@@ -365,7 +369,7 @@ func userDirectoryBaseToModel(ctx context.Context, ud *client.UserDirectory, m *
 	return diags
 }
 
-func lookupUserDirectory(ctx context.Context, c client.Client, idpType int64, id, name types.String) (*client.UserDirectory, diag.Diagnostics) {
+func lookupUserDirectory(ctx context.Context, c client.Client, idpType client.IDPType, id, name types.String) (*client.UserDirectory, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	if id.IsNull() && name.IsNull() {

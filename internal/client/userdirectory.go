@@ -6,9 +6,11 @@ import (
 	"fmt"
 )
 
+type IDPType int64
+
 const (
-	IDPTypeLDAP int64 = 1
-	IDPTypeSAML int64 = 2
+	IDPTypeLDAP IDPType = 1
+	IDPTypeSAML IDPType = 2
 )
 
 type ProvisionUserGroup struct {
@@ -35,14 +37,14 @@ type ProvisionMedia struct {
 // Zabbix 7.0 returns integer fields as JSON strings.
 // BindPassword is write-only and never returned by the API.
 type UserDirectory struct {
-	ID              string `json:"userdirectoryid,omitempty"`
-	IDPType         int64  `json:"idp_type,string"`
-	Name            string `json:"name"`
-	Description     string `json:"description"`
-	ProvisionStatus int64  `json:"provision_status,string"`
-	GroupName       string `json:"group_name"`
-	UserUsername    string `json:"user_username"`
-	UserLastname    string `json:"user_lastname"`
+	ID              string  `json:"userdirectoryid,omitempty"`
+	IDPType         IDPType `json:"idp_type,string"`
+	Name            string  `json:"name"`
+	Description     string  `json:"description"`
+	ProvisionStatus int64   `json:"provision_status,string"`
+	GroupName       string  `json:"group_name"`
+	UserUsername    string  `json:"user_username"`
+	UserLastname    string  `json:"user_lastname"`
 	// LDAP-only
 	Host            string `json:"host"`
 	Port            int64  `json:"port,string"`
@@ -121,7 +123,7 @@ func UserDirectoryGet(ctx context.Context, c Client, id string) (*UserDirectory,
 	return &dirs[0], nil
 }
 
-func UserDirectoryGetByName(ctx context.Context, c Client, name string, idpType int64) ([]UserDirectory, error) {
+func UserDirectoryGetByName(ctx context.Context, c Client, name string, idpType IDPType) ([]UserDirectory, error) {
 	// userdirectory.get does not support filter.name; use search + client-side filter for idp_type and exact name
 	result, err := c.Call(ctx, "userdirectory.get", map[string]any{
 		"search":                map[string]any{"name": name},

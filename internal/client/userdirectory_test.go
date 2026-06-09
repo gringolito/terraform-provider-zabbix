@@ -8,7 +8,7 @@ import (
 )
 
 var ldapUD = client.UserDirectory{
-	IDPType:         1,
+	IDPType:         client.IDPTypeLDAP,
 	Name:            "test-ldap",
 	Host:            "ldap.example.com",
 	Port:            389,
@@ -17,7 +17,7 @@ var ldapUD = client.UserDirectory{
 }
 
 var samlUD = client.UserDirectory{
-	IDPType:           2,
+	IDPType:           client.IDPTypeSAML,
 	Name:              "test-saml",
 	IDPEntityID:       "http://idp.example.com/metadata",
 	SPEntityID:        "zabbix",
