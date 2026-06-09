@@ -137,6 +137,8 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 		NewRoleResource,
 		NewHostResource,
 		NewHostInterfaceResource,
+		NewUserDirectoryLDAPResource,
+		NewUserDirectorySAMLResource,
 	}
 }
 
@@ -153,6 +155,8 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 		NewRoleDataSource,
 		NewHostDataSource,
 		NewHostInterfaceDataSource,
+		NewUserDirectoryLDAPDataSource,
+		NewUserDirectorySAMLDataSource,
 	}
 }
 
