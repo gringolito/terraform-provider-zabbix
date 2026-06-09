@@ -34,8 +34,8 @@ func TestAccUserDirectoryLDAPDataSource_ByName(t *testing.T) {
 func testAccLDAPDataSourceByNameConfig(cfg *testhelper.Config, name string) string {
 	return fmt.Sprintf(`
 provider "zabbix" {
-  url   = %q
-  token = %q
+  zabbix_url = %q
+  api_token  = %q
 }
 
 resource "zabbix_user_directory_ldap" "seed" {

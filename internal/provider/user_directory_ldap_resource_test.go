@@ -129,8 +129,8 @@ func TestAccUserDirectoryLDAPResource_Import(t *testing.T) {
 func testAccLDAPResourceConfig(cfg *testhelper.Config, name string) string {
 	return fmt.Sprintf(`
 provider "zabbix" {
-  url   = %q
-  token = %q
+  zabbix_url = %q
+  api_token  = %q
 }
 
 resource "zabbix_user_directory_ldap" "test" {

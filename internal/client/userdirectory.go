@@ -122,11 +122,9 @@ func UserDirectoryGet(ctx context.Context, c Client, id string) (*UserDirectory,
 }
 
 func UserDirectoryGetByName(ctx context.Context, c Client, name string, idpType int64) ([]UserDirectory, error) {
+	// userdirectory.get does not support filter.name; use search + client-side filter for idp_type and exact name
 	result, err := c.Call(ctx, "userdirectory.get", map[string]any{
-		"filter": map[string]any{
-			"name":     []string{name},
-			"idp_type": []int64{idpType},
-		},
+		"search":                map[string]any{"name": name},
 		"output":                "extend",
 		"selectProvisionGroups": "extend",
 		"selectProvisionMedia":  "extend",
@@ -134,9 +132,15 @@ func UserDirectoryGetByName(ctx context.Context, c Client, name string, idpType 
 	if err != nil {
 		return nil, err
 	}
-	var dirs []UserDirectory
-	if err := json.Unmarshal(result, &dirs); err != nil {
+	var all []UserDirectory
+	if err := json.Unmarshal(result, &all); err != nil {
 		return nil, fmt.Errorf("userdirectory.get: unexpected response: %w", err)
+	}
+	var dirs []UserDirectory
+	for _, d := range all {
+		if d.Name == name && d.IDPType == idpType {
+			dirs = append(dirs, d)
+		}
 	}
 	return dirs, nil
 }

@@ -106,8 +106,8 @@ func TestAccUserDirectorySAMLResource_Import(t *testing.T) {
 func testAccSAMLResourceConfig(cfg *testhelper.Config, name string) string {
 	return fmt.Sprintf(`
 provider "zabbix" {
-  url   = %q
-  token = %q
+  zabbix_url = %q
+  api_token  = %q
 }
 
 resource "zabbix_user_directory_saml" "test" {
