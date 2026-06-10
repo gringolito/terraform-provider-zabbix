@@ -121,6 +121,7 @@ func (p *ZabbixProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 	resp.ResourceData = c
 	resp.DataSourceData = c
+	resp.ActionData = c
 }
 
 func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -161,7 +162,9 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 }
 
 func (p *ZabbixProvider) Actions(_ context.Context) []func() action.Action {
-	return []func() action.Action{}
+	return []func() action.Action{
+		NewTemplateImportAction,
+	}
 }
 
 func New(version string) func() provider.Provider {
