@@ -2,6 +2,7 @@ package provider_test
 
 import (
 	"context"
+	cryptorand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -186,7 +187,7 @@ func TestAccTemplateImportAction_XML(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "xml", xmlExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
 				},
 			},
 		},
@@ -208,7 +209,7 @@ func TestAccTemplateImportAction_YAML(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "yaml", yamlExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
 				},
 			},
 		},
@@ -230,7 +231,7 @@ func TestAccTemplateImportAction_JSON(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "json", jsonExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
 				},
 			},
 		},
@@ -252,15 +253,24 @@ func TestAccTemplateImportAction_AfterCreate(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionAfterCreateConfig(cfg, tgName, tmplName),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
 				},
 			},
 		},
 	})
 }
 
-// verifyAndCleanupImportedTemplate checks the template was imported and deletes it via the API.
-func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmplName string) {
+// randomUUID returns a random valid UUIDv4 as a 32-char lowercase hex string (no dashes).
+func randomUUID() string {
+	b := make([]byte, 16)
+	_, _ = cryptorand.Read(b)
+	b[6] = (b[6] & 0x0f) | 0x40 // version 4
+	b[8] = (b[8] & 0x3f) | 0x80 // variant 10
+	return fmt.Sprintf("%x", b)
+}
+
+// verifyAndCleanupImportedTemplate checks the template was imported and deletes it and its group via the API.
+func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmplName, tgName string) {
 	t.Helper()
 	c, err := client.New(context.Background(), cfg.URL, cfg.Token)
 	if err != nil {
@@ -272,10 +282,16 @@ func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmpl
 	}
 	if len(tmpls) == 0 {
 		t.Errorf("template %q was not imported into Zabbix", tmplName)
-		return
-	}
-	if err := client.TemplateDelete(context.Background(), c, tmpls[0].TemplateID); err != nil {
+	} else if err := client.TemplateDelete(context.Background(), c, tmpls[0].TemplateID); err != nil {
 		t.Logf("verifyAndCleanup: TemplateDelete warning: %v", err)
+	}
+	groups, err := client.TemplateGroupGetByName(context.Background(), c, tgName)
+	if err != nil {
+		t.Logf("verifyAndCleanup: TemplateGroupGetByName warning: %v", err)
+	} else if len(groups) > 0 {
+		if err := client.TemplateGroupDelete(context.Background(), c, groups[0].ID); err != nil {
+			t.Logf("verifyAndCleanup: TemplateGroupDelete warning: %v", err)
+		}
 	}
 }
 
@@ -349,13 +365,13 @@ func xmlExport(tmplName, tgName string) string {
   <version>7.0</version>
   <template_groups>
     <template_group>
-      <uuid>00000000000040008000000000000001</uuid>
+      <uuid>%s</uuid>
       <name>%s</name>
     </template_group>
   </template_groups>
   <templates>
     <template>
-      <uuid>00000000000040008000000000000002</uuid>
+      <uuid>%s</uuid>
       <template>%s</template>
       <name>%s</name>
       <groups>
@@ -365,7 +381,7 @@ func xmlExport(tmplName, tgName string) string {
       </groups>
     </template>
   </templates>
-</zabbix_export>`, tgName, tmplName, tmplName, tgName)
+</zabbix_export>`, randomUUID(), tgName, randomUUID(), tmplName, tmplName, tgName)
 }
 
 // yamlExport returns a minimal Zabbix 7.0 YAML export containing one template.
@@ -373,15 +389,15 @@ func yamlExport(tmplName, tgName string) string {
 	return fmt.Sprintf(`zabbix_export:
   version: '7.0'
   template_groups:
-    - uuid: 00000000000040008000000000000003
+    - uuid: '%s'
       name: %s
   templates:
-    - uuid: 00000000000040008000000000000004
+    - uuid: '%s'
       template: %s
       name: %s
       groups:
         - name: %s
-`, tgName, tmplName, tmplName, tgName)
+`, randomUUID(), tgName, randomUUID(), tmplName, tmplName, tgName)
 }
 
 // jsonExport returns a minimal Zabbix 7.0 JSON export containing one template.
@@ -390,16 +406,16 @@ func jsonExport(tmplName, tgName string) string {
   "zabbix_export": {
     "version": "7.0",
     "template_groups": [
-      {"uuid": "00000000000040008000000000000005", "name": %q}
+      {"uuid": %q, "name": %q}
     ],
     "templates": [
       {
-        "uuid": "00000000000040008000000000000006",
+        "uuid": %q,
         "template": %q,
         "name": %q,
         "groups": [{"name": %q}]
       }
     ]
   }
-}`, tgName, tmplName, tmplName, tgName)
+}`, randomUUID(), tgName, randomUUID(), tmplName, tmplName, tgName)
 }
