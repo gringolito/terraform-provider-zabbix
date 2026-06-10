@@ -29,7 +29,7 @@ type ImportRuleAll struct {
 // ImportRules maps to the Zabbix 7.0 configuration.import rules parameter.
 type ImportRules struct {
 	Templates          ImportRuleCreateUpdate `json:"templates"`
-	TemplateGroups     ImportRuleCreateUpdate `json:"templateGroups"`
+	TemplateGroups     ImportRuleCreateUpdate `json:"template_groups"`
 	TemplateLinkage    ImportRuleCreateDelete `json:"templateLinkage"`
 	DiscoveryRules     ImportRuleAll          `json:"discoveryRules"`
 	Graphs             ImportRuleAll          `json:"graphs"`

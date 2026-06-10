@@ -306,7 +306,7 @@ action "zabbix_template_import" "test" {
     source = %[5]q
     format = %[6]q
 
-    rules {
+    rules = {
       templates       = { create_missing = true, update_existing = true }
       template_groups = { create_missing = true, update_existing = true }
     }
