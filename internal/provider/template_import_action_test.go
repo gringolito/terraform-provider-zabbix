@@ -349,13 +349,13 @@ func xmlExport(tmplName, tgName string) string {
   <version>7.0</version>
   <template_groups>
     <template_group>
-      <uuid>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</uuid>
+      <uuid>00000000000040008000000000000001</uuid>
       <name>%s</name>
     </template_group>
   </template_groups>
   <templates>
     <template>
-      <uuid>bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</uuid>
+      <uuid>00000000000040008000000000000002</uuid>
       <template>%s</template>
       <name>%s</name>
       <groups>
@@ -373,10 +373,10 @@ func yamlExport(tmplName, tgName string) string {
 	return fmt.Sprintf(`zabbix_export:
   version: '7.0'
   template_groups:
-    - uuid: cccccccccccccccccccccccccccccccc
+    - uuid: 00000000000040008000000000000003
       name: %s
   templates:
-    - uuid: dddddddddddddddddddddddddddddddd
+    - uuid: 00000000000040008000000000000004
       template: %s
       name: %s
       groups:
@@ -390,11 +390,11 @@ func jsonExport(tmplName, tgName string) string {
   "zabbix_export": {
     "version": "7.0",
     "template_groups": [
-      {"uuid": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "name": %q}
+      {"uuid": "00000000000040008000000000000005", "name": %q}
     ],
     "templates": [
       {
-        "uuid": "ffffffffffffffffffffffffffffffff",
+        "uuid": "00000000000040008000000000000006",
         "template": %q,
         "name": %q,
         "groups": [{"name": %q}]
