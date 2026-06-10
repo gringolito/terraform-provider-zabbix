@@ -2,14 +2,174 @@ package provider_test
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/gringolito/terraform-provider-zabbix/internal/clienttest"
+	"github.com/gringolito/terraform-provider-zabbix/internal/provider"
 	"github.com/gringolito/terraform-provider-zabbix/internal/testhelper"
+	"github.com/hashicorp/terraform-plugin-framework/action"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
+
+// ---- Unit tests ----
+
+func TestTemplateImportAction_Configure_NilData(t *testing.T) {
+	a := provider.NewTemplateImportAction()
+	configurable, ok := a.(action.ActionWithConfigure)
+	if !ok {
+		t.Fatal("action does not implement ActionWithConfigure")
+	}
+	resp := &action.ConfigureResponse{}
+	configurable.Configure(context.Background(), action.ConfigureRequest{ProviderData: nil}, resp)
+	if resp.Diagnostics.HasError() {
+		t.Errorf("unexpected error for nil provider data: %s", resp.Diagnostics)
+	}
+}
+
+func TestTemplateImportAction_Configure_WrongType(t *testing.T) {
+	a := provider.NewTemplateImportAction()
+	configurable, ok := a.(action.ActionWithConfigure)
+	if !ok {
+		t.Fatal("action does not implement ActionWithConfigure")
+	}
+	resp := &action.ConfigureResponse{}
+	configurable.Configure(context.Background(), action.ConfigureRequest{ProviderData: "not-a-client"}, resp)
+	if !resp.Diagnostics.HasError() {
+		t.Error("expected error for wrong provider data type, got none")
+	}
+}
+
+func TestTemplateImportAction_Invoke_ClientError(t *testing.T) {
+	a := configuredAction(t, &clienttest.TestClient{Error: errors.New("api unavailable")})
+	resp := invokeAction(t, a, "content", "xml")
+	if !resp.Diagnostics.HasError() {
+		t.Error("expected diagnostic error when client fails, got none")
+	}
+}
+
+func TestTemplateImportAction_Invoke_Success_DefaultRules(t *testing.T) {
+	mc := &clienttest.TestClient{Response: true}
+	a := configuredAction(t, mc)
+	resp := invokeAction(t, a, "<zabbix_export/>", "xml")
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("unexpected error: %s", resp.Diagnostics)
+	}
+	if mc.LastMethod != "configuration.import" {
+		t.Errorf("LastMethod = %q, want %q", mc.LastMethod, "configuration.import")
+	}
+	rules := importedRules(t, mc)
+	if !rules.Templates.CreateMissing || !rules.Templates.UpdateExisting {
+		t.Errorf("default templates rules: got %+v, want create=true update=true", rules.Templates)
+	}
+	if rules.TemplateLinkage.DeleteMissing {
+		t.Errorf("default template_linkage delete_missing: got true, want false")
+	}
+}
+
+func TestTemplateImportAction_Invoke_FormatValidation(t *testing.T) {
+	mc := &clienttest.TestClient{Response: true}
+	a := configuredAction(t, mc)
+	resp := invokeAction(t, a, "content", "yaml")
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("yaml format should be valid: %s", resp.Diagnostics)
+	}
+	if mc.LastMethod != "configuration.import" {
+		t.Errorf("LastMethod = %q, want %q", mc.LastMethod, "configuration.import")
+	}
+}
+
+// configuredAction wires mc into a fresh TemplateImportAction via Configure.
+func configuredAction(t *testing.T, mc *clienttest.TestClient) action.Action {
+	t.Helper()
+	a := provider.NewTemplateImportAction()
+	configurable, ok := a.(action.ActionWithConfigure)
+	if !ok {
+		t.Fatal("action does not implement ActionWithConfigure")
+	}
+	cfgResp := &action.ConfigureResponse{}
+	configurable.Configure(context.Background(), action.ConfigureRequest{ProviderData: mc}, cfgResp)
+	if cfgResp.Diagnostics.HasError() {
+		t.Fatalf("Configure failed: %s", cfgResp.Diagnostics)
+	}
+	return a
+}
+
+// invokeAction calls Invoke with source and format, rules null.
+func invokeAction(t *testing.T, a action.Action, source, format string) *action.InvokeResponse {
+	t.Helper()
+	resp := &action.InvokeResponse{SendProgress: func(action.InvokeProgressEvent) {}}
+	a.Invoke(context.Background(), action.InvokeRequest{Config: makeTemplateImportConfig(t, source, format)}, resp)
+	return resp
+}
+
+// importedRules decodes the rules sent to the mock client's last Call.
+func importedRules(t *testing.T, mc *clienttest.TestClient) client.ImportRules {
+	t.Helper()
+	raw, err := json.Marshal(mc.LastParams)
+	if err != nil {
+		t.Fatalf("marshal LastParams: %v", err)
+	}
+	var params struct {
+		Rules client.ImportRules `json:"rules"`
+	}
+	if err := json.Unmarshal(raw, &params); err != nil {
+		t.Fatalf("unmarshal params: %v", err)
+	}
+	return params.Rules
+}
+
+// makeTemplateImportConfig builds a tfsdk.Config for the action with the given source and format,
+// and rules left null (so provider defaults apply).
+func makeTemplateImportConfig(t *testing.T, source, format string) tfsdk.Config {
+	t.Helper()
+	a := provider.NewTemplateImportAction()
+	schemaResp := &action.SchemaResponse{}
+	a.Schema(context.Background(), action.SchemaRequest{}, schemaResp)
+
+	createUpdateType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
+		"create_missing": tftypes.Bool, "update_existing": tftypes.Bool,
+	}}
+	createDeleteType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
+		"create_missing": tftypes.Bool, "delete_missing": tftypes.Bool,
+	}}
+	allType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
+		"create_missing": tftypes.Bool, "update_existing": tftypes.Bool, "delete_missing": tftypes.Bool,
+	}}
+	rulesType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
+		"templates":           createUpdateType,
+		"template_groups":     createUpdateType,
+		"template_linkage":    createDeleteType,
+		"discovery_rules":     allType,
+		"graphs":              allType,
+		"http_tests":          allType,
+		"items":               allType,
+		"template_dashboards": allType,
+		"triggers":            allType,
+		"value_maps":          allType,
+	}}
+	configType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
+		"source": tftypes.String,
+		"format": tftypes.String,
+		"rules":  rulesType,
+	}}
+	return tfsdk.Config{
+		Schema: schemaResp.Schema,
+		Raw: tftypes.NewValue(configType, map[string]tftypes.Value{
+			"source": tftypes.NewValue(tftypes.String, source),
+			"format": tftypes.NewValue(tftypes.String, format),
+			"rules":  tftypes.NewValue(rulesType, nil),
+		}),
+	}
+}
+
+// ---- Acceptance tests ----
 
 func TestAccTemplateImportAction_XML(t *testing.T) {
 	cfg := testhelper.Setup(t)
