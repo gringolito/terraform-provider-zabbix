@@ -187,7 +187,7 @@ func TestAccTemplateImportAction_XML(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "xml", xmlExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName, true)
 				},
 			},
 		},
@@ -209,7 +209,7 @@ func TestAccTemplateImportAction_YAML(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "yaml", yamlExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName, true)
 				},
 			},
 		},
@@ -231,7 +231,7 @@ func TestAccTemplateImportAction_JSON(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionConfig(cfg, tgName, tmplName, "json", jsonExport(tmplName, tgName)),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName, true)
 				},
 			},
 		},
@@ -253,7 +253,7 @@ func TestAccTemplateImportAction_AfterCreate(t *testing.T) {
 			{
 				Config: testAccTemplateImportActionAfterCreateConfig(cfg, tgName, tmplName),
 				PostApplyFunc: func() {
-					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName)
+					verifyAndCleanupImportedTemplate(t, cfg, tmplName, tgName, false)
 				},
 			},
 		},
@@ -269,8 +269,10 @@ func randomUUID() string {
 	return fmt.Sprintf("%x", b)
 }
 
-// verifyAndCleanupImportedTemplate checks the template was imported and deletes it and its group via the API.
-func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmplName, tgName string) {
+// verifyAndCleanupImportedTemplate checks the template was imported and deletes it via the API.
+// When deleteTG is true it also deletes the template group (use this when no Terraform resource manages the group).
+// When deleteTG is false the group is left for Terraform destroy to clean up.
+func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmplName, tgName string, deleteTG bool) {
 	t.Helper()
 	c, err := client.New(context.Background(), cfg.URL, cfg.Token)
 	if err != nil {
@@ -285,6 +287,9 @@ func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmpl
 	} else if err := client.TemplateDelete(context.Background(), c, tmpls[0].TemplateID); err != nil {
 		t.Logf("verifyAndCleanup: TemplateDelete warning: %v", err)
 	}
+	if !deleteTG {
+		return
+	}
 	groups, err := client.TemplateGroupGetByName(context.Background(), c, tgName)
 	if err != nil {
 		t.Logf("verifyAndCleanup: TemplateGroupGetByName warning: %v", err)
@@ -295,19 +300,15 @@ func verifyAndCleanupImportedTemplate(t *testing.T, cfg *testhelper.Config, tmpl
 	}
 }
 
-func testAccTemplateImportActionConfig(cfg *testhelper.Config, tgName, tmplName, format, source string) string {
+func testAccTemplateImportActionConfig(cfg *testhelper.Config, _, tmplName, format, source string) string {
 	return fmt.Sprintf(`
 provider "zabbix" {
   zabbix_url = %[1]q
   api_token  = %[2]q
 }
 
-resource "zabbix_template_group" "test" {
-  name = %[3]q
-}
-
 resource "terraform_data" "trigger" {
-  input = %[4]q
+  input = %[3]q
 
   lifecycle {
     action_trigger {
@@ -319,8 +320,8 @@ resource "terraform_data" "trigger" {
 
 action "zabbix_template_import" "test" {
   config {
-    source = %[5]q
-    format = %[6]q
+    source = %[4]q
+    format = %[5]q
 
     rules = {
       templates       = { create_missing = true, update_existing = true }
@@ -328,7 +329,7 @@ action "zabbix_template_import" "test" {
     }
   }
 }
-`, cfg.URL, cfg.Token, tgName, tmplName, source, format)
+`, cfg.URL, cfg.Token, tmplName, source, format)
 }
 
 func testAccTemplateImportActionAfterCreateConfig(cfg *testhelper.Config, tgName, tmplName string) string {
