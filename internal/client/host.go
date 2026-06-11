@@ -159,3 +159,57 @@ func HostDelete(ctx context.Context, c Client, id string) error {
 	_, err := c.Call(ctx, "host.delete", []string{id})
 	return err
 }
+
+// HostTemplateLinkAdd links templates to a host via host.massadd.
+func HostTemplateLinkAdd(ctx context.Context, c Client, hostID string, templateIDs []string) error {
+	templates := make([]map[string]any, len(templateIDs))
+	for i, id := range templateIDs {
+		templates[i] = map[string]any{"templateid": id}
+	}
+	params := map[string]any{
+		"hosts":     []map[string]any{{"hostid": hostID}},
+		"templates": templates,
+	}
+	_, err := c.Call(ctx, "host.massadd", params)
+	return err
+}
+
+// HostTemplateLinkRemove unlinks a template from a host via host.massremove.
+// doClear=true sends templateids_clear (deletes inherited items); false sends templateids_link.
+func HostTemplateLinkRemove(ctx context.Context, c Client, hostID, templateID string, doClear bool) error {
+	key := "templateids"
+	if doClear {
+		key = "templateids_clear"
+	}
+	params := map[string]any{
+		"hostids": []string{hostID},
+		key:       []string{templateID},
+	}
+	_, err := c.Call(ctx, "host.massremove", params)
+	return err
+}
+
+// HostGetTemplates returns the templates currently linked to a host.
+// Returns nil, nil if the host does not exist.
+func HostGetTemplates(ctx context.Context, c Client, hostID string) ([]TemplateRef, error) {
+	params := map[string]any{
+		"hostids":               []string{hostID},
+		"output":                "hostid",
+		"selectParentTemplates": "extend",
+		"limit":                 1,
+	}
+	result, err := c.Call(ctx, "host.get", params)
+	if err != nil {
+		return nil, err
+	}
+	var hosts []struct {
+		ParentTemplates []TemplateRef `json:"parentTemplates"`
+	}
+	if err := json.Unmarshal(result, &hosts); err != nil {
+		return nil, fmt.Errorf("host.get: unexpected response: %w", err)
+	}
+	if len(hosts) == 0 {
+		return nil, nil
+	}
+	return hosts[0].ParentTemplates, nil
+}
