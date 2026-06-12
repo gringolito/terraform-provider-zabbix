@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
 // ---- Acceptance tests ----
@@ -26,9 +27,15 @@ func TestAccTriggerDataSource_ByID(t *testing.T) {
 	itemKey := "system.cpu.util"
 
 	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_14_0),
+		},
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+			},
 			{
 				Config: testAccTriggerDataSourceByIDConfig(cfg, tgName, tmplName, itemKey),
 				ConfigStateChecks: []statecheck.StateCheck{
@@ -49,6 +56,12 @@ func TestAccTriggerDataSource_ByID(t *testing.T) {
 					),
 				},
 			},
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+				PostApplyFunc: func() {
+					cleanupImportedTemplate(t, cfg, tmplName)
+				},
+			},
 		},
 	})
 }
@@ -60,9 +73,15 @@ func TestAccTriggerDataSource_ByDescriptionAndTemplateID(t *testing.T) {
 	itemKey := "system.cpu.util"
 
 	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_14_0),
+		},
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+			},
 			{
 				Config: testAccTriggerDataSourceByDescriptionAndTemplateIDConfig(cfg, tgName, tmplName, itemKey),
 				ConfigStateChecks: []statecheck.StateCheck{
@@ -76,6 +95,12 @@ func TestAccTriggerDataSource_ByDescriptionAndTemplateID(t *testing.T) {
 						tfjsonpath.New("description"),
 						knownvalue.StringExact("High CPU"),
 					),
+				},
+			},
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+				PostApplyFunc: func() {
+					cleanupImportedTemplate(t, cfg, tmplName)
 				},
 			},
 		},
@@ -220,7 +245,7 @@ func testAccTriggerDataSourceByIDConfig(cfg *testhelper.Config, tgName, tmplName
 	expr := fmt.Sprintf(`last(/%s/%s)>90`, tmplName, itemKey)
 	return testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey) + fmt.Sprintf(`
 resource "zabbix_trigger" "seed" {
-  depends_on  = [zabbix_template_import.test]
+  depends_on  = [zabbix_template_group.test]
   description = "High CPU"
   expression  = %[1]q
   priority    = "warning"
@@ -235,14 +260,13 @@ data "zabbix_trigger" "test" {
 func testAccTriggerDataSourceByDescriptionAndTemplateIDConfig(cfg *testhelper.Config, tgName, tmplName, itemKey string) string {
 	expr := fmt.Sprintf(`last(/%s/%s)>90`, tmplName, itemKey)
 	return testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey) + fmt.Sprintf(`
-resource "zabbix_template" "seed" {
-  depends_on          = [zabbix_template_import.test]
-  host                = %[2]q
-  template_group_ids  = [zabbix_template_group.test.id]
+data "zabbix_template" "seed" {
+  depends_on = [zabbix_template_group.test]
+  host       = %[2]q
 }
 
 resource "zabbix_trigger" "seed" {
-  depends_on  = [zabbix_template.seed]
+  depends_on  = [data.zabbix_template.seed]
   description = "High CPU"
   expression  = %[1]q
   priority    = "warning"
@@ -251,7 +275,7 @@ resource "zabbix_trigger" "seed" {
 data "zabbix_trigger" "test" {
   depends_on   = [zabbix_trigger.seed]
   description  = "High CPU"
-  template_id  = zabbix_template.seed.id
+  template_id  = data.zabbix_template.seed.id
 }
 `, expr, tmplName)
 }

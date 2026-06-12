@@ -13,6 +13,17 @@ Before opening any PR that is not documentation-only, run:
 3. `make lint` — ensure there are no lint errors
 4. `make acc-tests` — run both unit tests and acceptance tests
 
+## Running tests
+
+Acceptance tests are gated by the `TF_ACC` environment variable and require live Zabbix infrastructure and credentials. `make acc-tests` handles all of this setup automatically — always use it; never invoke acceptance tests in ad-hoc mode (e.g. `go test ./... -run TestAcc...`).
+
+Acceptance tests are slow and take several minutes to complete. Never pipe `make acc-tests` output directly into `grep` to find specific information — you would need to re-run the entire suite for each search. Instead, redirect the output to a file once and grep the file as many times as needed:
+
+```sh
+make acc-tests 2>&1 | tee /tmp/acc-tests.log
+grep "something" /tmp/acc-tests.log
+```
+
 ## Docs generation
 
 `make generate` uses `tfplugindocs` to auto-generate `docs/resources/*.md` and

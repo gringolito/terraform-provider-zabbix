@@ -65,10 +65,11 @@ func TriggerCreate(ctx context.Context, c Client, tr Trigger) (string, error) {
 // TriggerGet fetches a trigger by ID. Returns nil if not found.
 func TriggerGet(ctx context.Context, c Client, id string) (*Trigger, error) {
 	params := map[string]any{
-		"triggerids": []string{id},
-		"output":     "extend",
-		"selectTags": "extend",
-		"limit":      1,
+		"triggerids":       []string{id},
+		"output":           "extend",
+		"selectTags":       "extend",
+		"expandExpression": true,
+		"limit":            1,
 	}
 	result, err := c.Call(ctx, "trigger.get", params)
 	if err != nil {
@@ -88,9 +89,10 @@ func TriggerGet(ctx context.Context, c Client, id string) (*Trigger, error) {
 // Exactly one of hostID or templateID must be non-empty.
 func TriggerGetByDescriptionAndScope(ctx context.Context, c Client, description, hostID, templateID string) ([]Trigger, error) {
 	params := map[string]any{
-		"filter":     map[string]any{"description": []string{description}},
-		"output":     "extend",
-		"selectTags": "extend",
+		"filter":           map[string]any{"description": []string{description}},
+		"output":           "extend",
+		"selectTags":       "extend",
+		"expandExpression": true,
 	}
 	if hostID != "" {
 		params["hostids"] = []string{hostID}

@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
 // ---- Acceptance tests ----
@@ -26,9 +27,15 @@ func TestAccItemDataSource_ByID(t *testing.T) {
 	itemKey := "system.cpu.util"
 
 	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_14_0),
+		},
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+			},
 			{
 				Config: testAccItemDataSourceByIDConfig(cfg, tgName, tmplName, itemKey),
 				ConfigStateChecks: []statecheck.StateCheck{
@@ -48,6 +55,9 @@ func TestAccItemDataSource_ByID(t *testing.T) {
 						knownvalue.StringExact("CPU utilization"),
 					),
 				},
+				PostApplyFunc: func() {
+					cleanupImportedTemplate(t, cfg, tmplName)
+				},
 			},
 		},
 	})
@@ -60,9 +70,15 @@ func TestAccItemDataSource_ByKeyAndTemplateID(t *testing.T) {
 	itemKey := "system.cpu.util"
 
 	resource.Test(t, resource.TestCase{
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.SkipBelow(tfversion.Version1_14_0),
+		},
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config: testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey),
+			},
 			{
 				Config: testAccItemDataSourceByKeyAndTemplateIDConfig(cfg, tgName, tmplName, itemKey),
 				ConfigStateChecks: []statecheck.StateCheck{
@@ -76,6 +92,9 @@ func TestAccItemDataSource_ByKeyAndTemplateID(t *testing.T) {
 						tfjsonpath.New("key_"),
 						knownvalue.StringExact(itemKey),
 					),
+				},
+				PostApplyFunc: func() {
+					cleanupImportedTemplate(t, cfg, tmplName)
 				},
 			},
 		},
@@ -189,12 +208,12 @@ func buildItemDataSourceConfig(t *testing.T, id, key, hostID, templateID string)
 func testAccItemDataSourceByIDConfig(cfg *testhelper.Config, tgName, tmplName, itemKey string) string {
 	return testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey) + fmt.Sprintf(`
 data "zabbix_template" "seed" {
-  depends_on = [zabbix_template_import.test]
+  depends_on = [zabbix_template_group.test]
   host       = %[1]q
 }
 
 data "zabbix_item" "by_key" {
-  depends_on   = [zabbix_template_import.test]
+  depends_on   = [zabbix_template_group.test]
   key_         = %[2]q
   template_id  = data.zabbix_template.seed.id
 }
@@ -208,12 +227,12 @@ data "zabbix_item" "test" {
 func testAccItemDataSourceByKeyAndTemplateIDConfig(cfg *testhelper.Config, tgName, tmplName, itemKey string) string {
 	return testAccTriggerImportSetup(cfg, tgName, tmplName, itemKey) + fmt.Sprintf(`
 data "zabbix_template" "seed" {
-  depends_on = [zabbix_template_import.test]
+  depends_on = [zabbix_template_group.test]
   host       = %[1]q
 }
 
 data "zabbix_item" "test" {
-  depends_on   = [zabbix_template_import.test]
+  depends_on   = [zabbix_template_group.test]
   key_         = %[2]q
   template_id  = data.zabbix_template.seed.id
 }
