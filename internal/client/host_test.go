@@ -1,6 +1,8 @@
 package client_test
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -266,6 +268,150 @@ func TestHostDelete_ErrorEnvelope(t *testing.T) {
 		"host.delete": rpcErr(t, -32500, "Cannot delete host."),
 	})
 	if err := client.HostDelete(t.Context(), c, "1"); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// ---- HostTemplateLinkAdd ----
+
+func TestHostTemplateLinkAdd_Success(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.massadd": rpcOK(t, map[string]any{}),
+	})
+	if err := client.HostTemplateLinkAdd(t.Context(), c, "10", []string{"20", "30"}); err != nil {
+		t.Fatalf("HostTemplateLinkAdd: %v", err)
+	}
+}
+
+func TestHostTemplateLinkAdd_ErrorEnvelope(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.massadd": rpcErr(t, -32602, "Invalid params."),
+	})
+	if err := client.HostTemplateLinkAdd(t.Context(), c, "10", []string{"20"}); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// ---- HostTemplateLinkRemove ----
+
+func TestHostTemplateLinkRemove_Clear_Success(t *testing.T) {
+	var ch captureHandler
+	ch.inner = func(w http.ResponseWriter, r *http.Request) {
+		var req rpcMethod
+		_ = json.Unmarshal(ch.body, &req)
+		w.Header().Set("Content-Type", "application/json")
+		if req.Method == "apiinfo.version" {
+			_ = json.NewEncoder(w).Encode(map[string]any{"jsonrpc": "2.0", "result": "7.0.0", "id": 1})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"jsonrpc": "2.0", "result": map[string]any{}, "id": 1})
+	}
+	srv := rpcServer(t, ch.ServeHTTP)
+	c, err := client.New(context.Background(), srv.URL, "tok")
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	if err := client.HostTemplateLinkRemove(t.Context(), c, "10", "20", true); err != nil {
+		t.Fatalf("HostTemplateLinkRemove: %v", err)
+	}
+	var body struct {
+		Params map[string]json.RawMessage `json:"params"`
+	}
+	_ = json.Unmarshal(ch.body, &body)
+	if _, ok := body.Params["templateids_clear"]; !ok {
+		t.Error("expected templateids_clear in params")
+	}
+	if _, ok := body.Params["templateids_link"]; ok {
+		t.Error("unexpected templateids_link in params")
+	}
+}
+
+func TestHostTemplateLinkRemove_Unlink_Success(t *testing.T) {
+	var ch captureHandler
+	ch.inner = func(w http.ResponseWriter, r *http.Request) {
+		var req rpcMethod
+		_ = json.Unmarshal(ch.body, &req)
+		w.Header().Set("Content-Type", "application/json")
+		if req.Method == "apiinfo.version" {
+			_ = json.NewEncoder(w).Encode(map[string]any{"jsonrpc": "2.0", "result": "7.0.0", "id": 1})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"jsonrpc": "2.0", "result": map[string]any{}, "id": 1})
+	}
+	srv := rpcServer(t, ch.ServeHTTP)
+	c, err := client.New(context.Background(), srv.URL, "tok")
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	if err := client.HostTemplateLinkRemove(t.Context(), c, "10", "20", false); err != nil {
+		t.Fatalf("HostTemplateLinkRemove: %v", err)
+	}
+	var body struct {
+		Params map[string]json.RawMessage `json:"params"`
+	}
+	_ = json.Unmarshal(ch.body, &body)
+	if _, ok := body.Params["templateids"]; !ok {
+		t.Error("expected templateids in params")
+	}
+	if _, ok := body.Params["templateids_clear"]; ok {
+		t.Error("unexpected templateids_clear in params")
+	}
+	if _, ok := body.Params["templateids_link"]; ok {
+		t.Error("unexpected templateids_link in params")
+	}
+}
+
+func TestHostTemplateLinkRemove_ErrorEnvelope(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.massremove": rpcErr(t, -32500, "Application error."),
+	})
+	if err := client.HostTemplateLinkRemove(t.Context(), c, "10", "20", false); err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// ---- HostGetTemplates ----
+
+func TestHostGetTemplates_Found(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.get": rpcOK(t, []map[string]any{{
+			"hostid": "10",
+			"parentTemplates": []map[string]any{
+				{"templateid": "99"},
+			},
+		}}),
+	})
+	templates, err := client.HostGetTemplates(t.Context(), c, "10")
+	if err != nil {
+		t.Fatalf("HostGetTemplates: %v", err)
+	}
+	if len(templates) != 1 {
+		t.Fatalf("len(templates) = %d, want 1", len(templates))
+	}
+	if templates[0].TemplateID != "99" {
+		t.Errorf("TemplateID = %q, want %q", templates[0].TemplateID, "99")
+	}
+}
+
+func TestHostGetTemplates_NotFound(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.get": rpcOK(t, []map[string]any{}),
+	})
+	templates, err := client.HostGetTemplates(t.Context(), c, "999")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if templates != nil {
+		t.Errorf("expected nil for not-found, got %v", templates)
+	}
+}
+
+func TestHostGetTemplates_ErrorEnvelope(t *testing.T) {
+	c := newTestClient(t, map[string]http.HandlerFunc{
+		"host.get": rpcErr(t, -32500, "Application error."),
+	})
+	_, err := client.HostGetTemplates(t.Context(), c, "1")
+	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 }

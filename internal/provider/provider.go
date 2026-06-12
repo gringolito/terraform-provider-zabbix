@@ -130,6 +130,7 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 		NewTemplateGroupResource,
 		NewTemplateResource,
 		NewTemplateLinkResource,
+		NewHostTemplateLinkResource,
 		NewUserGroupResource,
 		NewMediaTypeEmailResource,
 		NewMediaTypeSMSResource,
