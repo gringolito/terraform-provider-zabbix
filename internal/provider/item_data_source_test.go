@@ -46,7 +46,7 @@ func TestAccItemDataSource_ByID(t *testing.T) {
 					),
 					statecheck.ExpectKnownValue(
 						"data.zabbix_item.test",
-						tfjsonpath.New("key_"),
+						tfjsonpath.New("key"),
 						knownvalue.StringExact(itemKey),
 					),
 					statecheck.ExpectKnownValue(
@@ -89,7 +89,7 @@ func TestAccItemDataSource_ByKeyAndTemplateID(t *testing.T) {
 					),
 					statecheck.ExpectKnownValue(
 						"data.zabbix_item.test",
-						tfjsonpath.New("key_"),
+						tfjsonpath.New("key"),
 						knownvalue.StringExact(itemKey),
 					),
 				},
@@ -187,14 +187,14 @@ func buildItemDataSourceConfig(t *testing.T, id, key, hostID, templateID string)
 		Raw: tftypes.NewValue(tftypes.Object{
 			AttributeTypes: map[string]tftypes.Type{
 				"id":          tftypes.String,
-				"key_":        tftypes.String,
+				"key":         tftypes.String,
 				"name":        tftypes.String,
 				"host_id":     tftypes.String,
 				"template_id": tftypes.String,
 			},
 		}, map[string]tftypes.Value{
 			"id":          toStr(id),
-			"key_":        toStr(key),
+			"key":         toStr(key),
 			"name":        null(tftypes.String),
 			"host_id":     toStr(hostID),
 			"template_id": toStr(templateID),
@@ -213,9 +213,9 @@ data "zabbix_template" "seed" {
 }
 
 data "zabbix_item" "by_key" {
-  depends_on   = [zabbix_template_group.test]
-  key_         = %[2]q
-  template_id  = data.zabbix_template.seed.id
+  depends_on  = [zabbix_template_group.test]
+  key         = %[2]q
+  template_id = data.zabbix_template.seed.id
 }
 
 data "zabbix_item" "test" {
@@ -232,9 +232,9 @@ data "zabbix_template" "seed" {
 }
 
 data "zabbix_item" "test" {
-  depends_on   = [zabbix_template_group.test]
-  key_         = %[2]q
-  template_id  = data.zabbix_template.seed.id
+  depends_on  = [zabbix_template_group.test]
+  key         = %[2]q
+  template_id = data.zabbix_template.seed.id
 }
 `, tmplName, itemKey)
 }

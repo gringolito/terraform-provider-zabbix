@@ -22,7 +22,7 @@ type ItemDataSource struct {
 
 type ItemDataSourceModel struct {
 	ID         types.String `tfsdk:"id"`
-	Key        types.String `tfsdk:"key_"`
+	Key        types.String `tfsdk:"key"`
 	Name       types.String `tfsdk:"name"`
 	HostID     types.String `tfsdk:"host_id"`
 	TemplateID types.String `tfsdk:"template_id"`
@@ -34,14 +34,14 @@ func (d *ItemDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 
 func (d *ItemDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Fetches a Zabbix item by `id`, or by `key_` + exactly one of `host_id`/`template_id`.",
+		MarkdownDescription: "Fetches a Zabbix item by `id`, or by `key` + exactly one of `host_id`/`template_id`.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Unique identifier of the item. One of `id` or (`key_` + scope) must be set.",
+				MarkdownDescription: "Unique identifier of the item. One of `id` or (`key` + scope) must be set.",
 			},
-			"key_": schema.StringAttribute{
+			"key": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Item key. Used with `host_id` or `template_id` for scoped lookup.",
@@ -53,12 +53,12 @@ func (d *ItemDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 			"host_id": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "ID of the host to scope the lookup. Used with `key_`.",
+				MarkdownDescription: "ID of the host to scope the lookup. Used with `key`.",
 			},
 			"template_id": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "ID of the template to scope the lookup. Used with `key_`.",
+				MarkdownDescription: "ID of the template to scope the lookup. Used with `key`.",
 			},
 		},
 	}
@@ -94,7 +94,7 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	if !hasID && !hasKey {
 		resp.Diagnostics.AddError(
 			"Missing lookup key",
-			"Provide either `id`, or `key_` with exactly one of `host_id` or `template_id`.",
+			"Provide either `id`, or `key` with exactly one of `host_id` or `template_id`.",
 		)
 		return
 	}
@@ -102,7 +102,7 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	if hasKey && !hasHostID && !hasTemplateID {
 		resp.Diagnostics.AddError(
 			"Missing scope",
-			"When using `key_` lookup, provide exactly one of `host_id` or `template_id`.",
+			"When using `key` lookup, provide exactly one of `host_id` or `template_id`.",
 		)
 		return
 	}
@@ -151,12 +151,12 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			if hasHostID {
 				resp.Diagnostics.AddError(
 					"Item not found",
-					fmt.Sprintf("Found 0 items with key_ %q on host id %q.", data.Key.ValueString(), hostID),
+					fmt.Sprintf("Found 0 items with key %q on host id %q.", data.Key.ValueString(), hostID),
 				)
 			} else {
 				resp.Diagnostics.AddError(
 					"Item not found",
-					fmt.Sprintf("Found 0 items with key_ %q on template id %q.", data.Key.ValueString(), templateID),
+					fmt.Sprintf("Found 0 items with key %q on template id %q.", data.Key.ValueString(), templateID),
 				)
 			}
 			return
@@ -166,12 +166,12 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			if hasHostID {
 				resp.Diagnostics.AddError(
 					"Multiple items found",
-					fmt.Sprintf("Found %d items with key_ %q on host id %q; use `id` to disambiguate.", len(items), data.Key.ValueString(), hostID),
+					fmt.Sprintf("Found %d items with key %q on host id %q; use `id` to disambiguate.", len(items), data.Key.ValueString(), hostID),
 				)
 			} else {
 				resp.Diagnostics.AddError(
 					"Multiple items found",
-					fmt.Sprintf("Found %d items with key_ %q on template id %q; use `id` to disambiguate.", len(items), data.Key.ValueString(), templateID),
+					fmt.Sprintf("Found %d items with key %q on template id %q; use `id` to disambiguate.", len(items), data.Key.ValueString(), templateID),
 				)
 			}
 			return
