@@ -142,6 +142,7 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 		NewUserDirectoryLDAPResource,
 		NewUserDirectorySAMLResource,
 		NewTriggerResource,
+		NewAuthenticationResource,
 	}
 }
 
