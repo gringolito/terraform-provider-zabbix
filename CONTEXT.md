@@ -73,6 +73,15 @@ parent. Gives the child its own lifecycle, makes cross-resource references clean
 points at `zabbix_host_interface.snmp.id`), and matches the AWS pattern for sub-objects
 (`aws_network_interface`, `aws_route`). Example: `zabbix_host_interface`.
 
+**Singleton resource**:
+A Zabbix API object that always exists as a single global instance and exposes no create or
+delete endpoint — only `*.get` and `*.update`. Terraform cannot create or delete it; Create
+_adopts_ the existing object and writes the desired configuration, Delete _resets_ it to
+documented defaults and emits a warning diagnostic. The resource carries a synthesized constant
+`id` (e.g. `"authentication"`) rather than a Zabbix API-assigned ID. Declaring a singleton
+resource more than once in the same configuration is a footgun — both blocks fight over the
+same object. See [[0014-singleton-resource-lifecycle]]. Example: `zabbix_authentication`.
+
 ### Template management
 
 Two distinct ways to get a [[#Template|template]] into Zabbix, with different lifecycles:
