@@ -163,6 +163,7 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 		NewUserDirectorySAMLDataSource,
 		NewTriggerDataSource,
 		NewItemDataSource,
+		NewAuthenticationDataSource,
 	}
 }
 
