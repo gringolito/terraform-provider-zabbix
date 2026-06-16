@@ -6,6 +6,18 @@ terraform-plugin-framework.
 
 ## Language
 
+### Schema naming conventions
+
+- **No API abbreviations in schema attribute names.** Expand abbreviated Zabbix API field names
+  to their full English equivalents: `esc_period` → `escalation_period`,
+  `esc_step_from` → `escalation_step_from`, `esc_step_to` → `escalation_step_to`,
+  `evaltype` → `evaluation_type`, `conditiontype` → `condition_type`, `formulaid` → `label`
+  (context-specific rename — see [[#Action filter label]]), `default_msg` → `use_default_message`.
+- **Snake_case, full words.** Prefer clarity over brevity: `user_group_ids` not `opmessage_grp`,
+  `user_ids` not `opmessage_usr`.
+- **API names are internal only.** Client structs retain the original API field names for
+  correct JSON serialisation; the rename lives entirely in the provider schema and model layer.
+
 ### Version support
 
 **Targeted**:
@@ -112,10 +124,67 @@ A logical expression over item data defining a problem condition (`trigger.*`). 
 exist (typically provided by a linked template — item _authoring_ is out of current scope).
 
 **Action**:
-The alerting rule (`action.*`): "when a [[#Trigger|trigger]] fires matching these conditions,
-run these operations." Carries conditions, escalation operation steps, and recovery/update
-operations. This _is_ the alert/notification policy — there is no separate "policy" object.
+The alerting rule (`action.*`): "when an event matching these conditions occurs, run these
+operations." Carries a filter (conditions), escalation operation steps, and recovery/update
+operations. Parameterised by an immutable `event_source` discriminator. This _is_ the
+alert/notification policy — there is no separate "policy" object.
 _Avoid_: "alert" (the rule) — say **Action**.
+
+**Trigger action**:
+An [[#Action]] with `event_source = 0`: fires when a [[#Trigger|trigger]] changes state.
+Exposed as `zabbix_action_trigger`. The only action type in scope for v1.
+_Avoid_: bare "action" when you mean specifically trigger action.
+
+**Action event source**:
+The immutable discriminator on [[#Action]] that determines which events fire it and which
+condition/operation types are legal. Values: `trigger` (0), `discovery` (1),
+`autoregistration` (2), `internal` (3), `service` (4). Non-overlapping per-source attribute
+sets make this a discriminated union — each source maps to its own resource (see
+[[0015-action-trigger-as-typed-resource]]).
+
+**Action operation**:
+A single step in an [[#Action]]'s escalation chain. Each operation has an `operationtype`
+discriminator. In [[#Trigger action|trigger actions]] only two are meaningful: **send message**
+(type 0) and **remote command** (type 1). Modeled as two exclusive typed nested blocks
+(`send_message` / `remote_command`) within the `operations` list — never as a flat
+`operationtype` attribute with optional sub-objects.
+
+**Recovery / update operation**:
+An entry in `recovery_operations` or `update_operations`. Supports the same `send_message`
+and `remote_command` typed blocks as an [[#Action operation]], plus a `notify_all_involved`
+boolean flag (type 11 — no sub-fields). Illegal types are excluded at the schema level, so
+`recovery_operations` and `update_operations` use a distinct schema type from `operations`.
+
+**Remote command type**:
+The sub-discriminator within a remote command [[#Action operation]]. Five values: `custom_script`
+(0), `ipmi` (1), `ssh` (2), `telnet` (3), `global_script` (4). Per-type sub-fields are
+non-overlapping, so each is modeled as a typed sub-block inside `remote_command` (e.g.
+`remote_command { ssh { username = "..." } }`).
+
+**Action default message**:
+The action-level fallback message content: `default_subject` (API: `def_shortdata`) and
+`default_message` (API: `def_longdata`). Used by any `send_message` operation whose
+`use_default_message = true`. When `use_default_message = false`, `subject` and `message`
+must be set on the operation and are forbidden when `true` — enforced by a `ConfigValidator`.
+
+**Send message recipients**:
+The recipient lists on a send-message [[#Action operation]]. Modeled as `user_group_ids`
+(set of strings) and `user_ids` (set of strings) — never as nested blocks, matching the
+`host_group_ids` idiom on `zabbix_host`. `media_type_id` is optional; omitting it means
+"send via all media types configured for the recipient" (Zabbix API: `mediatypeid = 0`).
+
+**Action filter label**:
+The per-condition join key used in `custom_expression` filter mode. Exposed as `label` (not
+the API name `formulaid`) on each condition block. Only set when `evaltype = "custom_expression"`;
+enforced by a plan-time `ConfigValidator`. Referenced from the filter-level `formula` string
+(e.g. `formula = "{A} and ({B} or {C})"`).
+
+**Action filter**:
+The `filter` block on a [[#Trigger action]]. Contains `evaluation_type` (one of `and_or`, `and`,
+`or`, `custom_expression`) and a list of `condition` blocks. `formula` (filter-level) and `label`
+(per-condition) are only present when `evaluation_type = "custom_expression"`, enforced by a
+`ConfigValidator`. `condition_type` and `operator` are string enums validated independently via
+`stringvalidator.OneOf`; cross-field operator/condition_type constraints are left to the API.
 
 **Media type**:
 A notification delivery channel — email, SMS, webhook, Slack, etc. (`mediatype.*`).
