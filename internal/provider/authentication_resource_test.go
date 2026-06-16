@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gringolito/terraform-provider-zabbix/internal/clienttest"
 	"github.com/gringolito/terraform-provider-zabbix/internal/provider"
 	"github.com/gringolito/terraform-provider-zabbix/internal/testhelper"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
@@ -211,4 +212,61 @@ provider "zabbix" {
   api_token  = %q
 }
 `, cfg.URL, cfg.Token)
+}
+
+func authConfigureWithClient(t *testing.T, r fwresource.Resource, mc *clienttest.TestClient) {
+	t.Helper()
+	rc, ok := r.(fwresource.ResourceWithConfigure)
+	if !ok {
+		t.Fatal("resource does not implement ResourceWithConfigure")
+	}
+	rc.Configure(
+		context.Background(),
+		fwresource.ConfigureRequest{ProviderData: mc},
+		&fwresource.ConfigureResponse{},
+	)
+}
+
+// TestAuthenticationResource_SingletonLock_RejectsDuplicate verifies that
+// Create returns "Duplicate zabbix_authentication resource" when the same
+// client is already registered.
+func TestAuthenticationResource_SingletonLock_RejectsDuplicate(t *testing.T) {
+	t.Cleanup(provider.ResetAuthenticationSingletonForTesting)
+
+	mc := &clienttest.TestClient{}
+	provider.RegisterAuthenticationSingletonForTesting(mc) // precondition: client already registered
+
+	r := provider.NewAuthenticationResource()
+	authConfigureWithClient(t, r, mc)
+
+	var resp fwresource.CreateResponse
+	r.Create(context.Background(), fwresource.CreateRequest{}, &resp)
+
+	if !resp.Diagnostics.HasError() {
+		t.Fatal("expected duplicate error but Create succeeded without error")
+	}
+	for _, d := range resp.Diagnostics.Errors() {
+		if d.Summary() == "Duplicate zabbix_authentication resource" {
+			return
+		}
+	}
+	t.Errorf("expected 'Duplicate zabbix_authentication resource' error, got: %v", resp.Diagnostics)
+}
+
+// TestAuthenticationResource_SingletonLock_AllowsAfterDelete verifies that
+// Delete unregisters the client so a subsequent Create would not be blocked.
+func TestAuthenticationResource_SingletonLock_AllowsAfterDelete(t *testing.T) {
+	t.Cleanup(provider.ResetAuthenticationSingletonForTesting)
+
+	mc := &clienttest.TestClient{}
+	provider.RegisterAuthenticationSingletonForTesting(mc) // precondition: client already registered
+
+	r := provider.NewAuthenticationResource()
+	authConfigureWithClient(t, r, mc)
+
+	r.Delete(context.Background(), fwresource.DeleteRequest{}, &fwresource.DeleteResponse{})
+
+	if provider.IsAuthenticationSingletonRegisteredForTesting(mc) {
+		t.Error("singleton still registered after Delete; a subsequent Create would be incorrectly rejected")
+	}
 }
