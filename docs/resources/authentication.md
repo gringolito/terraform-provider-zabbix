@@ -50,7 +50,7 @@ resource "zabbix_authentication" "example" {
 ### Optional
 
 - `authentication_type` (String) Default authentication method. One of: `internal`, `ldap`. Defaults to `internal`.
-- `disabled_usrgrpid` (String) ID of the user group for deprovisioned users. Required when JIT provisioning is enabled for LDAP or SAML.
+- `disabled_usergroupid` (String) ID of the user group for deprovisioned users. Required when JIT provisioning is enabled for LDAP or SAML.
 - `http_auth_enabled` (String) Whether HTTP authentication is enabled. One of: `enabled`, `disabled`. Defaults to `disabled`.
 - `http_case_sensitive` (String) Whether HTTP authentication is case-sensitive. One of: `enabled`, `disabled`. Defaults to `enabled`.
 - `http_login_form` (String) Login form shown when HTTP auth is active. One of: `zabbix_login_form`, `http_login_form`. Defaults to `zabbix_login_form`.
@@ -62,8 +62,8 @@ resource "zabbix_authentication" "example" {
 - `ldap_userdirectoryid` (String) ID of the default LDAP user directory. Required when `ldap_auth_enabled = "enabled"`. Defaults to `"0"` (none).
 - `mfa_status` (String) Whether multi-factor authentication is enabled. One of: `enabled`, `disabled`. Requires `mfaid` when set. Defaults to `disabled`.
 - `mfaid` (String) ID of the default MFA method. Required when `mfa_status = "enabled"`. Defaults to `"0"` (none).
-- `passwd_check_rules` (Set of String) Password complexity rules to enforce. Valid values: `case_sensitive_letters`, `digits`, `special_characters`, `avoid_common_passwords`. Defaults to all four rules when not specified.
-- `passwd_min_length` (Number) Minimum password length (1–70). Defaults to `8`.
+- `password_check_rules` (Set of String) Password complexity rules to enforce. Valid values: `case_sensitive_letters`, `digits`, `special_characters`, `avoid_common_passwords`. Defaults to all four rules when not specified.
+- `password_min_length` (Number) Minimum password length (1–70). Defaults to `8`.
 - `saml_auth_enabled` (String) Whether SAML authentication is enabled. One of: `enabled`, `disabled`. Defaults to `disabled`.
 - `saml_case_sensitive` (String) Whether SAML authentication is case-sensitive. One of: `enabled`, `disabled`. Defaults to `enabled`.
 - `saml_jit_status` (String) Whether SAML JIT provisioning is enabled. One of: `enabled`, `disabled`. Defaults to `disabled`.

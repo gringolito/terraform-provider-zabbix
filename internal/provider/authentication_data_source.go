@@ -34,12 +34,12 @@ type AuthenticationDataSourceModel struct {
 	LDAPUserDirectoryID  types.String `tfsdk:"ldap_userdirectoryid"`
 	SAMLAuthEnabled      types.String `tfsdk:"saml_auth_enabled"`
 	SAMLCaseSensitive    types.String `tfsdk:"saml_case_sensitive"`
-	PasswdMinLength      types.Int64  `tfsdk:"passwd_min_length"`
-	PasswdCheckRules     types.Set    `tfsdk:"passwd_check_rules"`
+	PasswordMinLength    types.Int64  `tfsdk:"password_min_length"`
+	PasswordCheckRules   types.Set    `tfsdk:"password_check_rules"`
 	JITProvisionInterval types.String `tfsdk:"jit_provision_interval"`
 	SAMLJITStatus        types.String `tfsdk:"saml_jit_status"`
 	LDAPJITStatus        types.String `tfsdk:"ldap_jit_status"`
-	DisabledUsrgrpID     types.String `tfsdk:"disabled_usrgrpid"`
+	DisabledUsergroupID  types.String `tfsdk:"disabled_usergroupid"`
 	MFAStatus            types.String `tfsdk:"mfa_status"`
 	MFAID                types.String `tfsdk:"mfaid"`
 }
@@ -96,11 +96,11 @@ func (d *AuthenticationDataSource) Schema(_ context.Context, _ datasource.Schema
 				Computed:            true,
 				MarkdownDescription: "Whether SAML authentication is case-sensitive. One of: `enabled`, `disabled`.",
 			},
-			"passwd_min_length": schema.Int64Attribute{
+			"password_min_length": schema.Int64Attribute{
 				Computed:            true,
 				MarkdownDescription: "Minimum password length (1–70).",
 			},
-			"passwd_check_rules": schema.SetAttribute{
+			"password_check_rules": schema.SetAttribute{
 				Computed:            true,
 				ElementType:         types.StringType,
 				MarkdownDescription: "Password complexity rules enforced. Values: `case_sensitive_letters`, `digits`, `special_characters`, `avoid_common_passwords`.",
@@ -117,7 +117,7 @@ func (d *AuthenticationDataSource) Schema(_ context.Context, _ datasource.Schema
 				Computed:            true,
 				MarkdownDescription: "Whether LDAP JIT provisioning is enabled. One of: `enabled`, `disabled`.",
 			},
-			"disabled_usrgrpid": schema.StringAttribute{
+			"disabled_usergroupid": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "ID of the user group for deprovisioned users.",
 			},
@@ -182,11 +182,11 @@ func authDSToModel(auth *client.Authentication, m *AuthenticationDataSourceModel
 	m.LDAPUserDirectoryID = types.StringValue(auth.LDAPUserDirectoryID)
 	m.SAMLAuthEnabled = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLAuthEnabled])
 	m.SAMLCaseSensitive = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLCaseSensitive])
-	m.PasswdMinLength = types.Int64Value(auth.PasswdMinLength)
+	m.PasswordMinLength = types.Int64Value(auth.PasswdMinLength)
 	m.JITProvisionInterval = types.StringValue(auth.JITProvisionInterval)
 	m.SAMLJITStatus = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLJITStatus])
 	m.LDAPJITStatus = types.StringValue(authEnabledDisabledReverseMap[auth.LDAPJITStatus])
-	m.DisabledUsrgrpID = types.StringValue(auth.DisabledUsrgrpID)
+	m.DisabledUsergroupID = types.StringValue(auth.DisabledUsrgrpID)
 	m.MFAStatus = types.StringValue(authEnabledDisabledReverseMap[auth.MFAStatus])
 	m.MFAID = types.StringValue(auth.MFAID)
 
@@ -196,7 +196,7 @@ func authDSToModel(auth *client.Authentication, m *AuthenticationDataSourceModel
 		vals[i] = types.StringValue(name)
 	}
 	var d diag.Diagnostics
-	m.PasswdCheckRules, d = types.SetValue(types.StringType, vals)
+	m.PasswordCheckRules, d = types.SetValue(types.StringType, vals)
 	diags.Append(d...)
 
 	return diags

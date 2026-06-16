@@ -26,7 +26,7 @@ output "auth_type" {
 ### Read-Only
 
 - `authentication_type` (String) Default authentication method. One of: `internal`, `ldap`.
-- `disabled_usrgrpid` (String) ID of the user group for deprovisioned users.
+- `disabled_usergroupid` (String) ID of the user group for deprovisioned users.
 - `http_auth_enabled` (String) Whether HTTP authentication is enabled. One of: `enabled`, `disabled`.
 - `http_case_sensitive` (String) Whether HTTP authentication is case-sensitive. One of: `enabled`, `disabled`.
 - `http_login_form` (String) Login form shown when HTTP auth is active. One of: `zabbix_login_form`, `http_login_form`.
@@ -39,8 +39,8 @@ output "auth_type" {
 - `ldap_userdirectoryid` (String) ID of the default LDAP user directory.
 - `mfa_status` (String) Whether multi-factor authentication is enabled. One of: `enabled`, `disabled`.
 - `mfaid` (String) ID of the default MFA method. Returns `"0"` when no MFA factor is configured.
-- `passwd_check_rules` (Set of String) Password complexity rules enforced. Values: `case_sensitive_letters`, `digits`, `special_characters`, `avoid_common_passwords`.
-- `passwd_min_length` (Number) Minimum password length (1–70).
+- `password_check_rules` (Set of String) Password complexity rules enforced. Values: `case_sensitive_letters`, `digits`, `special_characters`, `avoid_common_passwords`.
+- `password_min_length` (Number) Minimum password length (1–70).
 - `saml_auth_enabled` (String) Whether SAML authentication is enabled. One of: `enabled`, `disabled`.
 - `saml_case_sensitive` (String) Whether SAML authentication is case-sensitive. One of: `enabled`, `disabled`.
 - `saml_jit_status` (String) Whether SAML JIT provisioning is enabled. One of: `enabled`, `disabled`.

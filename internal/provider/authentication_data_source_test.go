@@ -48,28 +48,28 @@ func TestAuthenticationDataSource_Schema_AllAttributesComputed(t *testing.T) {
 	}
 }
 
-func TestAuthenticationDataSource_Schema_PasswdCheckRulesIsSet(t *testing.T) {
+func TestAuthenticationDataSource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
 	ds := provider.NewAuthenticationDataSource()
 	schResp := &fwdatasource.SchemaResponse{}
 	ds.Schema(context.Background(), fwdatasource.SchemaRequest{}, schResp)
 
-	attr, ok := schResp.Schema.Attributes["passwd_check_rules"].(fwschema.SetAttribute)
+	attr, ok := schResp.Schema.Attributes["password_check_rules"].(fwschema.SetAttribute)
 	if !ok {
-		t.Fatal("passwd_check_rules is not a SetAttribute")
+		t.Fatal("password_check_rules is not a SetAttribute")
 	}
 	if attr.ElementType != types.StringType {
-		t.Error("passwd_check_rules must have StringType elements")
+		t.Error("password_check_rules must have StringType elements")
 	}
 }
 
-func TestAuthenticationDataSource_Schema_PasswdMinLengthIsInt64(t *testing.T) {
+func TestAuthenticationDataSource_Schema_PasswordMinLengthIsInt64(t *testing.T) {
 	ds := provider.NewAuthenticationDataSource()
 	schResp := &fwdatasource.SchemaResponse{}
 	ds.Schema(context.Background(), fwdatasource.SchemaRequest{}, schResp)
 
-	_, ok := schResp.Schema.Attributes["passwd_min_length"].(fwschema.Int64Attribute)
+	_, ok := schResp.Schema.Attributes["password_min_length"].(fwschema.Int64Attribute)
 	if !ok {
-		t.Fatal("passwd_min_length is not an Int64Attribute")
+		t.Fatal("password_min_length is not an Int64Attribute")
 	}
 }
 
@@ -85,7 +85,7 @@ func TestAccAuthenticationDataSource_ReadsCurrentState(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("data.zabbix_authentication.current", tfjsonpath.New("id"), knownvalue.StringExact("authentication")),
 					statecheck.ExpectKnownValue("data.zabbix_authentication.current", tfjsonpath.New("authentication_type"), knownvalue.StringExact("internal")),
-					statecheck.ExpectKnownValue("data.zabbix_authentication.current", tfjsonpath.New("passwd_min_length"), knownvalue.Int64Exact(11)),
+					statecheck.ExpectKnownValue("data.zabbix_authentication.current", tfjsonpath.New("password_min_length"), knownvalue.Int64Exact(11)),
 				},
 			},
 		},
@@ -100,7 +100,7 @@ provider "zabbix" {
 }
 
 resource "zabbix_authentication" "test" {
-  passwd_min_length = %d
+  password_min_length = %d
 }
 
 data "zabbix_authentication" "current" {

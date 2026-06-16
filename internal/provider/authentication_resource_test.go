@@ -59,17 +59,17 @@ func TestAuthenticationResource_Schema_AuthenticationTypeValidValues(t *testing.
 	}
 }
 
-func TestAuthenticationResource_Schema_PasswdCheckRulesIsSet(t *testing.T) {
+func TestAuthenticationResource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
 
-	attr, ok := schResp.Schema.Attributes["passwd_check_rules"].(fwschema.SetAttribute)
+	attr, ok := schResp.Schema.Attributes["password_check_rules"].(fwschema.SetAttribute)
 	if !ok {
-		t.Fatal("passwd_check_rules is not a SetAttribute")
+		t.Fatal("password_check_rules is not a SetAttribute")
 	}
 	if attr.ElementType != types.StringType {
-		t.Error("passwd_check_rules must have StringType elements")
+		t.Error("password_check_rules must have StringType elements")
 	}
 }
 
@@ -90,31 +90,31 @@ func TestAuthenticationResource_Schema_MFAIDIsOptionalComputed(t *testing.T) {
 	}
 }
 
-func TestAuthenticationResource_Schema_DisabledUsrgrpIDOptionalComputed(t *testing.T) {
+func TestAuthenticationResource_Schema_DisabledUsergroupIDOptionalComputed(t *testing.T) {
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
 
-	attr, ok := schResp.Schema.Attributes["disabled_usrgrpid"].(fwschema.StringAttribute)
+	attr, ok := schResp.Schema.Attributes["disabled_usergroupid"].(fwschema.StringAttribute)
 	if !ok {
-		t.Fatal("disabled_usrgrpid is not a StringAttribute")
+		t.Fatal("disabled_usergroupid is not a StringAttribute")
 	}
 	if !attr.Optional {
-		t.Error("disabled_usrgrpid must be Optional")
+		t.Error("disabled_usergroupid must be Optional")
 	}
 	if !attr.Computed {
-		t.Error("disabled_usrgrpid must be Computed")
+		t.Error("disabled_usergroupid must be Computed")
 	}
 }
 
-func TestAuthenticationResource_Schema_PasswdMinLengthIsInt64(t *testing.T) {
+func TestAuthenticationResource_Schema_PasswordMinLengthIsInt64(t *testing.T) {
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
 
-	_, ok := schResp.Schema.Attributes["passwd_min_length"].(fwschema.Int64Attribute)
+	_, ok := schResp.Schema.Attributes["password_min_length"].(fwschema.Int64Attribute)
 	if !ok {
-		t.Fatal("passwd_min_length is not an Int64Attribute")
+		t.Fatal("password_min_length is not an Int64Attribute")
 	}
 }
 
@@ -132,13 +132,13 @@ func TestAccAuthenticationResource_AdoptAndUpdate(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("id"), knownvalue.StringExact("authentication")),
 					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("authentication_type"), knownvalue.StringExact("internal")),
-					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("passwd_min_length"), knownvalue.Int64Exact(10)),
+					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("password_min_length"), knownvalue.Int64Exact(10)),
 				},
 			},
 			{
 				Config: testAccAuthenticationResourceConfig(cfg, 12),
 				ConfigStateChecks: []statecheck.StateCheck{
-					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("passwd_min_length"), knownvalue.Int64Exact(12)),
+					statecheck.ExpectKnownValue("zabbix_authentication.test", tfjsonpath.New("password_min_length"), knownvalue.Int64Exact(12)),
 				},
 			},
 		},
@@ -199,7 +199,7 @@ provider "zabbix" {
 }
 
 resource "zabbix_authentication" "test" {
-  passwd_min_length = %d
+  password_min_length = %d
 }
 `, cfg.URL, cfg.Token, passwdMinLength)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -69,6 +70,11 @@ var (
 	}
 )
 
+var (
+	authSingletonMu  sync.Mutex
+	authSingletonSet = make(map[client.Client]struct{})
+)
+
 func NewAuthenticationResource() resource.Resource {
 	return &AuthenticationResource{}
 }
@@ -89,12 +95,12 @@ type AuthenticationResourceModel struct {
 	LDAPUserDirectoryID  types.String `tfsdk:"ldap_userdirectoryid"`
 	SAMLAuthEnabled      types.String `tfsdk:"saml_auth_enabled"`
 	SAMLCaseSensitive    types.String `tfsdk:"saml_case_sensitive"`
-	PasswdMinLength      types.Int64  `tfsdk:"passwd_min_length"`
-	PasswdCheckRules     types.Set    `tfsdk:"passwd_check_rules"`
+	PasswordMinLength    types.Int64  `tfsdk:"password_min_length"`
+	PasswordCheckRules   types.Set    `tfsdk:"password_check_rules"`
 	JITProvisionInterval types.String `tfsdk:"jit_provision_interval"`
 	SAMLJITStatus        types.String `tfsdk:"saml_jit_status"`
 	LDAPJITStatus        types.String `tfsdk:"ldap_jit_status"`
-	DisabledUsrgrpID     types.String `tfsdk:"disabled_usrgrpid"`
+	DisabledUsergroupID  types.String `tfsdk:"disabled_usergroupid"`
 	MFAStatus            types.String `tfsdk:"mfa_status"`
 	MFAID                types.String `tfsdk:"mfaid"`
 }
@@ -213,7 +219,7 @@ terraform import zabbix_authentication.example authentication
 					stringvalidator.OneOf("enabled", "disabled"),
 				},
 			},
-			"passwd_min_length": schema.Int64Attribute{
+			"password_min_length": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
 				Default:             int64default.StaticInt64(8),
@@ -222,7 +228,7 @@ terraform import zabbix_authentication.example authentication
 					int64validator.Between(1, 70),
 				},
 			},
-			"passwd_check_rules": schema.SetAttribute{
+			"password_check_rules": schema.SetAttribute{
 				Optional:            true,
 				Computed:            true,
 				ElementType:         types.StringType,
@@ -260,7 +266,7 @@ terraform import zabbix_authentication.example authentication
 					stringvalidator.OneOf("enabled", "disabled"),
 				},
 			},
-			"disabled_usrgrpid": schema.StringAttribute{
+			"disabled_usergroupid": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "ID of the user group for deprovisioned users. Required when JIT provisioning is enabled for LDAP or SAML.",
@@ -308,6 +314,19 @@ func (r *AuthenticationResource) Configure(_ context.Context, req resource.Confi
 // A read-before-write ensures optional+computed fields the user did not specify
 // receive their current Zabbix values rather than empty strings.
 func (r *AuthenticationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	authSingletonMu.Lock()
+	if _, exists := authSingletonSet[r.client]; exists {
+		authSingletonMu.Unlock()
+		resp.Diagnostics.AddError(
+			"Duplicate zabbix_authentication resource",
+			"Only one zabbix_authentication resource may be declared per Terraform configuration. "+
+				"Multiple blocks fight over the same Zabbix singleton and produce non-deterministic results.",
+		)
+		return
+	}
+	authSingletonSet[r.client] = struct{}{}
+	authSingletonMu.Unlock()
+
 	var data AuthenticationResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -423,6 +442,10 @@ func (r *AuthenticationResource) Delete(ctx context.Context, req resource.Delete
 	if err := client.AuthenticationUpdate(ctx, r.client, defaults); err != nil {
 		resp.Diagnostics.AddError("Error resetting authentication to defaults", err.Error())
 	}
+
+	authSingletonMu.Lock()
+	delete(authSingletonSet, r.client)
+	authSingletonMu.Unlock()
 }
 
 func (r *AuthenticationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -433,17 +456,17 @@ func (r *AuthenticationResource) ImportState(ctx context.Context, req resource.I
 // the model with values from the current Zabbix state. Required for Create
 // (adopt) so that unset fields receive valid values rather than empty strings.
 func authFillUnknownFromCurrent(_ context.Context, m *AuthenticationResourceModel, cur *client.Authentication, diags *diag.Diagnostics) {
-	if m.DisabledUsrgrpID.IsNull() || m.DisabledUsrgrpID.IsUnknown() {
-		m.DisabledUsrgrpID = types.StringValue(cur.DisabledUsrgrpID)
+	if m.DisabledUsergroupID.IsNull() || m.DisabledUsergroupID.IsUnknown() {
+		m.DisabledUsergroupID = types.StringValue(cur.DisabledUsrgrpID)
 	}
-	if m.PasswdCheckRules.IsNull() || m.PasswdCheckRules.IsUnknown() {
+	if m.PasswordCheckRules.IsNull() || m.PasswordCheckRules.IsUnknown() {
 		ruleNames := passwdRulesFromBitmask(cur.PasswdCheckRules)
 		vals := make([]attr.Value, len(ruleNames))
 		for i, name := range ruleNames {
 			vals[i] = types.StringValue(name)
 		}
 		var d diag.Diagnostics
-		m.PasswdCheckRules, d = types.SetValue(types.StringType, vals)
+		m.PasswordCheckRules, d = types.SetValue(types.StringType, vals)
 		diags.Append(d...)
 	}
 }
@@ -452,8 +475,8 @@ func authFromModel(ctx context.Context, m *AuthenticationResourceModel) (client.
 	var diags diag.Diagnostics
 
 	var rules []string
-	if !m.PasswdCheckRules.IsNull() && !m.PasswdCheckRules.IsUnknown() {
-		diags.Append(m.PasswdCheckRules.ElementsAs(ctx, &rules, false)...)
+	if !m.PasswordCheckRules.IsNull() && !m.PasswordCheckRules.IsUnknown() {
+		diags.Append(m.PasswordCheckRules.ElementsAs(ctx, &rules, false)...)
 		if diags.HasError() {
 			return client.Authentication{}, diags
 		}
@@ -470,12 +493,12 @@ func authFromModel(ctx context.Context, m *AuthenticationResourceModel) (client.
 		LDAPUserDirectoryID:  m.LDAPUserDirectoryID.ValueString(),
 		SAMLAuthEnabled:      authEnabledDisabledMap[m.SAMLAuthEnabled.ValueString()],
 		SAMLCaseSensitive:    authEnabledDisabledMap[m.SAMLCaseSensitive.ValueString()],
-		PasswdMinLength:      m.PasswdMinLength.ValueInt64(),
+		PasswdMinLength:      m.PasswordMinLength.ValueInt64(),
 		PasswdCheckRules:     passwdRulesToBitmask(rules),
 		JITProvisionInterval: m.JITProvisionInterval.ValueString(),
 		SAMLJITStatus:        authEnabledDisabledMap[m.SAMLJITStatus.ValueString()],
 		LDAPJITStatus:        authEnabledDisabledMap[m.LDAPJITStatus.ValueString()],
-		DisabledUsrgrpID:     m.DisabledUsrgrpID.ValueString(),
+		DisabledUsrgrpID:     m.DisabledUsergroupID.ValueString(),
 		MFAStatus:            authEnabledDisabledMap[m.MFAStatus.ValueString()],
 		MFAID:                m.MFAID.ValueString(),
 	}, diags
@@ -494,11 +517,11 @@ func authToModel(_ context.Context, auth *client.Authentication, m *Authenticati
 	m.LDAPUserDirectoryID = types.StringValue(auth.LDAPUserDirectoryID)
 	m.SAMLAuthEnabled = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLAuthEnabled])
 	m.SAMLCaseSensitive = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLCaseSensitive])
-	m.PasswdMinLength = types.Int64Value(auth.PasswdMinLength)
+	m.PasswordMinLength = types.Int64Value(auth.PasswdMinLength)
 	m.JITProvisionInterval = types.StringValue(auth.JITProvisionInterval)
 	m.SAMLJITStatus = types.StringValue(authEnabledDisabledReverseMap[auth.SAMLJITStatus])
 	m.LDAPJITStatus = types.StringValue(authEnabledDisabledReverseMap[auth.LDAPJITStatus])
-	m.DisabledUsrgrpID = types.StringValue(auth.DisabledUsrgrpID)
+	m.DisabledUsergroupID = types.StringValue(auth.DisabledUsrgrpID)
 	m.MFAStatus = types.StringValue(authEnabledDisabledReverseMap[auth.MFAStatus])
 	m.MFAID = types.StringValue(auth.MFAID)
 
@@ -508,7 +531,7 @@ func authToModel(_ context.Context, auth *client.Authentication, m *Authenticati
 		vals[i] = types.StringValue(name)
 	}
 	var d diag.Diagnostics
-	m.PasswdCheckRules, d = types.SetValue(types.StringType, vals)
+	m.PasswordCheckRules, d = types.SetValue(types.StringType, vals)
 	diags.Append(d...)
 
 	return diags
