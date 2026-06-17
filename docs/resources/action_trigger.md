@@ -3,15 +3,14 @@
 page_title: "zabbix_action_trigger Resource - zabbix"
 subcategory: ""
 description: |-
-  Manages a Zabbix trigger action (event_source = 0).
-  Trigger actions fire when a trigger changes state (problem/recovery/update). The event_source discriminator is hardcoded to 0 — see ADR-0015 ../docs/adr/0015-action-trigger-as-typed-resource.md.
+  Manages a Zabbix trigger action.
+  Trigger actions fire when a trigger changes state (problem/recovery/update).
 ---
 
 # zabbix_action_trigger (Resource)
 
-Manages a Zabbix trigger action (`event_source = 0`).
-
-Trigger actions fire when a trigger changes state (problem/recovery/update). The `event_source` discriminator is hardcoded to `0` — see [ADR-0015](../docs/adr/0015-action-trigger-as-typed-resource.md).
+Manages a Zabbix trigger action.
+Trigger actions fire when a trigger changes state (problem/recovery/update).
 
 ## Example Usage
 
@@ -198,9 +197,9 @@ Optional:
 
 - `authtype` (String) Authentication type. One of: `password`, `public_key`.
 - `command` (String) Command to execute over SSH.
-- `password` (String) SSH password (used when `authtype = "password"`).
-- `port` (String) SSH port. Defaults to `""` (Zabbix uses 22).
-- `private_key` (String) Private key for SSH authentication (used when `authtype = "public_key"`).
+- `password` (String, Sensitive) SSH password (used when `authtype = "password"`).
+- `port` (String) SSH port. Accepts a port number or a macro (e.g. `"{$SSH_PORT}"`). Defaults to `"22"`.
+- `private_key` (String, Sensitive) Private key for SSH authentication (used when `authtype = "public_key"`).
 - `public_key` (String) Public key for SSH authentication (used when `authtype = "public_key"`).
 - `username` (String) SSH username.
 
@@ -211,8 +210,8 @@ Optional:
 Optional:
 
 - `command` (String) Command to execute over Telnet.
-- `password` (String) Telnet password.
-- `port` (String) Telnet port. Defaults to `""` (Zabbix uses 23).
+- `password` (String, Sensitive) Telnet password.
+- `port` (String) Telnet port. Accepts a port number or a macro (e.g. `"{$TELNET_PORT}"`). Defaults to `"23"`.
 - `username` (String) Telnet username.
 
 
@@ -286,9 +285,9 @@ Optional:
 
 - `authtype` (String) Authentication type. One of: `password`, `public_key`.
 - `command` (String) Command to execute over SSH.
-- `password` (String) SSH password (used when `authtype = "password"`).
-- `port` (String) SSH port. Defaults to `""` (Zabbix uses 22).
-- `private_key` (String) Private key for SSH authentication (used when `authtype = "public_key"`).
+- `password` (String, Sensitive) SSH password (used when `authtype = "password"`).
+- `port` (String) SSH port. Accepts a port number or a macro (e.g. `"{$SSH_PORT}"`). Defaults to `"22"`.
+- `private_key` (String, Sensitive) Private key for SSH authentication (used when `authtype = "public_key"`).
 - `public_key` (String) Public key for SSH authentication (used when `authtype = "public_key"`).
 - `username` (String) SSH username.
 
@@ -299,8 +298,8 @@ Optional:
 Optional:
 
 - `command` (String) Command to execute over Telnet.
-- `password` (String) Telnet password.
-- `port` (String) Telnet port. Defaults to `""` (Zabbix uses 23).
+- `password` (String, Sensitive) Telnet password.
+- `port` (String) Telnet port. Accepts a port number or a macro (e.g. `"{$TELNET_PORT}"`). Defaults to `"23"`.
 - `username` (String) Telnet username.
 
 
@@ -374,9 +373,9 @@ Optional:
 
 - `authtype` (String) Authentication type. One of: `password`, `public_key`.
 - `command` (String) Command to execute over SSH.
-- `password` (String) SSH password (used when `authtype = "password"`).
-- `port` (String) SSH port. Defaults to `""` (Zabbix uses 22).
-- `private_key` (String) Private key for SSH authentication (used when `authtype = "public_key"`).
+- `password` (String, Sensitive) SSH password (used when `authtype = "password"`).
+- `port` (String) SSH port. Accepts a port number or a macro (e.g. `"{$SSH_PORT}"`). Defaults to `"22"`.
+- `private_key` (String, Sensitive) Private key for SSH authentication (used when `authtype = "public_key"`).
 - `public_key` (String) Public key for SSH authentication (used when `authtype = "public_key"`).
 - `username` (String) SSH username.
 
@@ -387,8 +386,8 @@ Optional:
 Optional:
 
 - `command` (String) Command to execute over Telnet.
-- `password` (String) Telnet password.
-- `port` (String) Telnet port. Defaults to `""` (Zabbix uses 23).
+- `password` (String, Sensitive) Telnet password.
+- `port` (String) Telnet port. Accepts a port number or a macro (e.g. `"{$TELNET_PORT}"`). Defaults to `"23"`.
 - `username` (String) Telnet username.
 
 

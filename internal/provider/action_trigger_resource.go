@@ -399,6 +399,7 @@ func (r *ActionTriggerResource) Schema(_ context.Context, _ resource.SchemaReque
 					"password": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
+						Sensitive:           true,
 						Default:             stringdefault.StaticString(""),
 						MarkdownDescription: "SSH password (used when `authtype = \"password\"`).",
 					},
@@ -411,14 +412,15 @@ func (r *ActionTriggerResource) Schema(_ context.Context, _ resource.SchemaReque
 					"private_key": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
+						Sensitive:           true,
 						Default:             stringdefault.StaticString(""),
 						MarkdownDescription: "Private key for SSH authentication (used when `authtype = \"public_key\"`).",
 					},
 					"port": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Default:             stringdefault.StaticString(""),
-						MarkdownDescription: "SSH port. Defaults to `\"\"` (Zabbix uses 22).",
+						Default:             stringdefault.StaticString("22"),
+						MarkdownDescription: "SSH port. Accepts a port number or a macro (e.g. `\"{$SSH_PORT}\"`). Defaults to `\"22\"`.",
 					},
 				},
 			},
@@ -435,13 +437,14 @@ func (r *ActionTriggerResource) Schema(_ context.Context, _ resource.SchemaReque
 					},
 					"password": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						MarkdownDescription: "Telnet password.",
 					},
 					"port": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Default:             stringdefault.StaticString(""),
-						MarkdownDescription: "Telnet port. Defaults to `\"\"` (Zabbix uses 23).",
+						Default:             stringdefault.StaticString("23"),
+						MarkdownDescription: "Telnet port. Accepts a port number or a macro (e.g. `\"{$TELNET_PORT}\"`). Defaults to `\"23\"`.",
 					},
 				},
 			},
@@ -463,9 +466,8 @@ func (r *ActionTriggerResource) Schema(_ context.Context, _ resource.SchemaReque
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a Zabbix trigger action (`event_source = 0`).\n\n" +
-			"Trigger actions fire when a trigger changes state (problem/recovery/update). " +
-			"The `event_source` discriminator is hardcoded to `0` — see [ADR-0015](../docs/adr/0015-action-trigger-as-typed-resource.md).",
+		MarkdownDescription: "Manages a Zabbix trigger action.\n" +
+			"Trigger actions fire when a trigger changes state (problem/recovery/update).",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
