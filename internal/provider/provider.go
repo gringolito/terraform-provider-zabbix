@@ -143,6 +143,7 @@ func (p *ZabbixProvider) Resources(_ context.Context) []func() resource.Resource
 		NewUserDirectorySAMLResource,
 		NewTriggerResource,
 		NewAuthenticationResource,
+		NewActionTriggerResource,
 	}
 }
 
@@ -164,6 +165,7 @@ func (p *ZabbixProvider) DataSources(_ context.Context) []func() datasource.Data
 		NewTriggerDataSource,
 		NewItemDataSource,
 		NewAuthenticationDataSource,
+		NewActionTriggerDataSource,
 	}
 }
 
