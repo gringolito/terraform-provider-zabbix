@@ -55,7 +55,7 @@ output "script" {
 
 Read-Only:
 
-- `eventsource` (String) Event source type.
+- `event_source` (String) Event source type.
 - `message` (String) Message body.
 - `recovery` (String) Recovery type.
 - `subject` (String) Message subject.

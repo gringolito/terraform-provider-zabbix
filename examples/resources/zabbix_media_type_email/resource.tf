@@ -14,10 +14,10 @@ resource "zabbix_media_type_email" "alerts" {
 
   message_templates = [
     {
-      eventsource = "trigger"
-      recovery    = "operation"
-      subject     = "Problem: {EVENT.NAME}"
-      message     = "Problem started at {EVENT.TIME} on {EVENT.DATE}\nProblem name: {EVENT.NAME}\nHost: {HOST.NAME}\nSeverity: {EVENT.SEVERITY}"
+      event_source = "trigger"
+      recovery     = "operation"
+      subject      = "Problem: {EVENT.NAME}"
+      message      = "Problem started at {EVENT.TIME} on {EVENT.DATE}\nProblem name: {EVENT.NAME}\nHost: {HOST.NAME}\nSeverity: {EVENT.SEVERITY}"
     },
   ]
 }

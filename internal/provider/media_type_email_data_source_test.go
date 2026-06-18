@@ -141,7 +141,7 @@ func buildMediaTypeEmailDataSourceConfig(t *testing.T, id, name string) tfsdk.Co
 	nullStr := tftypes.NewValue(tftypes.String, nil)
 	nullNum := tftypes.NewValue(tftypes.Number, nil)
 	msgTemplateType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{
-		"eventsource": tftypes.String, "recovery": tftypes.String, "subject": tftypes.String, "message": tftypes.String,
+		"event_source": tftypes.String, "recovery": tftypes.String, "subject": tftypes.String, "message": tftypes.String,
 	}}
 
 	objType := tftypes.Object{AttributeTypes: map[string]tftypes.Type{

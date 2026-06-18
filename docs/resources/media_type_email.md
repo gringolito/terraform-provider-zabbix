@@ -29,10 +29,10 @@ resource "zabbix_media_type_email" "alerts" {
 
   message_templates = [
     {
-      eventsource = "trigger"
-      recovery    = "operation"
-      subject     = "Problem: {EVENT.NAME}"
-      message     = "Problem started at {EVENT.TIME} on {EVENT.DATE}\nProblem name: {EVENT.NAME}\nHost: {HOST.NAME}\nSeverity: {EVENT.SEVERITY}"
+      event_source = "trigger"
+      recovery     = "operation"
+      subject      = "Problem: {EVENT.NAME}"
+      message      = "Problem started at {EVENT.TIME} on {EVENT.DATE}\nProblem name: {EVENT.NAME}\nHost: {HOST.NAME}\nSeverity: {EVENT.SEVERITY}"
     },
   ]
 }
@@ -74,7 +74,7 @@ resource "zabbix_media_type_email" "alerts" {
 
 Required:
 
-- `eventsource` (String) Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.
+- `event_source` (String) Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.
 - `message` (String) Message body.
 - `recovery` (String) Recovery mode. One of: `operation`, `recovery`, `update`.
 - `subject` (String) Message subject.
