@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -75,7 +76,10 @@ func (r *MediaTypeEmailResource) Schema(_ context.Context, _ resource.SchemaRequ
 		Optional:            true,
 		Computed:            true,
 		Default:             int64default.StaticInt64(25),
-		MarkdownDescription: "SMTP server port. Defaults to `25`.",
+		MarkdownDescription: "SMTP server port (1–65535). Defaults to `25`.",
+		Validators: []validator.Int64{
+			int64validator.Between(1, 65535),
+		},
 	}
 	attrs["smtp_helo"] = rschema.StringAttribute{
 		Optional:            true,

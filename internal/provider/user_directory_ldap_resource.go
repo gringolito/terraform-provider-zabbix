@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -58,7 +59,10 @@ func (r *UserDirectoryLDAPResource) Schema(_ context.Context, _ resource.SchemaR
 		Optional:            true,
 		Computed:            true,
 		Default:             int64default.StaticInt64(389),
-		MarkdownDescription: "Port of the LDAP server. Defaults to `389`.",
+		MarkdownDescription: "LDAP server port (1–65535). Defaults to `389`.",
+		Validators: []validator.Int64{
+			int64validator.Between(1, 65535),
+		},
 	}
 	attrs["base_dn"] = schema.StringAttribute{
 		Required:            true,

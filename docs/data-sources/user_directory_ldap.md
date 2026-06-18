@@ -37,7 +37,7 @@ data "zabbix_user_directory_ldap" "corp" {
 - `group_membership` (String) LDAP attribute on user listing their groups.
 - `group_name` (String) Name of the IdP attribute that carries group membership.
 - `host` (String) Hostname or IP address of the LDAP server.
-- `port` (Number) Port of the LDAP server.
+- `port` (Number) LDAP server port (1–65535).
 - `provision_groups` (Attributes List) IdP group to Zabbix role and user groups mappings. (see [below for nested schema](#nestedatt--provision_groups))
 - `provision_media` (Attributes List) IdP attribute to Zabbix media type mappings. (see [below for nested schema](#nestedatt--provision_media))
 - `provision_status` (String) Whether JIT provisioning is enabled: `enabled` or `disabled`.

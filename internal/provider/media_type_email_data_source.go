@@ -42,7 +42,7 @@ func (d *MediaTypeEmailDataSource) Metadata(_ context.Context, req datasource.Me
 func (d *MediaTypeEmailDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	attrs := commonMediaTypeDataSourceAttributes()
 	attrs["smtp_server"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP server address."}
-	attrs["smtp_port"] = dschema.Int64Attribute{Computed: true, MarkdownDescription: "SMTP server port."}
+	attrs["smtp_port"] = dschema.Int64Attribute{Computed: true, MarkdownDescription: "SMTP server port (1–65535)."}
 	attrs["smtp_helo"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP HELO/EHLO hostname."}
 	attrs["smtp_email"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "From address for outgoing email."}
 	attrs["smtp_security"] = dschema.StringAttribute{Computed: true, MarkdownDescription: "SMTP connection security."}
