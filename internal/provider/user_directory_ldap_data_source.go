@@ -43,7 +43,7 @@ func (d *UserDirectoryLDAPDataSource) Metadata(_ context.Context, req datasource
 func (d *UserDirectoryLDAPDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	attrs := commonUserDirectoryDataSourceAttributes()
 	attrs["host"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Hostname or IP address of the LDAP server."}
-	attrs["port"] = schema.Int64Attribute{Computed: true, MarkdownDescription: "Port of the LDAP server."}
+	attrs["port"] = schema.Int64Attribute{Computed: true, MarkdownDescription: "LDAP server port (1–65535)."}
 	attrs["base_dn"] = schema.StringAttribute{Computed: true, MarkdownDescription: "Base DN for LDAP search."}
 	attrs["search_attribute"] = schema.StringAttribute{Computed: true, MarkdownDescription: "LDAP attribute used to identify users."}
 	attrs["bind_dn"] = schema.StringAttribute{Computed: true, MarkdownDescription: "DN used to bind to the LDAP server."}

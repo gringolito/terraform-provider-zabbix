@@ -3,6 +3,7 @@ package provider_test
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/provider"
@@ -16,6 +17,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 )
+
+func TestUserDirectoryLDAPResource_PortBelowRange(t *testing.T) {
+	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccLDAPResourcePortBelowRangeConfig(cfg),
+				ExpectError: regexp.MustCompile(`between 1 and 65535`),
+			},
+		},
+	})
+}
+
+func TestUserDirectoryLDAPResource_PortAboveRange(t *testing.T) {
+	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccLDAPResourcePortAboveRangeConfig(cfg),
+				ExpectError: regexp.MustCompile(`between 1 and 65535`),
+			},
+		},
+	})
+}
 
 func TestUserDirectoryLDAPResource_SchemaValidation(t *testing.T) {
 	r := provider.NewUserDirectoryLDAPResource()
@@ -140,4 +169,38 @@ resource "zabbix_user_directory_ldap" "test" {
   search_attribute = "uid"
 }
 `, cfg.URL, cfg.Token, name)
+}
+
+func testAccLDAPResourcePortBelowRangeConfig(cfg *testhelper.Config) string {
+	return fmt.Sprintf(`
+provider "zabbix" {
+  zabbix_url = %q
+  api_token  = %q
+}
+
+resource "zabbix_user_directory_ldap" "test" {
+  name             = "test"
+  host             = "ldap.example.com"
+  base_dn          = "dc=example,dc=com"
+  search_attribute = "uid"
+  port             = 0
+}
+`, cfg.URL, cfg.Token)
+}
+
+func testAccLDAPResourcePortAboveRangeConfig(cfg *testhelper.Config) string {
+	return fmt.Sprintf(`
+provider "zabbix" {
+  zabbix_url = %q
+  api_token  = %q
+}
+
+resource "zabbix_user_directory_ldap" "test" {
+  name             = "test"
+  host             = "ldap.example.com"
+  base_dn          = "dc=example,dc=com"
+  search_attribute = "uid"
+  port             = 65536
+}
+`, cfg.URL, cfg.Token)
 }

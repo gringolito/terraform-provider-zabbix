@@ -60,7 +60,7 @@ resource "zabbix_media_type_email" "alerts" {
 - `password` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SMTP authentication password. Write-only; not stored in state or returned by the API.
 - `smtp_authentication` (String) SMTP authentication method. One of: `none`, `normal_password`. Defaults to `none`.
 - `smtp_helo` (String) SMTP HELO/EHLO hostname.
-- `smtp_port` (Number) SMTP server port. Defaults to `25`.
+- `smtp_port` (Number) SMTP server port (1–65535). Defaults to `25`.
 - `smtp_security` (String) SMTP connection security. One of: `none`, `starttls`, `ssl_tls`. Defaults to `none`.
 - `status` (String) Whether the media type is active. One of: `enabled`, `disabled`. Defaults to `enabled`.
 - `username` (String) SMTP authentication username.

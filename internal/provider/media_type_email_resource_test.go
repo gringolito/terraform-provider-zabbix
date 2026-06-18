@@ -3,6 +3,7 @@ package provider_test
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
@@ -113,6 +114,34 @@ func TestAccMediaTypeEmailResource_Drift(t *testing.T) {
 	})
 }
 
+func TestMediaTypeEmailResource_SmtpPortBelowRange(t *testing.T) {
+	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccEmailMediaTypeResourceSmtpPortBelowRangeConfig(cfg),
+				ExpectError: regexp.MustCompile(`between 1 and 65535`),
+			},
+		},
+	})
+}
+
+func TestMediaTypeEmailResource_SmtpPortAboveRange(t *testing.T) {
+	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccEmailMediaTypeResourceSmtpPortAboveRangeConfig(cfg),
+				ExpectError: regexp.MustCompile(`between 1 and 65535`),
+			},
+		},
+	})
+}
+
 func testAccEmailMediaTypeResourceConfig(cfg *testhelper.Config, name, smtpServer string) string {
 	return fmt.Sprintf(`
 provider "zabbix" {
@@ -126,4 +155,36 @@ resource "zabbix_media_type_email" "test" {
   smtp_email  = "alerts@example.com"
 }
 `, cfg.URL, cfg.Token, name, smtpServer)
+}
+
+func testAccEmailMediaTypeResourceSmtpPortBelowRangeConfig(cfg *testhelper.Config) string {
+	return fmt.Sprintf(`
+provider "zabbix" {
+  zabbix_url = %[1]q
+  api_token  = %[2]q
+}
+
+resource "zabbix_media_type_email" "test" {
+  name        = "test"
+  smtp_server = "smtp.example.com"
+  smtp_email  = "alerts@example.com"
+  smtp_port   = 0
+}
+`, cfg.URL, cfg.Token)
+}
+
+func testAccEmailMediaTypeResourceSmtpPortAboveRangeConfig(cfg *testhelper.Config) string {
+	return fmt.Sprintf(`
+provider "zabbix" {
+  zabbix_url = %[1]q
+  api_token  = %[2]q
+}
+
+resource "zabbix_media_type_email" "test" {
+  name        = "test"
+  smtp_server = "smtp.example.com"
+  smtp_email  = "alerts@example.com"
+  smtp_port   = 65536
+}
+`, cfg.URL, cfg.Token)
 }

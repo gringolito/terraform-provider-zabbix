@@ -45,7 +45,7 @@ output "smtp_server" {
 - `smtp_authentication` (String) SMTP authentication method.
 - `smtp_email` (String) From address for outgoing email.
 - `smtp_helo` (String) SMTP HELO/EHLO hostname.
-- `smtp_port` (Number) SMTP server port.
+- `smtp_port` (Number) SMTP server port (1–65535).
 - `smtp_security` (String) SMTP connection security.
 - `smtp_server` (String) SMTP server address.
 - `status` (String) Whether the media type is active: `enabled` or `disabled`.
