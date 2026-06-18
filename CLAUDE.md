@@ -2,16 +2,17 @@
 
 ## Git conventions
 
-All commits must be signed and signed-off. Use `git commit -S -s` or configure `commit.gpgsign = true` and always pass `-s`.
+All commits must be signed and signed-off. Use `git commit -S -s`.
 
 ## PR checklist
 
 Before opening any PR that is not documentation-only, run:
 
-1. `make generate` — regenerate any auto-generated files
-2. `make build` — ensure the project compiles
-3. `make lint` — ensure there are no lint errors
-4. `make acc-tests` — run both unit tests and acceptance tests
+1. `make fmt` - apply code format rules
+2. `make generate` — regenerate any auto-generated files
+3. `make build` — ensure the project compiles
+4. `make lint` — ensure there are no lint errors
+5. `make acc-tests` — run both unit tests and acceptance tests
 
 ## Running tests
 

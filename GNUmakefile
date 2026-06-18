@@ -8,12 +8,14 @@ install: build
 
 lint:
 	golangci-lint run
+	terraform fmt -check -recursive examples/
 
 generate:
 	go tool tfplugindocs generate -provider-name zabbix
 
 fmt:
 	gofmt -s -w -e .
+	terraform fmt -recursive examples/
 
 unit-tests:
 	go test -v -coverprofile=coverage.out -covermode=atomic -timeout=120s -parallel=10 ./...
