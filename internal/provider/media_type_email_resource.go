@@ -5,12 +5,14 @@ import (
 	"fmt"
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -90,12 +92,18 @@ func (r *MediaTypeEmailResource) Schema(_ context.Context, _ resource.SchemaRequ
 		Computed:            true,
 		Default:             stringdefault.StaticString("none"),
 		MarkdownDescription: "SMTP connection security. One of: `none`, `starttls`, `ssl_tls`. Defaults to `none`.",
+		Validators: []validator.String{
+			stringvalidator.OneOf("none", "starttls", "ssl_tls"),
+		},
 	}
 	attrs["smtp_authentication"] = rschema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             stringdefault.StaticString("none"),
 		MarkdownDescription: "SMTP authentication method. One of: `none`, `normal_password`. Defaults to `none`.",
+		Validators: []validator.String{
+			stringvalidator.OneOf("none", "normal_password"),
+		},
 	}
 	attrs["username"] = rschema.StringAttribute{
 		Optional:            true,
@@ -113,6 +121,9 @@ func (r *MediaTypeEmailResource) Schema(_ context.Context, _ resource.SchemaRequ
 		Computed:            true,
 		Default:             stringdefault.StaticString("html"),
 		MarkdownDescription: "Email content type. One of: `text`, `html`. Defaults to `html`.",
+		Validators: []validator.String{
+			stringvalidator.OneOf("text", "html"),
+		},
 	}
 	resp.Schema = rschema.Schema{
 		MarkdownDescription: "Manages a Zabbix email media type (notification channel via SMTP).",

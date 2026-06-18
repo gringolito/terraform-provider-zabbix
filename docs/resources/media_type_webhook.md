@@ -68,7 +68,7 @@ resource "zabbix_media_type_webhook" "pagerduty" {
 
 Required:
 
-- `eventsource` (String) Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.
+- `event_source` (String) Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.
 - `message` (String) Message body.
 - `recovery` (String) Recovery mode. One of: `operation`, `recovery`, `update`.
 - `subject` (String) Message subject.

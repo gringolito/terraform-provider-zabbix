@@ -6,6 +6,7 @@ import (
 
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -26,10 +27,10 @@ var (
 		"value": types.StringType,
 	}
 	msgTemplateAttrTypes = map[string]attr.Type{
-		"eventsource": types.StringType,
-		"recovery":    types.StringType,
-		"subject":     types.StringType,
-		"message":     types.StringType,
+		"event_source": types.StringType,
+		"recovery":     types.StringType,
+		"subject":      types.StringType,
+		"message":      types.StringType,
 	}
 )
 
@@ -50,7 +51,7 @@ type MediaTypeBaseModel struct {
 }
 
 type MessageTemplateModel struct {
-	EventSource types.String `tfsdk:"eventsource"`
+	EventSource types.String `tfsdk:"event_source"`
 	Recovery    types.String `tfsdk:"recovery"`
 	Subject     types.String `tfsdk:"subject"`
 	Message     types.String `tfsdk:"message"`
@@ -74,17 +75,17 @@ var (
 	}
 )
 
-// --- Shared eventsource/recovery maps ---
+// --- Shared event_source/recovery maps ---
 
 var (
-	eventsourceMap = map[string]int{
+	eventSourceMap = map[string]int{
 		"trigger":          0,
 		"discovery":        1,
 		"autoregistration": 2,
 		"internal":         3,
 		"service":          4,
 	}
-	eventsourceReverseMap = map[int]string{
+	eventSourceReverseMap = map[int]string{
 		0: "trigger",
 		1: "discovery",
 		2: "autoregistration",
@@ -125,6 +126,9 @@ func commonMediaTypeResourceAttributes() map[string]rschema.Attribute {
 			Computed:            true,
 			Default:             stringdefault.StaticString("enabled"),
 			MarkdownDescription: "Whether the media type is active. One of: `enabled`, `disabled`. Defaults to `enabled`.",
+			Validators: []validator.String{
+				stringvalidator.OneOf("enabled", "disabled"),
+			},
 		},
 		"description": rschema.StringAttribute{
 			Optional:            true,
@@ -162,13 +166,19 @@ func commonMediaTypeResourceAttributes() map[string]rschema.Attribute {
 			MarkdownDescription: "Per-event-source notification templates. If unset, Zabbix defaults are used.",
 			NestedObject: rschema.NestedAttributeObject{
 				Attributes: map[string]rschema.Attribute{
-					"eventsource": rschema.StringAttribute{
+					"event_source": rschema.StringAttribute{
 						Required:            true,
 						MarkdownDescription: "Event source. One of: `trigger`, `discovery`, `autoregistration`, `internal`, `service`.",
+						Validators: []validator.String{
+							stringvalidator.OneOf("trigger", "discovery", "autoregistration", "internal", "service"),
+						},
 					},
 					"recovery": rschema.StringAttribute{
 						Required:            true,
 						MarkdownDescription: "Recovery mode. One of: `operation`, `recovery`, `update`.",
+						Validators: []validator.String{
+							stringvalidator.OneOf("operation", "recovery", "update"),
+						},
 					},
 					"subject": rschema.StringAttribute{
 						Required:            true,
@@ -223,10 +233,10 @@ func commonMediaTypeDataSourceAttributes() map[string]dschema.Attribute {
 			MarkdownDescription: "Per-event-source notification templates.",
 			NestedObject: dschema.NestedAttributeObject{
 				Attributes: map[string]dschema.Attribute{
-					"eventsource": dschema.StringAttribute{Computed: true, MarkdownDescription: "Event source type."},
-					"recovery":    dschema.StringAttribute{Computed: true, MarkdownDescription: "Recovery type."},
-					"subject":     dschema.StringAttribute{Computed: true, MarkdownDescription: "Message subject."},
-					"message":     dschema.StringAttribute{Computed: true, MarkdownDescription: "Message body."},
+					"event_source": dschema.StringAttribute{Computed: true, MarkdownDescription: "Event source type."},
+					"recovery":     dschema.StringAttribute{Computed: true, MarkdownDescription: "Recovery type."},
+					"subject":      dschema.StringAttribute{Computed: true, MarkdownDescription: "Message subject."},
+					"message":      dschema.StringAttribute{Computed: true, MarkdownDescription: "Message body."},
 				},
 			},
 		},
@@ -254,7 +264,7 @@ func mediaTypeBaseFromModel(ctx context.Context, m MediaTypeBaseModel) (client.M
 			tmpl := make([]client.MessageTemplate, len(tmplModels))
 			for i, t := range tmplModels {
 				tmpl[i] = client.MessageTemplate{
-					EventSource: eventsourceMap[t.EventSource.ValueString()],
+					EventSource: eventSourceMap[t.EventSource.ValueString()],
 					Recovery:    recoveryMap[t.Recovery.ValueString()],
 					Subject:     t.Subject.ValueString(),
 					Message:     t.Message.ValueString(),
@@ -282,9 +292,9 @@ func mediaTypeBaseToModel(ctx context.Context, mt *client.MediaType, m *MediaTyp
 		if len(mt.MessageTemplates) > 0 {
 			tmplModels := make([]MessageTemplateModel, len(mt.MessageTemplates))
 			for i, t := range mt.MessageTemplates {
-				src, ok := eventsourceReverseMap[t.EventSource]
+				src, ok := eventSourceReverseMap[t.EventSource]
 				if !ok {
-					diags.AddError("Unknown eventsource", fmt.Sprintf("Unrecognized eventsource value %d from API.", t.EventSource))
+					diags.AddError("Unknown event_source", fmt.Sprintf("Unrecognized event_source value %d from API.", t.EventSource))
 					return diags
 				}
 				rec, ok := recoveryReverseMap[t.Recovery]
