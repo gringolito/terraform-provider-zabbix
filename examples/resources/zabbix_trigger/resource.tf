@@ -17,9 +17,9 @@ resource "zabbix_trigger" "disk_low" {
 
 # Trigger with no recovery (manual close only)
 resource "zabbix_trigger" "service_down" {
-  description  = "Service is unavailable"
-  expression   = "last(/web-srv-01/net.tcp.service[http,,80])=0"
-  priority     = "disaster"
+  description   = "Service is unavailable"
+  expression    = "last(/web-srv-01/net.tcp.service[http,,80])=0"
+  priority      = "disaster"
   recovery_mode = "none"
   manual_close  = true
 }
