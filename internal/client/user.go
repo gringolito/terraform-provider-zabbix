@@ -9,20 +9,36 @@ import (
 // User represents a Zabbix user.
 // Zabbix 7.0 JSON-RPC returns integer fields as JSON strings.
 type User struct {
-	UserID   string `json:"userid"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Surname  string `json:"surname"`
-	Type     int64  `json:"type,string"`
-	RoleID   string `json:"roleid"`
+	UserID        string `json:"userid"`
+	Username      string `json:"username"`
+	Name          string `json:"name"`
+	Surname       string `json:"surname"`
+	URL           string `json:"url"`
+	AutoLogin     string `json:"autologin"`
+	AutoLogout    string `json:"autologout"`
+	Language      string `json:"lang"`
+	Refresh       string `json:"refresh"`
+	Theme         string `json:"theme"`
+	AttemptFailed string `json:"attempt_failed"`
+	AttemptIP     string `json:"attempt_ip"`
+	AttemptClock  string `json:"attempt_clock"`
+	RowsPerPage   string `json:"rows_per_page"`
+	Timezone      string `json:"timezone"`
+	Provisioned   string `json:"provisioned"`
+	GUIAccess     int64  `json:"gui_access,string"`
+	DebugMode     int64  `json:"debug_mode,string"`
+	UsersStatus   int64  `json:"users_status,string"`
+	Type          int64  `json:"type,string"`
+	RoleID        string `json:"roleid"`
 }
 
 // UserGet fetches a user by ID. Returns nil if not found.
 func UserGet(ctx context.Context, c Client, id string) (*User, error) {
 	result, err := c.Call(ctx, "user.get", map[string]any{
-		"userids": []string{id},
-		"output":  "extend",
-		"limit":   1,
+		"userids":   []string{id},
+		"output":    "extend",
+		"getAccess": true,
+		"limit":     1,
 	})
 	if err != nil {
 		return nil, err
@@ -40,8 +56,9 @@ func UserGet(ctx context.Context, c Client, id string) (*User, error) {
 // UserGetByUsername fetches users matching the given username.
 func UserGetByUsername(ctx context.Context, c Client, username string) ([]User, error) {
 	result, err := c.Call(ctx, "user.get", map[string]any{
-		"filter": map[string]any{"username": []string{username}},
-		"output": "extend",
+		"filter":    map[string]any{"username": []string{username}},
+		"output":    "extend",
+		"getAccess": true,
 	})
 	if err != nil {
 		return nil, err

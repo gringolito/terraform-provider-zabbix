@@ -45,6 +45,36 @@ func TestAccUserDataSource_ByUsername(t *testing.T) {
 						tfjsonpath.New("type"),
 						knownvalue.StringExact("super_admin"),
 					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("gui_access"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("debug_mode"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("users_status"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("language"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("timezone"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"data.zabbix_user.test",
+						tfjsonpath.New("rows_per_page"),
+						knownvalue.NotNull(),
+					),
 				},
 			},
 		},
@@ -116,8 +146,8 @@ func TestUserDataSource_MissingKeyError(t *testing.T) {
 func TestUserDataSource_MultipleMatchError(t *testing.T) {
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
-			{"userid": "1", "username": "Admin", "name": "Zabbix", "surname": "Administrator", "type": "3", "roleid": "3"},
-			{"userid": "2", "username": "Admin", "name": "Zabbix", "surname": "Administrator", "type": "3", "roleid": "3"},
+			testFakeUserResponse("1", "Admin"),
+			testFakeUserResponse("2", "Admin"),
 		},
 	}
 
@@ -155,6 +185,32 @@ func TestUserDataSource_ZeroMatchError(t *testing.T) {
 
 // ---- helpers ----
 
+func testFakeUserResponse(id, username string) map[string]any {
+	return map[string]any{
+		"userid":         id,
+		"username":       username,
+		"name":           "Zabbix",
+		"surname":        "Administrator",
+		"url":            "",
+		"autologin":      "0",
+		"autologout":     "0",
+		"lang":           "default",
+		"refresh":        "30s",
+		"theme":          "default",
+		"attempt_failed": "0",
+		"attempt_ip":     "",
+		"attempt_clock":  "0",
+		"rows_per_page":  "50",
+		"timezone":       "default",
+		"roleid":         "3",
+		"provisioned":    "0",
+		"gui_access":     "0",
+		"debug_mode":     "0",
+		"users_status":   "0",
+		"type":           "3",
+	}
+}
+
 func newFakeUserDataSource(t *testing.T, fake any) datasource.DataSource {
 	t.Helper()
 	ds := provider.NewUserDataSource()
@@ -184,20 +240,50 @@ func buildUserDataSourceConfig(t *testing.T, id, username string) tfsdk.Config {
 	return tfsdk.Config{
 		Raw: tftypes.NewValue(tftypes.Object{
 			AttributeTypes: map[string]tftypes.Type{
-				"id":       tftypes.String,
-				"username": tftypes.String,
-				"name":     tftypes.String,
-				"surname":  tftypes.String,
-				"type":     tftypes.String,
-				"role_id":  tftypes.String,
+				"id":             tftypes.String,
+				"username":       tftypes.String,
+				"name":           tftypes.String,
+				"surname":        tftypes.String,
+				"url":            tftypes.String,
+				"auto_login":     tftypes.String,
+				"auto_logout":    tftypes.String,
+				"language":       tftypes.String,
+				"refresh":        tftypes.String,
+				"theme":          tftypes.String,
+				"attempt_failed": tftypes.String,
+				"attempt_ip":     tftypes.String,
+				"attempt_clock":  tftypes.String,
+				"rows_per_page":  tftypes.String,
+				"timezone":       tftypes.String,
+				"provisioned":    tftypes.String,
+				"gui_access":     tftypes.String,
+				"debug_mode":     tftypes.String,
+				"users_status":   tftypes.String,
+				"type":           tftypes.String,
+				"role_id":        tftypes.String,
 			},
 		}, map[string]tftypes.Value{
-			"id":       toVal(id),
-			"username": toVal(username),
-			"name":     tftypes.NewValue(tftypes.String, nil),
-			"surname":  tftypes.NewValue(tftypes.String, nil),
-			"type":     tftypes.NewValue(tftypes.String, nil),
-			"role_id":  tftypes.NewValue(tftypes.String, nil),
+			"id":             toVal(id),
+			"username":       toVal(username),
+			"name":           tftypes.NewValue(tftypes.String, nil),
+			"surname":        tftypes.NewValue(tftypes.String, nil),
+			"url":            tftypes.NewValue(tftypes.String, nil),
+			"auto_login":     tftypes.NewValue(tftypes.String, nil),
+			"auto_logout":    tftypes.NewValue(tftypes.String, nil),
+			"language":       tftypes.NewValue(tftypes.String, nil),
+			"refresh":        tftypes.NewValue(tftypes.String, nil),
+			"theme":          tftypes.NewValue(tftypes.String, nil),
+			"attempt_failed": tftypes.NewValue(tftypes.String, nil),
+			"attempt_ip":     tftypes.NewValue(tftypes.String, nil),
+			"attempt_clock":  tftypes.NewValue(tftypes.String, nil),
+			"rows_per_page":  tftypes.NewValue(tftypes.String, nil),
+			"timezone":       tftypes.NewValue(tftypes.String, nil),
+			"provisioned":    tftypes.NewValue(tftypes.String, nil),
+			"gui_access":     tftypes.NewValue(tftypes.String, nil),
+			"debug_mode":     tftypes.NewValue(tftypes.String, nil),
+			"users_status":   tftypes.NewValue(tftypes.String, nil),
+			"type":           tftypes.NewValue(tftypes.String, nil),
+			"role_id":        tftypes.NewValue(tftypes.String, nil),
 		}),
 		Schema: schemaResp.Schema,
 	}

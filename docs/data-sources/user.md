@@ -34,7 +34,22 @@ data "zabbix_user" "by_id" {
 
 ### Read-Only
 
+- `attempt_clock` (String) Unix timestamp of the last failed login attempt.
+- `attempt_failed` (String) Number of consecutive failed login attempts.
+- `attempt_ip` (String) IP address from which the last failed login was attempted.
+- `auto_login` (String) Whether to enable auto-login for the user: `0` (disabled) or `1` (enabled).
+- `auto_logout` (String) Idle time before auto-logout. Accepts seconds and time suffix (e.g. `30s`). `0` disables auto-logout.
+- `debug_mode` (String) Debug mode status inherited from user groups: `disabled` or `enabled`.
+- `gui_access` (String) Frontend authentication method inherited from user groups: `system_default`, `internal`, or `disabled`.
+- `language` (String) Language code for the user's interface, or `default` to use the system language.
 - `name` (String) First name of the user.
+- `provisioned` (String) Whether the user was provisioned by an external directory: `0` (no) or `1` (yes).
+- `refresh` (String) Automatic page refresh interval. Accepts seconds and time suffix (e.g. `30s`).
 - `role_id` (String) ID of the role assigned to the user.
+- `rows_per_page` (String) Number of rows per page in list views.
 - `surname` (String) Last name of the user.
+- `theme` (String) User interface theme: `default`, `blue-theme`, `dark-theme`, etc.
+- `timezone` (String) User's timezone, or `default` to use the system timezone.
 - `type` (String) User permission level: `user`, `admin`, or `super_admin`.
+- `url` (String) URL of the page to redirect to after logging in.
+- `users_status` (String) User account status: `enabled` or `disabled`.

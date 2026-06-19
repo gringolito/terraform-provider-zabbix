@@ -21,12 +21,27 @@ type UserDataSource struct {
 }
 
 type UserDataSourceModel struct {
-	ID       types.String `tfsdk:"id"`
-	Username types.String `tfsdk:"username"`
-	Name     types.String `tfsdk:"name"`
-	Surname  types.String `tfsdk:"surname"`
-	Type     types.String `tfsdk:"type"`
-	RoleID   types.String `tfsdk:"role_id"`
+	ID            types.String `tfsdk:"id"`
+	Username      types.String `tfsdk:"username"`
+	Name          types.String `tfsdk:"name"`
+	Surname       types.String `tfsdk:"surname"`
+	URL           types.String `tfsdk:"url"`
+	AutoLogin     types.String `tfsdk:"auto_login"`
+	AutoLogout    types.String `tfsdk:"auto_logout"`
+	Language      types.String `tfsdk:"language"`
+	Refresh       types.String `tfsdk:"refresh"`
+	Theme         types.String `tfsdk:"theme"`
+	AttemptFailed types.String `tfsdk:"attempt_failed"`
+	AttemptIP     types.String `tfsdk:"attempt_ip"`
+	AttemptClock  types.String `tfsdk:"attempt_clock"`
+	RowsPerPage   types.String `tfsdk:"rows_per_page"`
+	Timezone      types.String `tfsdk:"timezone"`
+	Provisioned   types.String `tfsdk:"provisioned"`
+	GUIAccess     types.String `tfsdk:"gui_access"`
+	DebugMode     types.String `tfsdk:"debug_mode"`
+	UsersStatus   types.String `tfsdk:"users_status"`
+	Type          types.String `tfsdk:"type"`
+	RoleID        types.String `tfsdk:"role_id"`
 }
 
 var userTypeReverseMap = map[int64]string{
@@ -59,6 +74,66 @@ func (d *UserDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "Last name of the user.",
 			},
+			"url": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "URL of the page to redirect to after logging in.",
+			},
+			"auto_login": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Whether to enable auto-login for the user: `0` (disabled) or `1` (enabled).",
+			},
+			"auto_logout": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Idle time before auto-logout. Accepts seconds and time suffix (e.g. `30s`). `0` disables auto-logout.",
+			},
+			"language": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Language code for the user's interface, or `default` to use the system language.",
+			},
+			"refresh": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Automatic page refresh interval. Accepts seconds and time suffix (e.g. `30s`).",
+			},
+			"theme": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "User interface theme: `default`, `blue-theme`, `dark-theme`, etc.",
+			},
+			"attempt_failed": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Number of consecutive failed login attempts.",
+			},
+			"attempt_ip": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "IP address from which the last failed login was attempted.",
+			},
+			"attempt_clock": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Unix timestamp of the last failed login attempt.",
+			},
+			"rows_per_page": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Number of rows per page in list views.",
+			},
+			"timezone": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "User's timezone, or `default` to use the system timezone.",
+			},
+			"provisioned": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Whether the user was provisioned by an external directory: `0` (no) or `1` (yes).",
+			},
+			"gui_access": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Frontend authentication method inherited from user groups: `system_default`, `internal`, or `disabled`.",
+			},
+			"debug_mode": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Debug mode status inherited from user groups: `disabled` or `enabled`.",
+			},
+			"users_status": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "User account status: `enabled` or `disabled`.",
+			},
 			"type": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "User permission level: `user`, `admin`, or `super_admin`.",
@@ -84,6 +159,30 @@ func (d *UserDataSource) Configure(_ context.Context, req datasource.ConfigureRe
 		return
 	}
 	d.client = c
+}
+
+func populateUserModel(data *UserDataSourceModel, user *client.User) {
+	data.ID = types.StringValue(user.UserID)
+	data.Username = types.StringValue(user.Username)
+	data.Name = types.StringValue(user.Name)
+	data.Surname = types.StringValue(user.Surname)
+	data.URL = types.StringValue(user.URL)
+	data.AutoLogin = types.StringValue(user.AutoLogin)
+	data.AutoLogout = types.StringValue(user.AutoLogout)
+	data.Language = types.StringValue(user.Language)
+	data.Refresh = types.StringValue(user.Refresh)
+	data.Theme = types.StringValue(user.Theme)
+	data.AttemptFailed = types.StringValue(user.AttemptFailed)
+	data.AttemptIP = types.StringValue(user.AttemptIP)
+	data.AttemptClock = types.StringValue(user.AttemptClock)
+	data.RowsPerPage = types.StringValue(user.RowsPerPage)
+	data.Timezone = types.StringValue(user.Timezone)
+	data.Provisioned = types.StringValue(user.Provisioned)
+	data.GUIAccess = types.StringValue(guiAccessReverseMap[user.GUIAccess])
+	data.DebugMode = types.StringValue(debugModeReverseMap[user.DebugMode])
+	data.UsersStatus = types.StringValue(usersStatusReverseMap[user.UsersStatus])
+	data.Type = types.StringValue(userTypeReverseMap[user.Type])
+	data.RoleID = types.StringValue(user.RoleID)
 }
 
 func (d *UserDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -114,12 +213,7 @@ func (d *UserDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			)
 			return
 		}
-		data.ID = types.StringValue(user.UserID)
-		data.Username = types.StringValue(user.Username)
-		data.Name = types.StringValue(user.Name)
-		data.Surname = types.StringValue(user.Surname)
-		data.Type = types.StringValue(userTypeReverseMap[user.Type])
-		data.RoleID = types.StringValue(user.RoleID)
+		populateUserModel(&data, user)
 	} else {
 		users, err := client.UserGetByUsername(ctx, d.client, data.Username.ValueString())
 		if err != nil {
@@ -134,12 +228,7 @@ func (d *UserDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			)
 			return
 		case 1:
-			data.ID = types.StringValue(users[0].UserID)
-			data.Username = types.StringValue(users[0].Username)
-			data.Name = types.StringValue(users[0].Name)
-			data.Surname = types.StringValue(users[0].Surname)
-			data.Type = types.StringValue(userTypeReverseMap[users[0].Type])
-			data.RoleID = types.StringValue(users[0].RoleID)
+			populateUserModel(&data, &users[0])
 		default:
 			resp.Diagnostics.AddError(
 				"Multiple users found",

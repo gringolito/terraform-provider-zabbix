@@ -7,18 +7,35 @@ import (
 	"github.com/gringolito/terraform-provider-zabbix/internal/client"
 )
 
+var testUserResponse = map[string]any{
+	"userid":         "1",
+	"username":       "Admin",
+	"name":           "Zabbix",
+	"surname":        "Administrator",
+	"url":            "",
+	"autologin":      "0",
+	"autologout":     "0",
+	"lang":           "default",
+	"refresh":        "30s",
+	"theme":          "default",
+	"attempt_failed": "0",
+	"attempt_ip":     "",
+	"attempt_clock":  "0",
+	"rows_per_page":  "50",
+	"timezone":       "default",
+	"roleid":         "3",
+	"provisioned":    "0",
+	"gui_access":     "0",
+	"debug_mode":     "0",
+	"users_status":   "0",
+	"type":           "3",
+}
+
 // ---- UserGet ----
 
 func TestUserGet_Success(t *testing.T) {
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"user.get": rpcOK(t, []map[string]any{{
-			"userid":   "1",
-			"username": "Admin",
-			"name":     "Zabbix",
-			"surname":  "Administrator",
-			"type":     "3",
-			"roleid":   "3",
-		}}),
+		"user.get": rpcOK(t, []map[string]any{testUserResponse}),
 	})
 	user, err := client.UserGet(t.Context(), c, "1")
 	if err != nil {
@@ -35,6 +52,51 @@ func TestUserGet_Success(t *testing.T) {
 	}
 	if user.Surname != "Administrator" {
 		t.Errorf("surname = %q, want %q", user.Surname, "Administrator")
+	}
+	if user.URL != "" {
+		t.Errorf("url = %q, want %q", user.URL, "")
+	}
+	if user.AutoLogin != "0" {
+		t.Errorf("autologin = %q, want %q", user.AutoLogin, "0")
+	}
+	if user.AutoLogout != "0" {
+		t.Errorf("autologout = %q, want %q", user.AutoLogout, "0")
+	}
+	if user.Language != "default" {
+		t.Errorf("lang = %q, want %q", user.Language, "default")
+	}
+	if user.Refresh != "30s" {
+		t.Errorf("refresh = %q, want %q", user.Refresh, "30s")
+	}
+	if user.Theme != "default" {
+		t.Errorf("theme = %q, want %q", user.Theme, "default")
+	}
+	if user.AttemptFailed != "0" {
+		t.Errorf("attempt_failed = %q, want %q", user.AttemptFailed, "0")
+	}
+	if user.AttemptIP != "" {
+		t.Errorf("attempt_ip = %q, want %q", user.AttemptIP, "")
+	}
+	if user.AttemptClock != "0" {
+		t.Errorf("attempt_clock = %q, want %q", user.AttemptClock, "0")
+	}
+	if user.RowsPerPage != "50" {
+		t.Errorf("rows_per_page = %q, want %q", user.RowsPerPage, "50")
+	}
+	if user.Timezone != "default" {
+		t.Errorf("timezone = %q, want %q", user.Timezone, "default")
+	}
+	if user.Provisioned != "0" {
+		t.Errorf("provisioned = %q, want %q", user.Provisioned, "0")
+	}
+	if user.GUIAccess != 0 {
+		t.Errorf("gui_access = %d, want 0", user.GUIAccess)
+	}
+	if user.DebugMode != 0 {
+		t.Errorf("debug_mode = %d, want 0", user.DebugMode)
+	}
+	if user.UsersStatus != 0 {
+		t.Errorf("users_status = %d, want 0", user.UsersStatus)
 	}
 	if user.Type != 3 {
 		t.Errorf("type = %d, want 3", user.Type)
@@ -71,14 +133,7 @@ func TestUserGet_ErrorEnvelope(t *testing.T) {
 
 func TestUserGetByUsername_Single(t *testing.T) {
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"user.get": rpcOK(t, []map[string]any{{
-			"userid":   "1",
-			"username": "Admin",
-			"name":     "Zabbix",
-			"surname":  "Administrator",
-			"type":     "3",
-			"roleid":   "3",
-		}}),
+		"user.get": rpcOK(t, []map[string]any{testUserResponse}),
 	})
 	users, err := client.UserGetByUsername(t.Context(), c, "Admin")
 	if err != nil {
@@ -89,6 +144,15 @@ func TestUserGetByUsername_Single(t *testing.T) {
 	}
 	if users[0].Username != "Admin" {
 		t.Errorf("username = %q, want %q", users[0].Username, "Admin")
+	}
+	if users[0].Language != "default" {
+		t.Errorf("lang = %q, want %q", users[0].Language, "default")
+	}
+	if users[0].RowsPerPage != "50" {
+		t.Errorf("rows_per_page = %q, want %q", users[0].RowsPerPage, "50")
+	}
+	if users[0].GUIAccess != 0 {
+		t.Errorf("gui_access = %d, want 0", users[0].GUIAccess)
 	}
 }
 
