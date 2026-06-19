@@ -21,7 +21,6 @@ var testUserResponse = map[string]any{
 	"attempt_failed": "0",
 	"attempt_ip":     "",
 	"attempt_clock":  "0",
-	"rows_per_page":  "50",
 	"timezone":       "default",
 	"roleid":         "3",
 	"provisioned":    "0",
@@ -78,9 +77,6 @@ func TestUserGet_Success(t *testing.T) {
 	}
 	if user.AttemptClock != "0" {
 		t.Errorf("attempt_clock = %q, want %q", user.AttemptClock, "0")
-	}
-	if user.RowsPerPage != "50" {
-		t.Errorf("rows_per_page = %q, want %q", user.RowsPerPage, "50")
 	}
 	if user.Timezone != "default" {
 		t.Errorf("timezone = %q, want %q", user.Timezone, "default")
@@ -143,9 +139,6 @@ func TestUserGetByUsername_Single(t *testing.T) {
 	}
 	if users[0].Language != "default" {
 		t.Errorf("lang = %q, want %q", users[0].Language, "default")
-	}
-	if users[0].RowsPerPage != "50" {
-		t.Errorf("rows_per_page = %q, want %q", users[0].RowsPerPage, "50")
 	}
 	if users[0].GUIAccess != 0 {
 		t.Errorf("gui_access = %d, want 0", users[0].GUIAccess)

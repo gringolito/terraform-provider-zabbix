@@ -26,7 +26,7 @@ type UserDataSourceModel struct {
 	Name          types.String `tfsdk:"name"`
 	Surname       types.String `tfsdk:"surname"`
 	URL           types.String `tfsdk:"url"`
-	AutoLogin     types.String `tfsdk:"auto_login"`
+	AutoLogin     types.Bool   `tfsdk:"auto_login"`
 	AutoLogout    types.String `tfsdk:"auto_logout"`
 	Language      types.String `tfsdk:"language"`
 	Refresh       types.String `tfsdk:"refresh"`
@@ -34,9 +34,8 @@ type UserDataSourceModel struct {
 	AttemptFailed types.String `tfsdk:"attempt_failed"`
 	AttemptIP     types.String `tfsdk:"attempt_ip"`
 	AttemptClock  types.String `tfsdk:"attempt_clock"`
-	RowsPerPage   types.String `tfsdk:"rows_per_page"`
 	Timezone      types.String `tfsdk:"timezone"`
-	Provisioned   types.String `tfsdk:"provisioned"`
+	Provisioned   types.Bool   `tfsdk:"provisioned"`
 	GUIAccess     types.String `tfsdk:"gui_access"`
 	DebugMode     types.String `tfsdk:"debug_mode"`
 	UsersStatus   types.String `tfsdk:"users_status"`
@@ -73,9 +72,9 @@ func (d *UserDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "URL of the page to redirect to after logging in.",
 			},
-			"auto_login": schema.StringAttribute{
+			"auto_login": schema.BoolAttribute{
 				Computed:            true,
-				MarkdownDescription: "Whether to enable auto-login for the user: `0` (disabled) or `1` (enabled).",
+				MarkdownDescription: "Whether auto-login is enabled for the user.",
 			},
 			"auto_logout": schema.StringAttribute{
 				Computed:            true,
@@ -105,17 +104,13 @@ func (d *UserDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "Unix timestamp of the last failed login attempt.",
 			},
-			"rows_per_page": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "Number of rows per page in list views.",
-			},
 			"timezone": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "User's timezone, or `default` to use the system timezone.",
 			},
-			"provisioned": schema.StringAttribute{
+			"provisioned": schema.BoolAttribute{
 				Computed:            true,
-				MarkdownDescription: "Whether the user was provisioned by an external directory: `0` (no) or `1` (yes).",
+				MarkdownDescription: "Whether the user was provisioned by an external directory.",
 			},
 			"gui_access": schema.StringAttribute{
 				Computed:            true,
@@ -158,7 +153,7 @@ func populateUserModel(data *UserDataSourceModel, user *client.User) {
 	data.Name = types.StringValue(user.Name)
 	data.Surname = types.StringValue(user.Surname)
 	data.URL = types.StringValue(user.URL)
-	data.AutoLogin = types.StringValue(user.AutoLogin)
+	data.AutoLogin = types.BoolValue(user.AutoLogin == "1")
 	data.AutoLogout = types.StringValue(user.AutoLogout)
 	data.Language = types.StringValue(user.Language)
 	data.Refresh = types.StringValue(user.Refresh)
@@ -166,9 +161,8 @@ func populateUserModel(data *UserDataSourceModel, user *client.User) {
 	data.AttemptFailed = types.StringValue(user.AttemptFailed)
 	data.AttemptIP = types.StringValue(user.AttemptIP)
 	data.AttemptClock = types.StringValue(user.AttemptClock)
-	data.RowsPerPage = types.StringValue(user.RowsPerPage)
 	data.Timezone = types.StringValue(user.Timezone)
-	data.Provisioned = types.StringValue(user.Provisioned)
+	data.Provisioned = types.BoolValue(user.Provisioned == "1")
 	data.GUIAccess = types.StringValue(guiAccessReverseMap[user.GUIAccess])
 	data.DebugMode = types.StringValue(debugModeReverseMap[user.DebugMode])
 	data.UsersStatus = types.StringValue(usersStatusReverseMap[user.UsersStatus])

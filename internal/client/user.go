@@ -23,7 +23,6 @@ type User struct {
 	AttemptFailed string `json:"attempt_failed"`
 	AttemptIP     string `json:"attempt_ip"`
 	AttemptClock  string `json:"attempt_clock"`
-	RowsPerPage   string `json:"rows_per_page"`
 	Timezone      string `json:"timezone"`
 	Provisioned   string `json:"provisioned"`
 	GUIAccess     int64  `json:"gui_access,string"`
