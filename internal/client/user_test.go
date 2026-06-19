@@ -28,7 +28,6 @@ var testUserResponse = map[string]any{
 	"gui_access":     "0",
 	"debug_mode":     "0",
 	"users_status":   "0",
-	"type":           "3",
 }
 
 // ---- UserGet ----
@@ -97,9 +96,6 @@ func TestUserGet_Success(t *testing.T) {
 	}
 	if user.UsersStatus != 0 {
 		t.Errorf("users_status = %d, want 0", user.UsersStatus)
-	}
-	if user.Type != 3 {
-		t.Errorf("type = %d, want 3", user.Type)
 	}
 	if user.RoleID != "3" {
 		t.Errorf("roleid = %q, want %q", user.RoleID, "3")

@@ -40,12 +40,7 @@ type UserDataSourceModel struct {
 	GUIAccess     types.String `tfsdk:"gui_access"`
 	DebugMode     types.String `tfsdk:"debug_mode"`
 	UsersStatus   types.String `tfsdk:"users_status"`
-	Type          types.String `tfsdk:"type"`
 	RoleID        types.String `tfsdk:"role_id"`
-}
-
-var userTypeReverseMap = map[int64]string{
-	1: "user", 2: "admin", 3: "super_admin",
 }
 
 func (d *UserDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -134,10 +129,6 @@ func (d *UserDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed:            true,
 				MarkdownDescription: "User account status: `enabled` or `disabled`.",
 			},
-			"type": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "User permission level: `user`, `admin`, or `super_admin`.",
-			},
 			"role_id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "ID of the role assigned to the user.",
@@ -181,7 +172,6 @@ func populateUserModel(data *UserDataSourceModel, user *client.User) {
 	data.GUIAccess = types.StringValue(guiAccessReverseMap[user.GUIAccess])
 	data.DebugMode = types.StringValue(debugModeReverseMap[user.DebugMode])
 	data.UsersStatus = types.StringValue(usersStatusReverseMap[user.UsersStatus])
-	data.Type = types.StringValue(userTypeReverseMap[user.Type])
 	data.RoleID = types.StringValue(user.RoleID)
 }
 

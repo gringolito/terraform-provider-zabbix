@@ -42,11 +42,6 @@ func TestAccUserDataSource_ByUsername(t *testing.T) {
 					),
 					statecheck.ExpectKnownValue(
 						"data.zabbix_user.test",
-						tfjsonpath.New("type"),
-						knownvalue.StringExact("super_admin"),
-					),
-					statecheck.ExpectKnownValue(
-						"data.zabbix_user.test",
 						tfjsonpath.New("gui_access"),
 						knownvalue.NotNull(),
 					),
@@ -103,11 +98,6 @@ func TestAccUserDataSource_ByID(t *testing.T) {
 						"data.zabbix_user.test",
 						tfjsonpath.New("username"),
 						knownvalue.StringExact("Admin"),
-					),
-					statecheck.ExpectKnownValue(
-						"data.zabbix_user.test",
-						tfjsonpath.New("type"),
-						knownvalue.StringExact("super_admin"),
 					),
 				},
 			},
@@ -207,7 +197,6 @@ func testFakeUserResponse(id, username string) map[string]any {
 		"gui_access":     "0",
 		"debug_mode":     "0",
 		"users_status":   "0",
-		"type":           "3",
 	}
 }
 
@@ -259,7 +248,6 @@ func buildUserDataSourceConfig(t *testing.T, id, username string) tfsdk.Config {
 				"gui_access":     tftypes.String,
 				"debug_mode":     tftypes.String,
 				"users_status":   tftypes.String,
-				"type":           tftypes.String,
 				"role_id":        tftypes.String,
 			},
 		}, map[string]tftypes.Value{
@@ -282,7 +270,6 @@ func buildUserDataSourceConfig(t *testing.T, id, username string) tfsdk.Config {
 			"gui_access":     tftypes.NewValue(tftypes.String, nil),
 			"debug_mode":     tftypes.NewValue(tftypes.String, nil),
 			"users_status":   tftypes.NewValue(tftypes.String, nil),
-			"type":           tftypes.NewValue(tftypes.String, nil),
 			"role_id":        tftypes.NewValue(tftypes.String, nil),
 		}),
 		Schema: schemaResp.Schema,

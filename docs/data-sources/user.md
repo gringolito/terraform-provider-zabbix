@@ -50,6 +50,5 @@ data "zabbix_user" "by_id" {
 - `surname` (String) Last name of the user.
 - `theme` (String) User interface theme: `default`, `blue-theme`, `dark-theme`, etc.
 - `timezone` (String) User's timezone, or `default` to use the system timezone.
-- `type` (String) User permission level: `user`, `admin`, or `super_admin`.
 - `url` (String) URL of the page to redirect to after logging in.
 - `users_status` (String) User account status: `enabled` or `disabled`.

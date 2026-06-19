@@ -8,6 +8,7 @@ import (
 
 // User represents a Zabbix user.
 // Zabbix 7.0 JSON-RPC returns integer fields as JSON strings.
+// gui_access, debug_mode, and users_status require getAccess:true in the request.
 type User struct {
 	UserID        string `json:"userid"`
 	Username      string `json:"username"`
@@ -28,7 +29,6 @@ type User struct {
 	GUIAccess     int64  `json:"gui_access,string"`
 	DebugMode     int64  `json:"debug_mode,string"`
 	UsersStatus   int64  `json:"users_status,string"`
-	Type          int64  `json:"type,string"`
 	RoleID        string `json:"roleid"`
 }
 
