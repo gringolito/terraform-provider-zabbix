@@ -31,10 +31,16 @@ type jsonrpcClient struct {
 // server version via apiinfo.version, and returns an error if the server is
 // unreachable or returns a malformed response.
 func New(ctx context.Context, url, token string) (Client, error) {
+	// All calls target a single Zabbix host, so raise the per-host idle-connection
+	// limit above net/http's default of 2 to allow connection reuse under
+	// concurrent load instead of churning fresh TCP connections.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.MaxIdleConns = 100
+	transport.MaxIdleConnsPerHost = 100
 	c := &jsonrpcClient{
 		url:   strings.TrimRight(url, "/") + "/api_jsonrpc.php",
 		token: token,
-		http:  &http.Client{},
+		http:  &http.Client{Transport: transport},
 	}
 	result, err := c.Call(ctx, "apiinfo.version", struct{}{})
 	if err != nil {
