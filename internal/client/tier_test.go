@@ -7,6 +7,7 @@ import (
 )
 
 func TestClassifyTier(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		version string
 		want    client.Tier
@@ -39,6 +40,7 @@ func TestClassifyTier(t *testing.T) {
 }
 
 func TestTierString(t *testing.T) {
+	t.Parallel()
 	if client.Targeted.String() != "Targeted" {
 		t.Errorf("Targeted.String() = %q", client.Targeted.String())
 	}

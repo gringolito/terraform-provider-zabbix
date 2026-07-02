@@ -15,6 +15,7 @@ import (
 )
 
 func TestAccUserGroupResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-ug"
 	updated := cfg.NamePrefix + "-ug-upd"
@@ -71,6 +72,7 @@ func TestAccUserGroupResource_CRUD(t *testing.T) {
 }
 
 func TestAccUserGroupResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-ug-imp"
 
@@ -91,6 +93,7 @@ func TestAccUserGroupResource_Import(t *testing.T) {
 }
 
 func TestAccUserGroupResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-ug-drift"
 	renamed := cfg.NamePrefix + "-ug-drift-oob"

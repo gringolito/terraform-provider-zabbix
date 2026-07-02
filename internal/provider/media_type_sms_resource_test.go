@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccMediaTypeSMSResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-mt-sms"
 	updated := cfg.NamePrefix + "-mt-sms-upd"

@@ -19,6 +19,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccActionTriggerResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at"
 	updated := cfg.NamePrefix + "-at-upd"
@@ -88,6 +89,7 @@ func TestAccActionTriggerResource_CRUD(t *testing.T) {
 }
 
 func TestAccActionTriggerResource_WithRecoveryOperation(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-rec"
 
@@ -113,6 +115,7 @@ func TestAccActionTriggerResource_WithRecoveryOperation(t *testing.T) {
 }
 
 func TestAccActionTriggerResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-imp"
 
@@ -136,6 +139,7 @@ func TestAccActionTriggerResource_Import(t *testing.T) {
 }
 
 func TestAccActionTriggerResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-drift"
 
@@ -188,6 +192,7 @@ func TestAccActionTriggerResource_Drift(t *testing.T) {
 // ---- Unit tests (ConfigValidators) ----
 
 func TestActionTriggerResource_CustomExpressionRequiresFormula(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -202,6 +207,7 @@ func TestActionTriggerResource_CustomExpressionRequiresFormula(t *testing.T) {
 }
 
 func TestActionTriggerResource_CustomExpressionForbidsFormulaWhenNotCustom(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -216,6 +222,7 @@ func TestActionTriggerResource_CustomExpressionForbidsFormulaWhenNotCustom(t *te
 }
 
 func TestActionTriggerResource_CustomExpressionConditionRequiresLabel(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -230,6 +237,7 @@ func TestActionTriggerResource_CustomExpressionConditionRequiresLabel(t *testing
 }
 
 func TestActionTriggerResource_NonCustomExpressionConditionForbidsLabel(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -244,6 +252,7 @@ func TestActionTriggerResource_NonCustomExpressionConditionForbidsLabel(t *testi
 }
 
 func TestActionTriggerResource_SendMessageUseDefaultForbidsSubjectMessage(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -258,6 +267,7 @@ func TestActionTriggerResource_SendMessageUseDefaultForbidsSubjectMessage(t *tes
 }
 
 func TestActionTriggerResource_SendMessageNotDefaultRequiresSubjectMessage(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{

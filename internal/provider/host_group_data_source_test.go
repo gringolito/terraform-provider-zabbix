@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccHostGroupDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-hg-ds-id"
 
@@ -48,6 +49,7 @@ func TestAccHostGroupDataSource_ByID(t *testing.T) {
 }
 
 func TestAccHostGroupDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-hg-ds-name"
 
@@ -75,6 +77,7 @@ func TestAccHostGroupDataSource_ByName(t *testing.T) {
 }
 
 func TestAccHostGroupDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -94,6 +97,7 @@ func TestAccHostGroupDataSource_ZeroMatchError(t *testing.T) {
 // TestHostGroupDataSource_MultipleMatchError verifies the guard against multiple
 // results. Zabbix enforces unique names so this path is exercised via a fake client.
 func TestHostGroupDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"groupid": "1", "name": "Servers"},
@@ -121,6 +125,7 @@ func TestHostGroupDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestHostGroupDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeHostGroupDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildHostGroupDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

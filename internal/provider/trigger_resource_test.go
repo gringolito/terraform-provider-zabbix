@@ -281,6 +281,7 @@ func TestAccTriggerResource_Drift(t *testing.T) {
 // ---- Unit tests ----
 
 func TestTriggerResource_RecoveryExpressionRequiredWhenModeSet(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -295,6 +296,7 @@ func TestTriggerResource_RecoveryExpressionRequiredWhenModeSet(t *testing.T) {
 }
 
 func TestTriggerResource_RecoveryExpressionMustNotBeSetWhenModeIsExpression(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{

@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccMediaTypeScriptResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-mt-script"
 	updated := cfg.NamePrefix + "-mt-script-upd"

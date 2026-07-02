@@ -18,6 +18,7 @@ import (
 )
 
 func TestAccMediaTypeWebhookDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-wh-ds-id"
 
@@ -40,6 +41,7 @@ func TestAccMediaTypeWebhookDataSource_ByID(t *testing.T) {
 // ---- Unit tests ----
 
 func TestMediaTypeWebhookDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String}}
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
@@ -68,6 +70,7 @@ func TestMediaTypeWebhookDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestMediaTypeWebhookDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	webhookParam := tftypes.Object{AttributeTypes: map[string]tftypes.Type{"name": tftypes.String}}
 	ds := newFakeMediaTypeWebhookDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildMediaTypeWebhookDataSourceConfig(t, webhookParam, "", "")}

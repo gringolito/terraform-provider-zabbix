@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccTemplateGroupDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-tg-ds-id"
 
@@ -48,6 +49,7 @@ func TestAccTemplateGroupDataSource_ByID(t *testing.T) {
 }
 
 func TestAccTemplateGroupDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-tg-ds-name"
 
@@ -75,6 +77,7 @@ func TestAccTemplateGroupDataSource_ByName(t *testing.T) {
 }
 
 func TestAccTemplateGroupDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -94,6 +97,7 @@ func TestAccTemplateGroupDataSource_ZeroMatchError(t *testing.T) {
 // TestTemplateGroupDataSource_MultipleMatchError verifies the guard against multiple
 // results. Zabbix enforces unique names so this path is exercised via a fake client.
 func TestTemplateGroupDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"groupid": "1", "name": "Templates"},
@@ -121,6 +125,7 @@ func TestTemplateGroupDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestTemplateGroupDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeTemplateGroupDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildTemplateGroupDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

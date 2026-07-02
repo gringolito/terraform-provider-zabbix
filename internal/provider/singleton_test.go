@@ -8,6 +8,7 @@ import (
 )
 
 func TestSingletonWarnOnDelete_AddsDiagnosticWarning(t *testing.T) {
+	t.Parallel()
 	var diags diag.Diagnostics
 	singletonWarnOnDelete(context.Background(), &diags)
 	if diags.WarningsCount() != 1 {
@@ -16,6 +17,7 @@ func TestSingletonWarnOnDelete_AddsDiagnosticWarning(t *testing.T) {
 }
 
 func TestSingletonWarnOnDelete_NoErrors(t *testing.T) {
+	t.Parallel()
 	var diags diag.Diagnostics
 	singletonWarnOnDelete(context.Background(), &diags)
 	if diags.HasError() {
@@ -24,6 +26,7 @@ func TestSingletonWarnOnDelete_NoErrors(t *testing.T) {
 }
 
 func TestSingletonWarnOnDelete_SummaryIsNonEmpty(t *testing.T) {
+	t.Parallel()
 	var diags diag.Diagnostics
 	singletonWarnOnDelete(context.Background(), &diags)
 	warns := diags.Warnings()

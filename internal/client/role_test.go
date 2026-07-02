@@ -10,6 +10,7 @@ import (
 // ---- RoleCreate ----
 
 func TestRoleCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.create": rpcOK(t, map[string]any{"roleids": []string{"5"}}),
 	})
@@ -24,6 +25,7 @@ func TestRoleCreate_Success(t *testing.T) {
 }
 
 func TestRoleCreate_WithRules_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.create": rpcOK(t, map[string]any{"roleids": []string{"5"}}),
 	})
@@ -49,6 +51,7 @@ func TestRoleCreate_WithRules_Success(t *testing.T) {
 }
 
 func TestRoleCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.create": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -61,6 +64,7 @@ func TestRoleCreate_ErrorEnvelope(t *testing.T) {
 // ---- RoleGet ----
 
 func TestRoleGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcOK(t, []map[string]any{{
 			"roleid":   "5",
@@ -108,6 +112,7 @@ func TestRoleGet_Success(t *testing.T) {
 }
 
 func TestRoleGet_WithRules(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcOK(t, []map[string]any{{
 			"roleid":   "7",
@@ -170,6 +175,7 @@ func TestRoleGet_WithRules(t *testing.T) {
 }
 
 func TestRoleGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcOK(t, []map[string]any{}),
 	})
@@ -183,6 +189,7 @@ func TestRoleGet_NotFound(t *testing.T) {
 }
 
 func TestRoleGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -195,6 +202,7 @@ func TestRoleGet_ErrorEnvelope(t *testing.T) {
 // ---- RoleGetByName ----
 
 func TestRoleGetByName_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcOK(t, []map[string]any{{
 			"roleid":   "3",
@@ -227,6 +235,7 @@ func TestRoleGetByName_Single(t *testing.T) {
 }
 
 func TestRoleGetByName_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcOK(t, []map[string]any{}),
 	})
@@ -240,6 +249,7 @@ func TestRoleGetByName_Empty(t *testing.T) {
 }
 
 func TestRoleGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -252,6 +262,7 @@ func TestRoleGetByName_ErrorEnvelope(t *testing.T) {
 // ---- RoleUpdate ----
 
 func TestRoleUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.update": rpcOK(t, map[string]any{"roleids": []string{"5"}}),
 	})
@@ -262,6 +273,7 @@ func TestRoleUpdate_Success(t *testing.T) {
 }
 
 func TestRoleUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.update": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -273,6 +285,7 @@ func TestRoleUpdate_ErrorEnvelope(t *testing.T) {
 // ---- RoleDelete ----
 
 func TestRoleDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.delete": rpcOK(t, map[string]any{"roleids": []string{"9"}}),
 	})
@@ -282,6 +295,7 @@ func TestRoleDelete_Success(t *testing.T) {
 }
 
 func TestRoleDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"role.delete": rpcErr(t, -32500, "Cannot delete role."),
 	})

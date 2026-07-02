@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccMediaTypeEmailDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-email-ds-id"
 
@@ -41,6 +42,7 @@ func TestAccMediaTypeEmailDataSource_ByID(t *testing.T) {
 }
 
 func TestAccMediaTypeEmailDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-email-ds-name"
 
@@ -60,6 +62,7 @@ func TestAccMediaTypeEmailDataSource_ByName(t *testing.T) {
 }
 
 func TestAccMediaTypeEmailDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -77,6 +80,7 @@ func TestAccMediaTypeEmailDataSource_ZeroMatchError(t *testing.T) {
 // ---- Unit tests ----
 
 func TestMediaTypeEmailDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"mediatypeid": "1", "name": "Email", "type": "0", "status": "0", "maxsessions": "1", "maxattempts": "3", "attempt_interval": "10s", "description": "", "smtp_server": "", "smtp_port": "25", "smtp_helo": "", "smtp_email": "", "smtp_security": "0", "smtp_authentication": "0", "username": "", "passwd": "", "content_type": "1", "message_templates": []map[string]any{}},
@@ -104,6 +108,7 @@ func TestMediaTypeEmailDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestMediaTypeEmailDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeMediaTypeEmailDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildMediaTypeEmailDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

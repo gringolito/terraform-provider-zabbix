@@ -18,6 +18,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccHostInterfaceResource_CRUD_Agent(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host"
@@ -74,6 +75,7 @@ func TestAccHostInterfaceResource_CRUD_Agent(t *testing.T) {
 }
 
 func TestAccHostInterfaceResource_CRUD_SNMP(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-snmp"
@@ -114,6 +116,7 @@ func TestAccHostInterfaceResource_CRUD_SNMP(t *testing.T) {
 }
 
 func TestAccHostInterfaceResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-imp"
@@ -135,6 +138,7 @@ func TestAccHostInterfaceResource_Import(t *testing.T) {
 }
 
 func TestAccHostInterfaceResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-drift"
@@ -196,6 +200,7 @@ func TestAccHostInterfaceResource_Drift(t *testing.T) {
 // ---- Unit tests ----
 
 func TestHostInterfaceResource_SNMPBlockOnNonSNMPError(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{
 		URL:   "http://fake:8080",
 		Token: "fake-token",

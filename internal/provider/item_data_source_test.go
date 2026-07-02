@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccItemDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -64,6 +65,7 @@ func TestAccItemDataSource_ByID(t *testing.T) {
 }
 
 func TestAccItemDataSource_ByKeyAndTemplateID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -104,6 +106,7 @@ func TestAccItemDataSource_ByKeyAndTemplateID(t *testing.T) {
 // ---- Unit tests ----
 
 func TestItemDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeItemDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildItemDataSourceConfig(t, "", "", "", "")}
 	resp := &datasource.ReadResponse{}
@@ -115,6 +118,7 @@ func TestItemDataSource_MissingKeyError(t *testing.T) {
 }
 
 func TestItemDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"itemid": "1", "key_": "cpu.util", "name": "CPU 1", "hostid": "42"},
@@ -142,6 +146,7 @@ func TestItemDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestItemDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{Response: []map[string]any{}}
 
 	ds := newFakeItemDataSource(t, fake)

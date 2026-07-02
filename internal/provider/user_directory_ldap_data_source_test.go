@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccUserDirectoryLDAPDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-ldap-ds"
 

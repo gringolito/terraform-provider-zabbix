@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccHostTemplateLinkResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host"
@@ -43,6 +44,7 @@ func TestAccHostTemplateLinkResource_CRUD(t *testing.T) {
 }
 
 func TestAccHostTemplateLinkResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-imp"
@@ -66,6 +68,7 @@ func TestAccHostTemplateLinkResource_Import(t *testing.T) {
 }
 
 func TestAccHostTemplateLinkResource_OnDestroyUnlink(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-unlink"

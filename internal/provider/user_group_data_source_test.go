@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccUserGroupDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-ug-ds-id"
 
@@ -48,6 +49,7 @@ func TestAccUserGroupDataSource_ByID(t *testing.T) {
 }
 
 func TestAccUserGroupDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-ug-ds-name"
 
@@ -75,6 +77,7 @@ func TestAccUserGroupDataSource_ByName(t *testing.T) {
 }
 
 func TestAccUserGroupDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -92,6 +95,7 @@ func TestAccUserGroupDataSource_ZeroMatchError(t *testing.T) {
 // ---- Unit tests ----
 
 func TestUserGroupDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"usrgrpid": "1", "name": "Admins", "gui_access": "0", "debug_mode": "0", "users_status": "0"},
@@ -119,6 +123,7 @@ func TestUserGroupDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestUserGroupDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeUserGroupDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildUserGroupDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

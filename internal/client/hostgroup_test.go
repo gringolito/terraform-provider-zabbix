@@ -60,6 +60,7 @@ func newTestClient(t *testing.T, handlers map[string]http.HandlerFunc) client.Cl
 // ---- HostGroupCreate ----
 
 func TestHostGroupCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.create": rpcOK(t, map[string]any{"groupids": []string{"42"}}),
 	})
@@ -73,6 +74,7 @@ func TestHostGroupCreate_Success(t *testing.T) {
 }
 
 func TestHostGroupCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.create": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -85,6 +87,7 @@ func TestHostGroupCreate_ErrorEnvelope(t *testing.T) {
 // ---- HostGroupGet ----
 
 func TestHostGroupGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcOK(t, []map[string]any{{"groupid": "5", "name": "Web servers"}}),
 	})
@@ -101,6 +104,7 @@ func TestHostGroupGet_Success(t *testing.T) {
 }
 
 func TestHostGroupGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -114,6 +118,7 @@ func TestHostGroupGet_NotFound(t *testing.T) {
 }
 
 func TestHostGroupGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -126,6 +131,7 @@ func TestHostGroupGet_ErrorEnvelope(t *testing.T) {
 // ---- HostGroupGetByName ----
 
 func TestHostGroupGetByName_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcOK(t, []map[string]any{{"groupid": "3", "name": "DB servers"}}),
 	})
@@ -142,6 +148,7 @@ func TestHostGroupGetByName_Single(t *testing.T) {
 }
 
 func TestHostGroupGetByName_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -155,6 +162,7 @@ func TestHostGroupGetByName_Empty(t *testing.T) {
 }
 
 func TestHostGroupGetByName_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcOK(t, []map[string]any{
 			{"groupid": "1", "name": "Servers"},
@@ -171,6 +179,7 @@ func TestHostGroupGetByName_Multiple(t *testing.T) {
 }
 
 func TestHostGroupGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -183,6 +192,7 @@ func TestHostGroupGetByName_ErrorEnvelope(t *testing.T) {
 // ---- HostGroupUpdate ----
 
 func TestHostGroupUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.update": rpcOK(t, map[string]any{"groupids": []string{"7"}}),
 	})
@@ -192,6 +202,7 @@ func TestHostGroupUpdate_Success(t *testing.T) {
 }
 
 func TestHostGroupUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.update": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -203,6 +214,7 @@ func TestHostGroupUpdate_ErrorEnvelope(t *testing.T) {
 // ---- HostGroupDelete ----
 
 func TestHostGroupDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.delete": rpcOK(t, map[string]any{"groupids": []string{"9"}}),
 	})
@@ -212,6 +224,7 @@ func TestHostGroupDelete_Success(t *testing.T) {
 }
 
 func TestHostGroupDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostgroup.delete": rpcErr(t, -32500, "Cannot delete host group."),
 	})

@@ -10,6 +10,7 @@ import (
 // ---- ItemGet ----
 
 func TestItemGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcOK(t, []map[string]any{{
 			"itemid": "300",
@@ -40,6 +41,7 @@ func TestItemGet_Success(t *testing.T) {
 }
 
 func TestItemGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcOK(t, []map[string]any{}),
 	})
@@ -53,6 +55,7 @@ func TestItemGet_NotFound(t *testing.T) {
 }
 
 func TestItemGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -65,6 +68,7 @@ func TestItemGet_ErrorEnvelope(t *testing.T) {
 // ---- ItemGetByKeyAndScope ----
 
 func TestItemGetByKeyAndScope_ByHostID(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcOK(t, []map[string]any{{
 			"itemid": "301",
@@ -86,6 +90,7 @@ func TestItemGetByKeyAndScope_ByHostID(t *testing.T) {
 }
 
 func TestItemGetByKeyAndScope_ByTemplateID(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcOK(t, []map[string]any{{
 			"itemid": "302",
@@ -104,6 +109,7 @@ func TestItemGetByKeyAndScope_ByTemplateID(t *testing.T) {
 }
 
 func TestItemGetByKeyAndScope_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcOK(t, []map[string]any{}),
 	})
@@ -117,6 +123,7 @@ func TestItemGetByKeyAndScope_Empty(t *testing.T) {
 }
 
 func TestItemGetByKeyAndScope_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"item.get": rpcErr(t, -32500, "Application error."),
 	})

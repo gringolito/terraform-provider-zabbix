@@ -10,6 +10,7 @@ import (
 // ---- ActionCreate ----
 
 func TestActionCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.create": rpcOK(t, map[string]any{"actionids": []string{"10"}}),
 	})
@@ -32,6 +33,7 @@ func TestActionCreate_Success(t *testing.T) {
 }
 
 func TestActionCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.create": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -44,6 +46,7 @@ func TestActionCreate_ErrorEnvelope(t *testing.T) {
 // ---- ActionGet ----
 
 func TestActionGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "10",
@@ -99,6 +102,7 @@ func TestActionGet_Success(t *testing.T) {
 }
 
 func TestActionGet_WithConditions(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "11",
@@ -151,6 +155,7 @@ func TestActionGet_WithConditions(t *testing.T) {
 }
 
 func TestActionGet_WithSendMessageOperation(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "12",
@@ -225,6 +230,7 @@ func TestActionGet_WithSendMessageOperation(t *testing.T) {
 }
 
 func TestActionGet_WithRemoteCommandOperation(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "13",
@@ -302,6 +308,7 @@ func TestActionGet_WithRemoteCommandOperation(t *testing.T) {
 }
 
 func TestActionGet_WithRecoveryOperation_NotifyAllInvolved(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "14",
@@ -344,6 +351,7 @@ func TestActionGet_WithRecoveryOperation_NotifyAllInvolved(t *testing.T) {
 }
 
 func TestActionGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{}),
 	})
@@ -357,6 +365,7 @@ func TestActionGet_NotFound(t *testing.T) {
 }
 
 func TestActionGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -369,6 +378,7 @@ func TestActionGet_ErrorEnvelope(t *testing.T) {
 // ---- ActionGetByName ----
 
 func TestActionGetByName_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{{
 			"actionid":           "20",
@@ -403,6 +413,7 @@ func TestActionGetByName_Success(t *testing.T) {
 }
 
 func TestActionGetByName_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{}),
 	})
@@ -416,6 +427,7 @@ func TestActionGetByName_NotFound(t *testing.T) {
 }
 
 func TestActionGetByName_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcOK(t, []map[string]any{
 			{
@@ -448,6 +460,7 @@ func TestActionGetByName_Multiple(t *testing.T) {
 }
 
 func TestActionGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -460,6 +473,7 @@ func TestActionGetByName_ErrorEnvelope(t *testing.T) {
 // ---- ActionUpdate ----
 
 func TestActionUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.update": rpcOK(t, map[string]any{"actionids": []string{"10"}}),
 	})
@@ -473,6 +487,7 @@ func TestActionUpdate_Success(t *testing.T) {
 }
 
 func TestActionUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.update": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -485,6 +500,7 @@ func TestActionUpdate_ErrorEnvelope(t *testing.T) {
 // ---- ActionDelete ----
 
 func TestActionDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.delete": rpcOK(t, map[string]any{"actionids": []string{"10"}}),
 	})
@@ -494,6 +510,7 @@ func TestActionDelete_Success(t *testing.T) {
 }
 
 func TestActionDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"action.delete": rpcErr(t, -32500, "Cannot delete action."),
 	})

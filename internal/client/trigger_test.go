@@ -10,6 +10,7 @@ import (
 // ---- TriggerCreate ----
 
 func TestTriggerCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.create": rpcOK(t, map[string]any{"triggerids": []string{"100"}}),
 	})
@@ -28,6 +29,7 @@ func TestTriggerCreate_Success(t *testing.T) {
 }
 
 func TestTriggerCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.create": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -41,6 +43,7 @@ func TestTriggerCreate_ErrorEnvelope(t *testing.T) {
 // ---- TriggerGet ----
 
 func TestTriggerGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{{
 			"triggerid":           "100",
@@ -78,6 +81,7 @@ func TestTriggerGet_Success(t *testing.T) {
 }
 
 func TestTriggerGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{}),
 	})
@@ -91,6 +95,7 @@ func TestTriggerGet_NotFound(t *testing.T) {
 }
 
 func TestTriggerGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -101,6 +106,7 @@ func TestTriggerGet_ErrorEnvelope(t *testing.T) {
 }
 
 func TestTriggerGet_WithTags(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{{
 			"triggerid":           "200",
@@ -143,6 +149,7 @@ func TestTriggerGet_WithTags(t *testing.T) {
 // ---- TriggerGetByDescriptionAndScope ----
 
 func TestTriggerGetByDescriptionAndScope_ByHostID(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{{
 			"triggerid":           "50",
@@ -171,6 +178,7 @@ func TestTriggerGetByDescriptionAndScope_ByHostID(t *testing.T) {
 }
 
 func TestTriggerGetByDescriptionAndScope_ByTemplateID(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{{
 			"triggerid":           "51",
@@ -196,6 +204,7 @@ func TestTriggerGetByDescriptionAndScope_ByTemplateID(t *testing.T) {
 }
 
 func TestTriggerGetByDescriptionAndScope_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcOK(t, []map[string]any{}),
 	})
@@ -209,6 +218,7 @@ func TestTriggerGetByDescriptionAndScope_Empty(t *testing.T) {
 }
 
 func TestTriggerGetByDescriptionAndScope_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.get": rpcErr(t, -32500, "Application error."),
 	})
@@ -221,6 +231,7 @@ func TestTriggerGetByDescriptionAndScope_ErrorEnvelope(t *testing.T) {
 // ---- TriggerUpdate ----
 
 func TestTriggerUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.update": rpcOK(t, map[string]any{"triggerids": []string{"100"}}),
 	})
@@ -236,6 +247,7 @@ func TestTriggerUpdate_Success(t *testing.T) {
 }
 
 func TestTriggerUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.update": rpcErr(t, -32602, "Invalid params."),
 	})
@@ -248,6 +260,7 @@ func TestTriggerUpdate_ErrorEnvelope(t *testing.T) {
 // ---- TriggerDelete ----
 
 func TestTriggerDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.delete": rpcOK(t, map[string]any{"triggerids": []string{"100"}}),
 	})
@@ -257,6 +270,7 @@ func TestTriggerDelete_Success(t *testing.T) {
 }
 
 func TestTriggerDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"trigger.delete": rpcErr(t, -32500, "Cannot delete trigger."),
 	})

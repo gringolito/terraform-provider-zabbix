@@ -19,6 +19,7 @@ import (
 // ---- URL validator ----
 
 func TestURLValidator_Valid(t *testing.T) {
+	t.Parallel()
 	cases := []string{
 		"http://zabbix.example.com",
 		"https://zabbix.example.com",
@@ -40,6 +41,7 @@ func TestURLValidator_Valid(t *testing.T) {
 }
 
 func TestURLValidator_Invalid(t *testing.T) {
+	t.Parallel()
 	cases := []string{
 		"not-a-url",
 		"ftp://zabbix.example.com",
@@ -62,6 +64,7 @@ func TestURLValidator_Invalid(t *testing.T) {
 }
 
 func TestURLValidator_SkipsNullAndUnknown(t *testing.T) {
+	t.Parallel()
 	v := provider.URLValidator{}
 
 	nullResp := &validator.StringResponse{}
@@ -84,6 +87,7 @@ func TestURLValidator_SkipsNullAndUnknown(t *testing.T) {
 // ---- Schema ----
 
 func TestProviderSchema_Attributes(t *testing.T) {
+	t.Parallel()
 	p := provider.New("test")()
 	resp := &tfwprovider.SchemaResponse{}
 	p.Schema(context.Background(), tfwprovider.SchemaRequest{}, resp)

@@ -16,6 +16,7 @@ import (
 )
 
 func TestAccMediaTypeEmailResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-mt-email"
 	updated := cfg.NamePrefix + "-mt-email-upd"
@@ -46,6 +47,7 @@ func TestAccMediaTypeEmailResource_CRUD(t *testing.T) {
 }
 
 func TestAccMediaTypeEmailResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-email-imp"
 
@@ -67,6 +69,7 @@ func TestAccMediaTypeEmailResource_Import(t *testing.T) {
 }
 
 func TestAccMediaTypeEmailResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-email-drift"
 	renamed := cfg.NamePrefix + "-mt-email-drift-oob"
@@ -115,6 +118,7 @@ func TestAccMediaTypeEmailResource_Drift(t *testing.T) {
 }
 
 func TestMediaTypeEmailResource_SmtpPortBelowRange(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -129,6 +133,7 @@ func TestMediaTypeEmailResource_SmtpPortBelowRange(t *testing.T) {
 }
 
 func TestMediaTypeEmailResource_SmtpPortAboveRange(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
