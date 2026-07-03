@@ -139,7 +139,6 @@ func TestAccActionTriggerResource_Import(t *testing.T) {
 }
 
 func TestAccActionTriggerResource_Drift(t *testing.T) {
-	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-drift"
 
