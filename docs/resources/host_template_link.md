@@ -52,3 +52,14 @@ resource "zabbix_host_template_link" "web_server_linux_base" {
 ### Read-Only
 
 - `id` (String) Composite identifier in the form `<host_id>/<template_id>`.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a host-template link using the host ID and template ID separated by a slash.
+terraform import zabbix_host_template_link.example 10001/10002
+```

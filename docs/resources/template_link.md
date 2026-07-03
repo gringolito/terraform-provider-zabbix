@@ -48,3 +48,14 @@ resource "zabbix_template_link" "extended_inherits_base" {
 ### Read-Only
 
 - `id` (String) Composite identifier in the form `<template_id>/<linked_template_id>`.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a template-template link using the parent template ID and linked template ID separated by a slash.
+terraform import zabbix_template_link.example 10002/10003
+```

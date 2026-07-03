@@ -403,3 +403,14 @@ Optional:
 - `use_default_message` (Boolean) When `true`, the media type's default subject/message are used; `subject` and `message` must be absent. When `false`, `subject` and `message` are required.
 - `user_group_ids` (Set of String) Set of user group IDs to send the message to.
 - `user_ids` (Set of String) Set of user IDs to send the message to.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a trigger action using its Zabbix numeric ID.
+terraform import zabbix_action_trigger.example 1
+```

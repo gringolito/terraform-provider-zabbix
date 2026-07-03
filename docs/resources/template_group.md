@@ -28,3 +28,14 @@ resource "zabbix_template_group" "linux_templates" {
 ### Read-Only
 
 - `id` (String) Unique identifier of the template group.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a template group using its Zabbix numeric ID.
+terraform import zabbix_template_group.example 1
+```

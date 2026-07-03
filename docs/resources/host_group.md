@@ -28,3 +28,14 @@ resource "zabbix_host_group" "linux_servers" {
 ### Read-Only
 
 - `id` (String) Unique identifier of the host group.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a host group using its Zabbix numeric ID.
+terraform import zabbix_host_group.example 4
+```

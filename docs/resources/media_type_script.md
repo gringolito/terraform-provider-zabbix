@@ -56,3 +56,14 @@ Required:
 - `message` (String) Message body.
 - `recovery` (String) Recovery mode. One of: `operation`, `recovery`, `update`.
 - `subject` (String) Message subject.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a script media type using its Zabbix numeric ID.
+terraform import zabbix_media_type_script.example 2
+```

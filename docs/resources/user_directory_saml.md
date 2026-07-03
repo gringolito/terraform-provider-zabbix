@@ -100,3 +100,14 @@ Optional:
 - `active` (String) Whether the media is active. One of: `enabled`, `disabled`. Defaults to `enabled`.
 - `period` (String) Active time period. Defaults to `1-7,00:00-24:00`.
 - `severity` (Number) Severity bitmask (0-63). Defaults to `63` (all severities).
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a SAML user directory using its Zabbix numeric ID.
+terraform import zabbix_user_directory_saml.example 2
+```
