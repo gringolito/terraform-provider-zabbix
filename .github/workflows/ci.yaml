@@ -81,7 +81,6 @@ jobs:
       matrix:
         # Terraform versions
         terraform:
-          - '1.13.*'
           - '1.14.*'
           - '1.15.*'
     steps:
