@@ -19,6 +19,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccTriggerResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -98,6 +99,7 @@ func TestAccTriggerResource_CRUD(t *testing.T) {
 }
 
 func TestAccTriggerResource_WithTags(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -144,6 +146,7 @@ func TestAccTriggerResource_WithTags(t *testing.T) {
 }
 
 func TestAccTriggerResource_RecoveryExpression(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -185,6 +188,7 @@ func TestAccTriggerResource_RecoveryExpression(t *testing.T) {
 }
 
 func TestAccTriggerResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -219,6 +223,7 @@ func TestAccTriggerResource_Import(t *testing.T) {
 }
 
 func TestAccTriggerResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
