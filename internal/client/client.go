@@ -34,7 +34,11 @@ func New(ctx context.Context, url, token string) (Client, error) {
 	// All calls target a single Zabbix host, so raise the per-host idle-connection
 	// limit above net/http's default of 2 to allow connection reuse under
 	// concurrent load instead of churning fresh TCP connections.
-	transport := http.DefaultTransport.(*http.Transport).Clone()
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return nil, fmt.Errorf("zabbix client: unexpected http.DefaultTransport type %T", http.DefaultTransport)
+	}
+	transport := defaultTransport.Clone()
 	transport.MaxIdleConns = 100
 	transport.MaxIdleConnsPerHost = 100
 	c := &jsonrpcClient{
