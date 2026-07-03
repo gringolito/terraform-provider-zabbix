@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccUserDataSource_ByUsername(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -72,6 +73,7 @@ func TestAccUserDataSource_ByUsername(t *testing.T) {
 }
 
 func TestAccUserDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -101,6 +103,7 @@ func TestAccUserDataSource_ByID(t *testing.T) {
 }
 
 func TestAccUserDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -118,6 +121,7 @@ func TestAccUserDataSource_ZeroMatchError(t *testing.T) {
 // ---- Unit tests ----
 
 func TestUserDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeUserDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildUserDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}
@@ -129,6 +133,7 @@ func TestUserDataSource_MissingKeyError(t *testing.T) {
 }
 
 func TestUserDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			testFakeUserResponse("1", "Admin"),
@@ -156,6 +161,7 @@ func TestUserDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestUserDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{Response: []map[string]any{}}
 
 	ds := newFakeUserDataSource(t, fake)

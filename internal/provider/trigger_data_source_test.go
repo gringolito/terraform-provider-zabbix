@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccTriggerDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -67,6 +68,7 @@ func TestAccTriggerDataSource_ByID(t *testing.T) {
 }
 
 func TestAccTriggerDataSource_ByDescriptionAndTemplateID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	tmplName := cfg.NamePrefix + "-tmpl"
@@ -110,6 +112,7 @@ func TestAccTriggerDataSource_ByDescriptionAndTemplateID(t *testing.T) {
 // ---- Unit tests ----
 
 func TestTriggerDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeTriggerDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildTriggerDataSourceConfig(t, "", "", "", "")}
 	resp := &datasource.ReadResponse{}
@@ -121,6 +124,7 @@ func TestTriggerDataSource_MissingKeyError(t *testing.T) {
 }
 
 func TestTriggerDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{
@@ -158,6 +162,7 @@ func TestTriggerDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestTriggerDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{Response: []map[string]any{}}
 
 	ds := newFakeTriggerDataSource(t, fake)

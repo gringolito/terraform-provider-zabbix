@@ -15,6 +15,7 @@ import (
 // smtp_authentication, content_type, status, event_source, and recovery all
 // reject invalid strings at plan time via stringvalidator.OneOf.
 func TestMediaTypeEmailResource_EnumValidation(t *testing.T) {
+	t.Parallel()
 	r := provider.NewMediaTypeEmailResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)

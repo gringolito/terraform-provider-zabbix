@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // Client is the interface for making Zabbix API JSON-RPC calls.
@@ -25,16 +26,34 @@ type jsonrpcClient struct {
 	token   string
 	version string
 	http    *http.Client
+
+	// maxRetries bounds how many times a transient database error is replayed
+	// before Call gives up. sleep waits between attempts and is a field so tests
+	// can substitute a no-op.
+	maxRetries int
+	sleep      func(ctx context.Context, d time.Duration) error
 }
 
 // New constructs a Client, connects to the Zabbix API at url, detects the
 // server version via apiinfo.version, and returns an error if the server is
 // unreachable or returns a malformed response.
 func New(ctx context.Context, url, token string) (Client, error) {
+	// All calls target a single Zabbix host, so raise the per-host idle-connection
+	// limit above net/http's default of 2 to allow connection reuse under
+	// concurrent load instead of churning fresh TCP connections.
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return nil, fmt.Errorf("zabbix client: unexpected http.DefaultTransport type %T", http.DefaultTransport)
+	}
+	transport := defaultTransport.Clone()
+	transport.MaxIdleConns = 100
+	transport.MaxIdleConnsPerHost = 100
 	c := &jsonrpcClient{
-		url:   strings.TrimRight(url, "/") + "/api_jsonrpc.php",
-		token: token,
-		http:  &http.Client{},
+		url:        strings.TrimRight(url, "/") + "/api_jsonrpc.php",
+		token:      token,
+		http:       &http.Client{Transport: transport},
+		maxRetries: defaultMaxRetries,
+		sleep:      sleepWithContext,
 	}
 	result, err := c.Call(ctx, "apiinfo.version", struct{}{})
 	if err != nil {
@@ -49,7 +68,30 @@ func New(ctx context.Context, url, token string) (Client, error) {
 func (c *jsonrpcClient) APIVersion() string { return c.version }
 func (c *jsonrpcClient) Tier() Tier         { return ClassifyTier(c.version) }
 
+// Call invokes a Zabbix API method, replaying the request on transient database
+// errors (see isTransientDBError) with jittered exponential backoff up to
+// maxRetries. Non-transient errors and successes return immediately.
 func (c *jsonrpcClient) Call(ctx context.Context, method string, params any) (json.RawMessage, error) {
+	var lastErr error
+	for attempt := 0; attempt <= c.maxRetries; attempt++ {
+		if attempt > 0 {
+			if err := c.sleep(ctx, backoffFor(attempt)); err != nil {
+				return nil, err
+			}
+		}
+		result, err := c.do(ctx, method, params)
+		if err == nil {
+			return result, nil
+		}
+		if !isTransientDBError(err) {
+			return nil, err
+		}
+		lastErr = err
+	}
+	return nil, fmt.Errorf("zabbix api call %q failed after %d retries: %w", method, c.maxRetries, lastErr)
+}
+
+func (c *jsonrpcClient) do(ctx context.Context, method string, params any) (json.RawMessage, error) {
 	reqBody, err := json.Marshal(rpcRequest{
 		JSONRPC: "2.0",
 		Method:  method,

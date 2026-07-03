@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccHostInterfaceDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-ds-id"
@@ -54,6 +55,7 @@ func TestAccHostInterfaceDataSource_ByID(t *testing.T) {
 }
 
 func TestAccHostInterfaceDataSource_ByHostAndType(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-ds-htype"
@@ -82,6 +84,7 @@ func TestAccHostInterfaceDataSource_ByHostAndType(t *testing.T) {
 }
 
 func TestAccHostInterfaceDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -99,6 +102,7 @@ func TestAccHostInterfaceDataSource_ZeroMatchError(t *testing.T) {
 // ---- Unit tests ----
 
 func TestHostInterfaceDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{
@@ -134,6 +138,7 @@ func TestHostInterfaceDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestHostInterfaceDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeHostInterfaceDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildHostInterfaceDataSourceConfig(t, "", "", "")}
 	resp := &datasource.ReadResponse{}
@@ -145,6 +150,7 @@ func TestHostInterfaceDataSource_MissingKeyError(t *testing.T) {
 }
 
 func TestHostInterfaceDataSource_ZeroMatchByHostAndTypeError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{},
 	}

@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccMediaTypeSMSDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-sms-ds-id"
 

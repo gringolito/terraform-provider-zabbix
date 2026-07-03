@@ -50,6 +50,7 @@ func (c *captureHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestNew_DetectsVersion(t *testing.T) {
+	t.Parallel()
 	srv := rpcServer(t, versionHandler("7.0.3"))
 	c, err := client.New(t.Context(), srv.URL, "token")
 	if err != nil {
@@ -61,6 +62,7 @@ func TestNew_DetectsVersion(t *testing.T) {
 }
 
 func TestNew_VersionDetection_NoAuth(t *testing.T) {
+	t.Parallel()
 	ch := &captureHandler{}
 	ch.inner = versionHandler("7.0.0")
 	srv := rpcServer(t, ch.ServeHTTP)
@@ -77,6 +79,7 @@ func TestNew_VersionDetection_NoAuth(t *testing.T) {
 }
 
 func TestCall_SendsBearerAuth(t *testing.T) {
+	t.Parallel()
 	ch := &captureHandler{}
 	ch.inner = func(w http.ResponseWriter, r *http.Request) {
 		var req rpcMethod
@@ -108,6 +111,7 @@ func TestCall_SendsBearerAuth(t *testing.T) {
 }
 
 func TestCall_SuccessResponse(t *testing.T) {
+	t.Parallel()
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
 		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
@@ -143,6 +147,7 @@ func TestCall_SuccessResponse(t *testing.T) {
 }
 
 func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
+	t.Parallel()
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
 		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
@@ -157,7 +162,7 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"error": map[string]any{
-				"code":    -32602,
+				"code":    client.ErrCodeInvalidParams,
 				"message": "Invalid params.",
 				"data":    "No permissions to referred object or it does not exist!",
 			},
@@ -179,8 +184,8 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected *client.RPCError, got %T: %v", err, err)
 	}
-	if rpcErr.Code != -32602 {
-		t.Errorf("Code = %d, want -32602", rpcErr.Code)
+	if rpcErr.Code != client.ErrCodeInvalidParams {
+		t.Errorf("Code = %d, want client.ErrCodeInvalidParams", rpcErr.Code)
 	}
 	if rpcErr.Message != "Invalid params." {
 		t.Errorf("Message = %q, want %q", rpcErr.Message, "Invalid params.")
@@ -191,6 +196,7 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 }
 
 func TestCall_MalformedJSON(t *testing.T) {
+	t.Parallel()
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
 		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)
@@ -217,6 +223,7 @@ func TestCall_MalformedJSON(t *testing.T) {
 }
 
 func TestCall_HTTPNon2xx(t *testing.T) {
+	t.Parallel()
 	srv := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
 		var req rpcMethod
 		_ = json.NewDecoder(r.Body).Decode(&req)

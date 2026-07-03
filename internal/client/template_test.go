@@ -10,6 +10,7 @@ import (
 // ---- TemplateCreate ----
 
 func TestTemplateCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.create": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -28,8 +29,9 @@ func TestTemplateCreate_Success(t *testing.T) {
 }
 
 func TestTemplateCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.create": rpcErr(t, -32602, "Invalid params."),
+		"template.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.TemplateCreate(t.Context(), c, client.Template{Host: "dup"})
 	if err == nil {
@@ -40,6 +42,7 @@ func TestTemplateCreate_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGet ----
 
 func TestTemplateGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.get": rpcOK(t, []map[string]any{
 			{
@@ -85,6 +88,7 @@ func TestTemplateGet_Success(t *testing.T) {
 }
 
 func TestTemplateGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.get": rpcOK(t, []map[string]any{}),
 	})
@@ -98,8 +102,9 @@ func TestTemplateGet_NotFound(t *testing.T) {
 }
 
 func TestTemplateGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.get": rpcErr(t, -32500, "Application error."),
+		"template.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGet(t.Context(), c, "1")
 	if err == nil {
@@ -110,6 +115,7 @@ func TestTemplateGet_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGetByHost ----
 
 func TestTemplateGetByHost_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.get": rpcOK(t, []map[string]any{
 			{
@@ -136,6 +142,7 @@ func TestTemplateGetByHost_Single(t *testing.T) {
 }
 
 func TestTemplateGetByHost_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.get": rpcOK(t, []map[string]any{}),
 	})
@@ -149,6 +156,7 @@ func TestTemplateGetByHost_Empty(t *testing.T) {
 }
 
 func TestTemplateGetByHost_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.get": rpcOK(t, []map[string]any{
 			{"templateid": "1", "host": "Linux", "name": "Linux", "description": "", "groups": []map[string]any{}, "macros": []map[string]any{}, "parentTemplates": []map[string]any{}},
@@ -165,8 +173,9 @@ func TestTemplateGetByHost_Multiple(t *testing.T) {
 }
 
 func TestTemplateGetByHost_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.get": rpcErr(t, -32500, "Application error."),
+		"template.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGetByHost(t.Context(), c, "x")
 	if err == nil {
@@ -177,6 +186,7 @@ func TestTemplateGetByHost_ErrorEnvelope(t *testing.T) {
 // ---- TemplateUpdate ----
 
 func TestTemplateUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.update": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -193,8 +203,9 @@ func TestTemplateUpdate_Success(t *testing.T) {
 }
 
 func TestTemplateUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.update": rpcErr(t, -32602, "Invalid params."),
+		"template.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.TemplateUpdate(t.Context(), c, client.Template{TemplateID: "1"}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -204,6 +215,7 @@ func TestTemplateUpdate_ErrorEnvelope(t *testing.T) {
 // ---- TemplateDelete ----
 
 func TestTemplateDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.delete": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -213,8 +225,9 @@ func TestTemplateDelete_Success(t *testing.T) {
 }
 
 func TestTemplateDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.delete": rpcErr(t, -32500, "Cannot delete template."),
+		"template.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete template."),
 	})
 	if err := client.TemplateDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")
@@ -224,6 +237,7 @@ func TestTemplateDelete_ErrorEnvelope(t *testing.T) {
 // ---- TemplateLinkAdd ----
 
 func TestTemplateLinkAdd_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.massadd": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -233,8 +247,9 @@ func TestTemplateLinkAdd_Success(t *testing.T) {
 }
 
 func TestTemplateLinkAdd_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.massadd": rpcErr(t, -32602, "Invalid params."),
+		"template.massadd": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.TemplateLinkAdd(t.Context(), c, "10", []string{"20"}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -244,6 +259,7 @@ func TestTemplateLinkAdd_ErrorEnvelope(t *testing.T) {
 // ---- TemplateLinkRemove ----
 
 func TestTemplateLinkRemove_Unlink_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.massremove": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -253,6 +269,7 @@ func TestTemplateLinkRemove_Unlink_Success(t *testing.T) {
 }
 
 func TestTemplateLinkRemove_Clear_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"template.massremove": rpcOK(t, map[string]any{"templateids": []string{"10"}}),
 	})
@@ -262,8 +279,9 @@ func TestTemplateLinkRemove_Clear_Success(t *testing.T) {
 }
 
 func TestTemplateLinkRemove_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"template.massremove": rpcErr(t, -32500, "Application error."),
+		"template.massremove": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	if err := client.TemplateLinkRemove(t.Context(), c, "10", "20", false); err == nil {
 		t.Fatal("expected error, got nil")

@@ -10,6 +10,7 @@ import (
 // ---- MediaTypeCreate ----
 
 func TestMediaTypeCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.create": rpcOK(t, map[string]any{"mediatypeids": []string{"10"}}),
 	})
@@ -26,8 +27,9 @@ func TestMediaTypeCreate_Success(t *testing.T) {
 }
 
 func TestMediaTypeCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.create": rpcErr(t, -32602, "Invalid params."),
+		"mediatype.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.MediaTypeCreate(t.Context(), c, client.MediaType{Name: "dup", Type: client.MediaTypeTypeEmail})
 	if err == nil {
@@ -38,6 +40,7 @@ func TestMediaTypeCreate_ErrorEnvelope(t *testing.T) {
 // ---- MediaTypeGet ----
 
 func TestMediaTypeGet_Success(t *testing.T) {
+	t.Parallel()
 	// Zabbix 7.0 returns integer fields as JSON strings; verify the struct handles that.
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.get": rpcOK(t, []map[string]any{{
@@ -62,6 +65,7 @@ func TestMediaTypeGet_Success(t *testing.T) {
 }
 
 func TestMediaTypeGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.get": rpcOK(t, []map[string]any{}),
 	})
@@ -75,8 +79,9 @@ func TestMediaTypeGet_NotFound(t *testing.T) {
 }
 
 func TestMediaTypeGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.get": rpcErr(t, -32500, "Application error."),
+		"mediatype.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.MediaTypeGet(t.Context(), c, "1")
 	if err == nil {
@@ -87,6 +92,7 @@ func TestMediaTypeGet_ErrorEnvelope(t *testing.T) {
 // ---- MediaTypeGetByName ----
 
 func TestMediaTypeGetByName_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.get": rpcOK(t, []map[string]any{{
 			"mediatypeid": "3",
@@ -110,6 +116,7 @@ func TestMediaTypeGetByName_Single(t *testing.T) {
 }
 
 func TestMediaTypeGetByName_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.get": rpcOK(t, []map[string]any{}),
 	})
@@ -123,6 +130,7 @@ func TestMediaTypeGetByName_Empty(t *testing.T) {
 }
 
 func TestMediaTypeGetByName_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.get": rpcOK(t, []map[string]any{
 			{"mediatypeid": "1", "name": "Email", "type": "0", "status": "0", "maxsessions": "1", "maxattempts": "3"},
@@ -139,8 +147,9 @@ func TestMediaTypeGetByName_Multiple(t *testing.T) {
 }
 
 func TestMediaTypeGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.get": rpcErr(t, -32500, "Application error."),
+		"mediatype.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.MediaTypeGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -151,6 +160,7 @@ func TestMediaTypeGetByName_ErrorEnvelope(t *testing.T) {
 // ---- MediaTypeUpdate ----
 
 func TestMediaTypeUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.update": rpcOK(t, map[string]any{"mediatypeids": []string{"7"}}),
 	})
@@ -160,8 +170,9 @@ func TestMediaTypeUpdate_Success(t *testing.T) {
 }
 
 func TestMediaTypeUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.update": rpcErr(t, -32602, "Invalid params."),
+		"mediatype.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.MediaTypeUpdate(t.Context(), c, client.MediaType{ID: "1", Name: "x", Type: client.MediaTypeTypeEmail}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -171,6 +182,7 @@ func TestMediaTypeUpdate_ErrorEnvelope(t *testing.T) {
 // ---- MediaTypeDelete ----
 
 func TestMediaTypeDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"mediatype.delete": rpcOK(t, map[string]any{"mediatypeids": []string{"9"}}),
 	})
@@ -180,8 +192,9 @@ func TestMediaTypeDelete_Success(t *testing.T) {
 }
 
 func TestMediaTypeDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.delete": rpcErr(t, -32500, "Cannot delete media type."),
+		"mediatype.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete media type."),
 	})
 	if err := client.MediaTypeDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

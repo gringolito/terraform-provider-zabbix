@@ -15,6 +15,7 @@ import (
 )
 
 func TestAccTemplateResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	initial := cfg.NamePrefix + "-tmpl"
@@ -62,6 +63,7 @@ func TestAccTemplateResource_CRUD(t *testing.T) {
 }
 
 func TestAccTemplateResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	name := cfg.NamePrefix + "-tmpl-imp"
@@ -83,6 +85,7 @@ func TestAccTemplateResource_Import(t *testing.T) {
 }
 
 func TestAccTemplateResource_Macros(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	name := cfg.NamePrefix + "-tmpl-macro"
@@ -133,6 +136,7 @@ func TestAccTemplateResource_Macros(t *testing.T) {
 }
 
 func TestAccTemplateResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	name := cfg.NamePrefix + "-tmpl-drift"

@@ -17,6 +17,7 @@ import (
 )
 
 func TestAuthenticationDataSource_Schema_AllAttributesComputed(t *testing.T) {
+	t.Parallel()
 	ds := provider.NewAuthenticationDataSource()
 	schResp := &fwdatasource.SchemaResponse{}
 	ds.Schema(context.Background(), fwdatasource.SchemaRequest{}, schResp)
@@ -49,6 +50,7 @@ func TestAuthenticationDataSource_Schema_AllAttributesComputed(t *testing.T) {
 }
 
 func TestAuthenticationDataSource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
+	t.Parallel()
 	ds := provider.NewAuthenticationDataSource()
 	schResp := &fwdatasource.SchemaResponse{}
 	ds.Schema(context.Background(), fwdatasource.SchemaRequest{}, schResp)
@@ -63,6 +65,7 @@ func TestAuthenticationDataSource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
 }
 
 func TestAuthenticationDataSource_Schema_PasswordMinLengthIsInt64(t *testing.T) {
+	t.Parallel()
 	ds := provider.NewAuthenticationDataSource()
 	schResp := &fwdatasource.SchemaResponse{}
 	ds.Schema(context.Background(), fwdatasource.SchemaRequest{}, schResp)

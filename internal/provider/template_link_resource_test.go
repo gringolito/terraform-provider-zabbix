@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccTemplateLinkResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	parentName := cfg.NamePrefix + "-parent"
@@ -43,6 +44,7 @@ func TestAccTemplateLinkResource_CRUD(t *testing.T) {
 }
 
 func TestAccTemplateLinkResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	parentName := cfg.NamePrefix + "-parent-imp"
@@ -65,6 +67,7 @@ func TestAccTemplateLinkResource_Import(t *testing.T) {
 }
 
 func TestAccTemplateLinkResource_OnDestroyUnlink(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	parentName := cfg.NamePrefix + "-parent-unlink"

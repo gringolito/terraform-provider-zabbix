@@ -15,6 +15,7 @@ import (
 )
 
 func TestAccRoleResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-role"
 	updated := cfg.NamePrefix + "-role-upd"
@@ -61,6 +62,7 @@ func TestAccRoleResource_CRUD(t *testing.T) {
 }
 
 func TestAccRoleResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-role-imp"
 
@@ -81,6 +83,7 @@ func TestAccRoleResource_Import(t *testing.T) {
 }
 
 func TestAccRoleResource_Drift(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-role-drift"
 	renamed := cfg.NamePrefix + "-role-drift-oob"

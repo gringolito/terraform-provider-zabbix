@@ -19,6 +19,7 @@ import (
 )
 
 func TestAuthenticationResource_Schema_IDIsComputed(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -36,6 +37,7 @@ func TestAuthenticationResource_Schema_IDIsComputed(t *testing.T) {
 }
 
 func TestAuthenticationResource_Schema_AuthenticationTypeValidValues(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -61,6 +63,7 @@ func TestAuthenticationResource_Schema_AuthenticationTypeValidValues(t *testing.
 }
 
 func TestAuthenticationResource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -75,6 +78,7 @@ func TestAuthenticationResource_Schema_PasswordCheckRulesIsSet(t *testing.T) {
 }
 
 func TestAuthenticationResource_Schema_MFAIDIsOptionalComputed(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -92,6 +96,7 @@ func TestAuthenticationResource_Schema_MFAIDIsOptionalComputed(t *testing.T) {
 }
 
 func TestAuthenticationResource_Schema_DisabledUsergroupIDOptionalComputed(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -109,6 +114,7 @@ func TestAuthenticationResource_Schema_DisabledUsergroupIDOptionalComputed(t *te
 }
 
 func TestAuthenticationResource_Schema_PasswordMinLengthIsInt64(t *testing.T) {
+	t.Parallel()
 	r := provider.NewAuthenticationResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)
@@ -231,6 +237,7 @@ func authConfigureWithClient(t *testing.T, r fwresource.Resource, mc *clienttest
 // Create returns "Duplicate zabbix_authentication resource" when the same
 // client is already registered.
 func TestAuthenticationResource_SingletonLock_RejectsDuplicate(t *testing.T) {
+	t.Parallel()
 	t.Cleanup(provider.ResetAuthenticationSingletonForTesting)
 
 	mc := &clienttest.TestClient{}
@@ -256,6 +263,7 @@ func TestAuthenticationResource_SingletonLock_RejectsDuplicate(t *testing.T) {
 // TestAuthenticationResource_SingletonLock_AllowsAfterDelete verifies that
 // Delete unregisters the client so a subsequent Create would not be blocked.
 func TestAuthenticationResource_SingletonLock_AllowsAfterDelete(t *testing.T) {
+	t.Parallel()
 	t.Cleanup(provider.ResetAuthenticationSingletonForTesting)
 
 	mc := &clienttest.TestClient{}

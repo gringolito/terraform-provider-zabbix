@@ -43,6 +43,7 @@ dist/
 # Claude-Code
 .claude/*
 !.claude/settings.json
+!.claude/backlog-project.json
 
 # Superpowers working docs (specs, plans — not repo artifacts)
 docs/superpowers/

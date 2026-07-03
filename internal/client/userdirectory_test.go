@@ -25,6 +25,7 @@ var samlUD = client.UserDirectory{
 }
 
 func TestUserDirectoryCreate_LDAP_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"userdirectory.create": rpcOK(t, map[string]any{"userdirectoryids": []string{"10"}}),
 	})
@@ -38,6 +39,7 @@ func TestUserDirectoryCreate_LDAP_Success(t *testing.T) {
 }
 
 func TestUserDirectoryCreate_SAML_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"userdirectory.create": rpcOK(t, map[string]any{"userdirectoryids": []string{"11"}}),
 	})
@@ -51,8 +53,9 @@ func TestUserDirectoryCreate_SAML_Success(t *testing.T) {
 }
 
 func TestUserDirectoryCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"userdirectory.create": rpcErr(t, -32602, "Invalid params."),
+		"userdirectory.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.UserDirectoryCreate(t.Context(), c, ldapUD)
 	if err == nil {
@@ -61,6 +64,7 @@ func TestUserDirectoryCreate_ErrorEnvelope(t *testing.T) {
 }
 
 func TestUserDirectoryGet_Found(t *testing.T) {
+	t.Parallel()
 	resp := map[string]any{
 		"userdirectoryid":  "10",
 		"idp_type":         "1",
@@ -104,6 +108,7 @@ func TestUserDirectoryGet_Found(t *testing.T) {
 }
 
 func TestUserDirectoryGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"userdirectory.get": rpcOK(t, []any{}),
 	})
@@ -117,6 +122,7 @@ func TestUserDirectoryGet_NotFound(t *testing.T) {
 }
 
 func TestUserDirectoryGetByName_ReturnsMultiple(t *testing.T) {
+	t.Parallel()
 	base := map[string]any{
 		"description": "", "provision_status": "0", "group_name": "", "user_username": "",
 		"user_lastname": "", "host": "a", "port": "389", "base_dn": "dc=a",
@@ -143,6 +149,7 @@ func TestUserDirectoryGetByName_ReturnsMultiple(t *testing.T) {
 }
 
 func TestUserDirectoryUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"userdirectory.update": rpcOK(t, map[string]any{"userdirectoryids": []string{"10"}}),
 	})
@@ -154,6 +161,7 @@ func TestUserDirectoryUpdate_Success(t *testing.T) {
 }
 
 func TestUserDirectoryDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"userdirectory.delete": rpcOK(t, map[string]any{"userdirectoryids": []string{"10"}}),
 	})

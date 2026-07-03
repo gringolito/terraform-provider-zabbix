@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccRoleDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-role-ds-id"
 
@@ -48,6 +49,7 @@ func TestAccRoleDataSource_ByID(t *testing.T) {
 }
 
 func TestAccRoleDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-role-ds-name"
 
@@ -75,6 +77,7 @@ func TestAccRoleDataSource_ByName(t *testing.T) {
 }
 
 func TestAccRoleDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -90,6 +93,7 @@ func TestAccRoleDataSource_ZeroMatchError(t *testing.T) {
 }
 
 func TestAccRoleDataSource_BuiltinRole(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -113,6 +117,7 @@ func TestAccRoleDataSource_BuiltinRole(t *testing.T) {
 // ---- Unit tests ----
 
 func TestRoleDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{
@@ -154,6 +159,7 @@ func TestRoleDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestRoleDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeRoleDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildRoleDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

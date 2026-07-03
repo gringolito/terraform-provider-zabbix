@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccMediaTypeWebhookResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	initial := cfg.NamePrefix + "-mt-wh"
 	updated := cfg.NamePrefix + "-mt-wh-upd"
@@ -39,6 +40,7 @@ func TestAccMediaTypeWebhookResource_CRUD(t *testing.T) {
 }
 
 func TestAccMediaTypeWebhookResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-wh-imp"
 

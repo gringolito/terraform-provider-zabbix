@@ -15,6 +15,7 @@ import (
 )
 
 func TestAccHostResource_CRUD(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host"
@@ -77,6 +78,7 @@ func TestAccHostResource_CRUD(t *testing.T) {
 }
 
 func TestAccHostResource_Import(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hostName := cfg.NamePrefix + "-host-imp"
@@ -98,6 +100,7 @@ func TestAccHostResource_Import(t *testing.T) {
 }
 
 func TestAccHostResource_Drift_HostGroupOOB(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	hgName := cfg.NamePrefix + "-hg"
 	hgOOBName := cfg.NamePrefix + "-hg-oob"

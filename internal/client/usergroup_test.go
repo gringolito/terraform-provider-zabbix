@@ -10,6 +10,7 @@ import (
 // ---- UserGroupCreate ----
 
 func TestUserGroupCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.create": rpcOK(t, map[string]any{"usrgrpids": []string{"42"}}),
 	})
@@ -24,8 +25,9 @@ func TestUserGroupCreate_Success(t *testing.T) {
 }
 
 func TestUserGroupCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.create": rpcErr(t, -32602, "Invalid params."),
+		"usergroup.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.UserGroupCreate(t.Context(), c, client.UserGroup{Name: "duplicate"})
 	if err == nil {
@@ -36,6 +38,7 @@ func TestUserGroupCreate_ErrorEnvelope(t *testing.T) {
 // ---- UserGroupGet ----
 
 func TestUserGroupGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.get": rpcOK(t, []map[string]any{{
 			"usrgrpid":     "5",
@@ -67,6 +70,7 @@ func TestUserGroupGet_Success(t *testing.T) {
 }
 
 func TestUserGroupGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -80,8 +84,9 @@ func TestUserGroupGet_NotFound(t *testing.T) {
 }
 
 func TestUserGroupGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.get": rpcErr(t, -32500, "Application error."),
+		"usergroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGroupGet(t.Context(), c, "1")
 	if err == nil {
@@ -92,6 +97,7 @@ func TestUserGroupGet_ErrorEnvelope(t *testing.T) {
 // ---- UserGroupGetByName ----
 
 func TestUserGroupGetByName_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.get": rpcOK(t, []map[string]any{{
 			"usrgrpid":     "3",
@@ -114,6 +120,7 @@ func TestUserGroupGetByName_Single(t *testing.T) {
 }
 
 func TestUserGroupGetByName_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -127,6 +134,7 @@ func TestUserGroupGetByName_Empty(t *testing.T) {
 }
 
 func TestUserGroupGetByName_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.get": rpcOK(t, []map[string]any{
 			{"usrgrpid": "1", "name": "Admins", "gui_access": "0", "debug_mode": "0", "users_status": "0"},
@@ -143,8 +151,9 @@ func TestUserGroupGetByName_Multiple(t *testing.T) {
 }
 
 func TestUserGroupGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.get": rpcErr(t, -32500, "Application error."),
+		"usergroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGroupGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -155,6 +164,7 @@ func TestUserGroupGetByName_ErrorEnvelope(t *testing.T) {
 // ---- UserGroupUpdate ----
 
 func TestUserGroupUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.update": rpcOK(t, map[string]any{"usrgrpids": []string{"7"}}),
 	})
@@ -165,8 +175,9 @@ func TestUserGroupUpdate_Success(t *testing.T) {
 }
 
 func TestUserGroupUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.update": rpcErr(t, -32602, "Invalid params."),
+		"usergroup.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.UserGroupUpdate(t.Context(), c, client.UserGroup{ID: "1", Name: "x"}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -176,6 +187,7 @@ func TestUserGroupUpdate_ErrorEnvelope(t *testing.T) {
 // ---- UserGroupDelete ----
 
 func TestUserGroupDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"usergroup.delete": rpcOK(t, map[string]any{"usrgrpids": []string{"9"}}),
 	})
@@ -185,8 +197,9 @@ func TestUserGroupDelete_Success(t *testing.T) {
 }
 
 func TestUserGroupDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.delete": rpcErr(t, -32500, "Cannot delete user group."),
+		"usergroup.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete user group."),
 	})
 	if err := client.UserGroupDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

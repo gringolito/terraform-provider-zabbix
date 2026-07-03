@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccActionTriggerDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-ds"
 
@@ -91,6 +92,7 @@ func TestAccActionTriggerDataSource_ByID(t *testing.T) {
 }
 
 func TestAccActionTriggerDataSource_ByName(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-at-ds-name"
 
@@ -133,6 +135,7 @@ func TestAccActionTriggerDataSource_ByName(t *testing.T) {
 // ---- Unit tests ----
 
 func TestActionTriggerDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeActionTriggerDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildActionTriggerDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}
@@ -144,6 +147,7 @@ func TestActionTriggerDataSource_MissingKeyError(t *testing.T) {
 }
 
 func TestActionTriggerDataSource_NotFoundError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{Response: []map[string]any{}}
 
 	ds := newFakeActionTriggerDataSource(t, fake)
@@ -157,6 +161,7 @@ func TestActionTriggerDataSource_NotFoundError(t *testing.T) {
 }
 
 func TestActionTriggerDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			actionRPCResponse("1", "My Action"),
@@ -184,6 +189,7 @@ func TestActionTriggerDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestActionTriggerDataSource_SuccessfulRead(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{

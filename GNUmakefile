@@ -18,7 +18,7 @@ fmt:
 	terraform fmt -recursive examples/
 
 unit-tests:
-	go test -v -coverprofile=coverage.out -covermode=atomic -timeout=120s -parallel=10 ./...
+	go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout=120s -parallel=10 ./...
 
 testacc-up:
 	docker compose up -d
@@ -26,7 +26,7 @@ testacc-up:
 
 testacc:
 	@set -a && [ -f .testacc.env ] && . ./.testacc.env; set +a && \
-		TF_ACC=1 go test -v -coverprofile=coverage.out -covermode=atomic -timeout 120m ./...
+		TF_ACC=1 go test -v -count=1 -coverprofile=coverage.out -covermode=atomic -timeout 120m ./...
 
 testacc-down:
 	docker compose down -v

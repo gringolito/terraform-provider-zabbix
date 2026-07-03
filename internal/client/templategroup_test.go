@@ -10,6 +10,7 @@ import (
 // ---- TemplateGroupCreate ----
 
 func TestTemplateGroupCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.create": rpcOK(t, map[string]any{"groupids": []string{"42"}}),
 	})
@@ -23,8 +24,9 @@ func TestTemplateGroupCreate_Success(t *testing.T) {
 }
 
 func TestTemplateGroupCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.create": rpcErr(t, -32602, "Invalid params."),
+		"templategroup.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.TemplateGroupCreate(t.Context(), c, "duplicate")
 	if err == nil {
@@ -35,6 +37,7 @@ func TestTemplateGroupCreate_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGroupGet ----
 
 func TestTemplateGroupGet_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.get": rpcOK(t, []map[string]any{{"groupid": "5", "name": "Web templates"}}),
 	})
@@ -51,6 +54,7 @@ func TestTemplateGroupGet_Success(t *testing.T) {
 }
 
 func TestTemplateGroupGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -64,8 +68,9 @@ func TestTemplateGroupGet_NotFound(t *testing.T) {
 }
 
 func TestTemplateGroupGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.get": rpcErr(t, -32500, "Application error."),
+		"templategroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGroupGet(t.Context(), c, "1")
 	if err == nil {
@@ -76,6 +81,7 @@ func TestTemplateGroupGet_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGroupGetByName ----
 
 func TestTemplateGroupGetByName_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.get": rpcOK(t, []map[string]any{{"groupid": "3", "name": "DB templates"}}),
 	})
@@ -92,6 +98,7 @@ func TestTemplateGroupGetByName_Single(t *testing.T) {
 }
 
 func TestTemplateGroupGetByName_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.get": rpcOK(t, []map[string]any{}),
 	})
@@ -105,6 +112,7 @@ func TestTemplateGroupGetByName_Empty(t *testing.T) {
 }
 
 func TestTemplateGroupGetByName_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.get": rpcOK(t, []map[string]any{
 			{"groupid": "1", "name": "Templates"},
@@ -121,8 +129,9 @@ func TestTemplateGroupGetByName_Multiple(t *testing.T) {
 }
 
 func TestTemplateGroupGetByName_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.get": rpcErr(t, -32500, "Application error."),
+		"templategroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGroupGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -133,6 +142,7 @@ func TestTemplateGroupGetByName_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGroupUpdate ----
 
 func TestTemplateGroupUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.update": rpcOK(t, map[string]any{"groupids": []string{"7"}}),
 	})
@@ -142,8 +152,9 @@ func TestTemplateGroupUpdate_Success(t *testing.T) {
 }
 
 func TestTemplateGroupUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.update": rpcErr(t, -32602, "Invalid params."),
+		"templategroup.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.TemplateGroupUpdate(t.Context(), c, "1", "x"); err == nil {
 		t.Fatal("expected error, got nil")
@@ -153,6 +164,7 @@ func TestTemplateGroupUpdate_ErrorEnvelope(t *testing.T) {
 // ---- TemplateGroupDelete ----
 
 func TestTemplateGroupDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"templategroup.delete": rpcOK(t, map[string]any{"groupids": []string{"9"}}),
 	})
@@ -162,8 +174,9 @@ func TestTemplateGroupDelete_Success(t *testing.T) {
 }
 
 func TestTemplateGroupDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.delete": rpcErr(t, -32500, "Cannot delete template group."),
+		"templategroup.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete template group."),
 	})
 	if err := client.TemplateGroupDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

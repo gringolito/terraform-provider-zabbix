@@ -12,6 +12,7 @@ import (
 )
 
 func TestAccMediaTypeScriptDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	name := cfg.NamePrefix + "-mt-script-ds-id"
 

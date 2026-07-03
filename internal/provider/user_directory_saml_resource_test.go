@@ -18,6 +18,7 @@ import (
 )
 
 func TestUserDirectorySAMLResource_SchemaValidation(t *testing.T) {
+	t.Parallel()
 	r := provider.NewUserDirectorySAMLResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)

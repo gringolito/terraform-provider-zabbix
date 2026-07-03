@@ -21,6 +21,7 @@ import (
 // ---- Acceptance tests ----
 
 func TestAccTemplateDataSource_ByID(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	name := cfg.NamePrefix + "-tmpl-ds-id"
@@ -49,6 +50,7 @@ func TestAccTemplateDataSource_ByID(t *testing.T) {
 }
 
 func TestAccTemplateDataSource_ByHost(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tgName := cfg.NamePrefix + "-tg"
 	name := cfg.NamePrefix + "-tmpl-ds-host"
@@ -77,6 +79,7 @@ func TestAccTemplateDataSource_ByHost(t *testing.T) {
 }
 
 func TestAccTemplateDataSource_ZeroMatchError(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 
 	resource.Test(t, resource.TestCase{
@@ -94,6 +97,7 @@ func TestAccTemplateDataSource_ZeroMatchError(t *testing.T) {
 // ---- Unit tests ----
 
 func TestTemplateDataSource_MultipleMatchError(t *testing.T) {
+	t.Parallel()
 	fake := &clienttest.TestClient{
 		Response: []map[string]any{
 			{"templateid": "1", "host": "Linux", "name": "Linux", "description": "", "groups": []map[string]any{}, "macros": []map[string]any{}, "parentTemplates": []map[string]any{}},
@@ -121,6 +125,7 @@ func TestTemplateDataSource_MultipleMatchError(t *testing.T) {
 }
 
 func TestTemplateDataSource_MissingKeyError(t *testing.T) {
+	t.Parallel()
 	ds := newFakeTemplateDataSource(t, &clienttest.TestClient{})
 	req := datasource.ReadRequest{Config: buildTemplateDataSourceConfig(t, "", "")}
 	resp := &datasource.ReadResponse{}

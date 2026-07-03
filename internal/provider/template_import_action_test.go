@@ -22,6 +22,7 @@ import (
 // ---- Unit tests ----
 
 func TestTemplateImportAction_Configure_NilData(t *testing.T) {
+	t.Parallel()
 	a := provider.NewTemplateImportAction()
 	configurable, ok := a.(action.ActionWithConfigure)
 	if !ok {
@@ -35,6 +36,7 @@ func TestTemplateImportAction_Configure_NilData(t *testing.T) {
 }
 
 func TestTemplateImportAction_Configure_WrongType(t *testing.T) {
+	t.Parallel()
 	a := provider.NewTemplateImportAction()
 	configurable, ok := a.(action.ActionWithConfigure)
 	if !ok {
@@ -48,6 +50,7 @@ func TestTemplateImportAction_Configure_WrongType(t *testing.T) {
 }
 
 func TestTemplateImportAction_Invoke_ClientError(t *testing.T) {
+	t.Parallel()
 	a := configuredAction(t, &clienttest.TestClient{Error: errors.New("api unavailable")})
 	resp := invokeAction(t, a, "content", "xml")
 	if !resp.Diagnostics.HasError() {
@@ -56,6 +59,7 @@ func TestTemplateImportAction_Invoke_ClientError(t *testing.T) {
 }
 
 func TestTemplateImportAction_Invoke_Success_DefaultRules(t *testing.T) {
+	t.Parallel()
 	mc := &clienttest.TestClient{Response: true}
 	a := configuredAction(t, mc)
 	resp := invokeAction(t, a, "<zabbix_export/>", "xml")
@@ -75,6 +79,7 @@ func TestTemplateImportAction_Invoke_Success_DefaultRules(t *testing.T) {
 }
 
 func TestTemplateImportAction_Invoke_FormatValidation(t *testing.T) {
+	t.Parallel()
 	mc := &clienttest.TestClient{Response: true}
 	a := configuredAction(t, mc)
 	resp := invokeAction(t, a, "content", "yaml")
@@ -173,6 +178,7 @@ func makeTemplateImportConfig(t *testing.T, source, format string) tfsdk.Config 
 // ---- Acceptance tests ----
 
 func TestAccTemplateImportAction_XML(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tmplName := cfg.NamePrefix + "-xml"
 	tgName := cfg.NamePrefix + "-tg"
@@ -195,6 +201,7 @@ func TestAccTemplateImportAction_XML(t *testing.T) {
 }
 
 func TestAccTemplateImportAction_YAML(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tmplName := cfg.NamePrefix + "-yaml"
 	tgName := cfg.NamePrefix + "-tg"
@@ -217,6 +224,7 @@ func TestAccTemplateImportAction_YAML(t *testing.T) {
 }
 
 func TestAccTemplateImportAction_JSON(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tmplName := cfg.NamePrefix + "-json"
 	tgName := cfg.NamePrefix + "-tg"
@@ -239,6 +247,7 @@ func TestAccTemplateImportAction_JSON(t *testing.T) {
 }
 
 func TestAccTemplateImportAction_AfterCreate(t *testing.T) {
+	t.Parallel()
 	cfg := testhelper.Setup(t)
 	tmplName := cfg.NamePrefix + "-trig"
 	tgName := cfg.NamePrefix + "-tg"

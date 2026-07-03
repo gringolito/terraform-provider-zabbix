@@ -14,6 +14,7 @@ import (
 // TestUserGroupResource_EnumValidation verifies that gui_access, debug_mode, and
 // users_status reject unknown strings at plan time via stringvalidator.OneOf.
 func TestUserGroupResource_EnumValidation(t *testing.T) {
+	t.Parallel()
 	r := provider.NewUserGroupResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)

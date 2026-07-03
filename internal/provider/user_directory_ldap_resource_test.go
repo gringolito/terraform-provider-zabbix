@@ -19,6 +19,7 @@ import (
 )
 
 func TestUserDirectoryLDAPResource_PortBelowRange(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -33,6 +34,7 @@ func TestUserDirectoryLDAPResource_PortBelowRange(t *testing.T) {
 }
 
 func TestUserDirectoryLDAPResource_PortAboveRange(t *testing.T) {
+	t.Parallel()
 	cfg := &testhelper.Config{URL: "http://fake:8080", Token: "fake"}
 
 	resource.UnitTest(t, resource.TestCase{
@@ -47,6 +49,7 @@ func TestUserDirectoryLDAPResource_PortAboveRange(t *testing.T) {
 }
 
 func TestUserDirectoryLDAPResource_SchemaValidation(t *testing.T) {
+	t.Parallel()
 	r := provider.NewUserDirectoryLDAPResource()
 	schResp := &fwresource.SchemaResponse{}
 	r.Schema(context.Background(), fwresource.SchemaRequest{}, schResp)

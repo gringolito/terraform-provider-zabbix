@@ -10,6 +10,7 @@ import (
 // ---- HostInterfaceCreate ----
 
 func TestHostInterfaceCreate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.create": rpcOK(t, map[string]any{"interfaceids": []string{"42"}}),
 	})
@@ -32,6 +33,7 @@ func TestHostInterfaceCreate_Success(t *testing.T) {
 }
 
 func TestHostInterfaceCreate_SNMP_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.create": rpcOK(t, map[string]any{"interfaceids": []string{"55"}}),
 	})
@@ -59,8 +61,9 @@ func TestHostInterfaceCreate_SNMP_Success(t *testing.T) {
 }
 
 func TestHostInterfaceCreate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostinterface.create": rpcErr(t, -32602, "Invalid params."),
+		"hostinterface.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	iface := client.HostInterface{HostID: "1", Type: 1, Port: "10050"}
 	_, err := client.HostInterfaceCreate(t.Context(), c, iface)
@@ -72,6 +75,7 @@ func TestHostInterfaceCreate_ErrorEnvelope(t *testing.T) {
 // ---- HostInterfaceGet ----
 
 func TestHostInterfaceGet_AgentType(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{{
 			"interfaceid": "42",
@@ -119,6 +123,7 @@ func TestHostInterfaceGet_AgentType(t *testing.T) {
 }
 
 func TestHostInterfaceGet_SNMPType(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{{
 			"interfaceid": "7",
@@ -168,6 +173,7 @@ func TestHostInterfaceGet_SNMPType(t *testing.T) {
 }
 
 func TestHostInterfaceGet_NotFound(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{}),
 	})
@@ -181,6 +187,7 @@ func TestHostInterfaceGet_NotFound(t *testing.T) {
 }
 
 func TestHostInterfaceGet_NonSNMPDetailsNormalized(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{{
 			"interfaceid": "3",
@@ -207,8 +214,9 @@ func TestHostInterfaceGet_NonSNMPDetailsNormalized(t *testing.T) {
 }
 
 func TestHostInterfaceGet_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostinterface.get": rpcErr(t, -32500, "Application error."),
+		"hostinterface.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostInterfaceGet(t.Context(), c, "1")
 	if err == nil {
@@ -219,6 +227,7 @@ func TestHostInterfaceGet_ErrorEnvelope(t *testing.T) {
 // ---- HostInterfaceGetByHostAndType ----
 
 func TestHostInterfaceGetByHostAndType_Single(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{{
 			"interfaceid": "1",
@@ -248,6 +257,7 @@ func TestHostInterfaceGetByHostAndType_Single(t *testing.T) {
 }
 
 func TestHostInterfaceGetByHostAndType_Empty(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{}),
 	})
@@ -261,6 +271,7 @@ func TestHostInterfaceGetByHostAndType_Empty(t *testing.T) {
 }
 
 func TestHostInterfaceGetByHostAndType_Multiple(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.get": rpcOK(t, []map[string]any{
 			{
@@ -285,8 +296,9 @@ func TestHostInterfaceGetByHostAndType_Multiple(t *testing.T) {
 }
 
 func TestHostInterfaceGetByHostAndType_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostinterface.get": rpcErr(t, -32500, "Application error."),
+		"hostinterface.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostInterfaceGetByHostAndType(t.Context(), c, "1", 1)
 	if err == nil {
@@ -297,6 +309,7 @@ func TestHostInterfaceGetByHostAndType_ErrorEnvelope(t *testing.T) {
 // ---- HostInterfaceUpdate ----
 
 func TestHostInterfaceUpdate_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.update": rpcOK(t, map[string]any{"interfaceids": []string{"42"}}),
 	})
@@ -316,8 +329,9 @@ func TestHostInterfaceUpdate_Success(t *testing.T) {
 }
 
 func TestHostInterfaceUpdate_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostinterface.update": rpcErr(t, -32602, "Invalid params."),
+		"hostinterface.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	iface := client.HostInterface{InterfaceID: "1", Type: 1, Port: "10050"}
 	if err := client.HostInterfaceUpdate(t.Context(), c, iface); err == nil {
@@ -328,6 +342,7 @@ func TestHostInterfaceUpdate_ErrorEnvelope(t *testing.T) {
 // ---- HostInterfaceDelete ----
 
 func TestHostInterfaceDelete_Success(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
 		"hostinterface.delete": rpcOK(t, map[string]any{"interfaceids": []string{"42"}}),
 	})
@@ -337,8 +352,9 @@ func TestHostInterfaceDelete_Success(t *testing.T) {
 }
 
 func TestHostInterfaceDelete_ErrorEnvelope(t *testing.T) {
+	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostinterface.delete": rpcErr(t, -32500, "Cannot delete interface."),
+		"hostinterface.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete interface."),
 	})
 	if err := client.HostInterfaceDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")
