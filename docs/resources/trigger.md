@@ -88,3 +88,14 @@ Required:
 Optional:
 
 - `value` (String) Tag value. Defaults to `""`.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a trigger using its Zabbix numeric ID.
+terraform import zabbix_trigger.example 13491
+```

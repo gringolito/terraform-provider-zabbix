@@ -135,3 +135,14 @@ Optional:
 - `priv_protocol` (String) SNMPv3 privacy protocol. One of: `des`, `aes128`, `aes192`, `aes256`, `aes192c`, `aes256c`. Defaults to `des`.
 - `security_level` (String) SNMPv3 security level. One of: `noAuthNoPriv`, `authNoPriv`, `authPriv`. Defaults to `noAuthNoPriv`.
 - `security_name` (String) SNMPv3 security name.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a host interface using its Zabbix numeric ID.
+terraform import zabbix_host_interface.example 1
+```

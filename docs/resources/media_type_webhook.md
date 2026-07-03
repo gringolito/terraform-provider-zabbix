@@ -81,3 +81,14 @@ Required:
 
 - `name` (String) Parameter name.
 - `value` (String, Sensitive) Parameter value. Sensitive.
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+# Import a webhook media type using its Zabbix numeric ID.
+terraform import zabbix_media_type_webhook.example 4
+```
