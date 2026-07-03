@@ -35,7 +35,7 @@ func TestActionCreate_Success(t *testing.T) {
 func TestActionCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"action.create": rpcErr(t, -32602, "Invalid params."),
+		"action.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.ActionCreate(t.Context(), c, client.Action{Name: "test"})
 	if err == nil {
@@ -367,7 +367,7 @@ func TestActionGet_NotFound(t *testing.T) {
 func TestActionGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"action.get": rpcErr(t, -32500, "Application error."),
+		"action.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.ActionGet(t.Context(), c, "1")
 	if err == nil {
@@ -462,7 +462,7 @@ func TestActionGetByName_Multiple(t *testing.T) {
 func TestActionGetByName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"action.get": rpcErr(t, -32500, "Application error."),
+		"action.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.ActionGetByName(t.Context(), c, "test")
 	if err == nil {
@@ -489,7 +489,7 @@ func TestActionUpdate_Success(t *testing.T) {
 func TestActionUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"action.update": rpcErr(t, -32602, "Invalid params."),
+		"action.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	a := client.Action{ActionID: "1", Name: "test"}
 	if err := client.ActionUpdate(t.Context(), c, a); err == nil {
@@ -512,7 +512,7 @@ func TestActionDelete_Success(t *testing.T) {
 func TestActionDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"action.delete": rpcErr(t, -32500, "Cannot delete action."),
+		"action.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete action."),
 	})
 	if err := client.ActionDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

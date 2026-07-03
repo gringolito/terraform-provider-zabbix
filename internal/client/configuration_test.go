@@ -24,7 +24,7 @@ func TestConfigurationImport_Success(t *testing.T) {
 func TestConfigurationImport_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"configuration.import": rpcErr(t, -32602, "Invalid params."),
+		"configuration.import": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	rules := client.ImportRules{}
 	err := client.ConfigurationImport(t.Context(), c, "xml", "<invalid/>", rules)

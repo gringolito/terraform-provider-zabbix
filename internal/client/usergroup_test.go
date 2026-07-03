@@ -27,7 +27,7 @@ func TestUserGroupCreate_Success(t *testing.T) {
 func TestUserGroupCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.create": rpcErr(t, -32602, "Invalid params."),
+		"usergroup.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.UserGroupCreate(t.Context(), c, client.UserGroup{Name: "duplicate"})
 	if err == nil {
@@ -86,7 +86,7 @@ func TestUserGroupGet_NotFound(t *testing.T) {
 func TestUserGroupGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.get": rpcErr(t, -32500, "Application error."),
+		"usergroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGroupGet(t.Context(), c, "1")
 	if err == nil {
@@ -153,7 +153,7 @@ func TestUserGroupGetByName_Multiple(t *testing.T) {
 func TestUserGroupGetByName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.get": rpcErr(t, -32500, "Application error."),
+		"usergroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGroupGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -177,7 +177,7 @@ func TestUserGroupUpdate_Success(t *testing.T) {
 func TestUserGroupUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.update": rpcErr(t, -32602, "Invalid params."),
+		"usergroup.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.UserGroupUpdate(t.Context(), c, client.UserGroup{ID: "1", Name: "x"}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -199,7 +199,7 @@ func TestUserGroupDelete_Success(t *testing.T) {
 func TestUserGroupDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"usergroup.delete": rpcErr(t, -32500, "Cannot delete user group."),
+		"usergroup.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete user group."),
 	})
 	if err := client.UserGroupDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

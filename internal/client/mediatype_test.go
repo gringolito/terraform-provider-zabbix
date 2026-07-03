@@ -29,7 +29,7 @@ func TestMediaTypeCreate_Success(t *testing.T) {
 func TestMediaTypeCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.create": rpcErr(t, -32602, "Invalid params."),
+		"mediatype.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.MediaTypeCreate(t.Context(), c, client.MediaType{Name: "dup", Type: client.MediaTypeTypeEmail})
 	if err == nil {
@@ -81,7 +81,7 @@ func TestMediaTypeGet_NotFound(t *testing.T) {
 func TestMediaTypeGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.get": rpcErr(t, -32500, "Application error."),
+		"mediatype.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.MediaTypeGet(t.Context(), c, "1")
 	if err == nil {
@@ -149,7 +149,7 @@ func TestMediaTypeGetByName_Multiple(t *testing.T) {
 func TestMediaTypeGetByName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.get": rpcErr(t, -32500, "Application error."),
+		"mediatype.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.MediaTypeGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -172,7 +172,7 @@ func TestMediaTypeUpdate_Success(t *testing.T) {
 func TestMediaTypeUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.update": rpcErr(t, -32602, "Invalid params."),
+		"mediatype.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.MediaTypeUpdate(t.Context(), c, client.MediaType{ID: "1", Name: "x", Type: client.MediaTypeTypeEmail}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -194,7 +194,7 @@ func TestMediaTypeDelete_Success(t *testing.T) {
 func TestMediaTypeDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"mediatype.delete": rpcErr(t, -32500, "Cannot delete media type."),
+		"mediatype.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete media type."),
 	})
 	if err := client.MediaTypeDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

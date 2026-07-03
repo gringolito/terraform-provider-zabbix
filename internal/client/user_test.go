@@ -116,7 +116,7 @@ func TestUserGet_NotFound(t *testing.T) {
 func TestUserGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"user.get": rpcErr(t, -32500, "Application error."),
+		"user.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGet(t.Context(), c, "1")
 	if err == nil {
@@ -166,7 +166,7 @@ func TestUserGetByUsername_Empty(t *testing.T) {
 func TestUserGetByUsername_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"user.get": rpcErr(t, -32500, "Application error."),
+		"user.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.UserGetByUsername(t.Context(), c, "Admin")
 	if err == nil {

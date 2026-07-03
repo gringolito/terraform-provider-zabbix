@@ -55,7 +55,7 @@ func TestUserDirectoryCreate_SAML_Success(t *testing.T) {
 func TestUserDirectoryCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"userdirectory.create": rpcErr(t, -32602, "Invalid params."),
+		"userdirectory.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.UserDirectoryCreate(t.Context(), c, ldapUD)
 	if err == nil {

@@ -57,7 +57,7 @@ func TestItemGet_NotFound(t *testing.T) {
 func TestItemGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"item.get": rpcErr(t, -32500, "Application error."),
+		"item.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.ItemGet(t.Context(), c, "1")
 	if err == nil {
@@ -125,7 +125,7 @@ func TestItemGetByKeyAndScope_Empty(t *testing.T) {
 func TestItemGetByKeyAndScope_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"item.get": rpcErr(t, -32500, "Application error."),
+		"item.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.ItemGetByKeyAndScope(t.Context(), c, "cpu.util", "1", "")
 	if err == nil {

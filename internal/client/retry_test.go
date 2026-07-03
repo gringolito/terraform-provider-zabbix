@@ -35,7 +35,7 @@ func retryTestServer(t *testing.T, failFirst int) (*httptest.Server, *int32) {
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"jsonrpc": "2.0",
 				"error": map[string]any{
-					"code":    -32500,
+					"code":    ErrCodeApplicationError,
 					"message": "Application error.",
 					"data":    transientDBErrorData,
 				},
@@ -98,7 +98,7 @@ func TestCall_DoesNotRetryNonTransientError(t *testing.T) {
 		atomic.AddInt32(&calls, 1)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
-			"error":   map[string]any{"code": -32602, "message": "Invalid params.", "data": "bad"},
+			"error":   map[string]any{"code": ErrCodeInvalidParams, "message": "Invalid params.", "data": "bad"},
 			"id":      1,
 		})
 	}))
@@ -168,9 +168,9 @@ func TestIsTransientDBError(t *testing.T) {
 		err  error
 		want bool
 	}{
-		{"transient db error", &RPCError{Code: -32500, Message: "Application error.", Data: json.RawMessage(`"Database error occurred."`)}, true},
-		{"other -32500", &RPCError{Code: -32500, Message: "Application error.", Data: json.RawMessage(`"Something else."`)}, false},
-		{"invalid params", &RPCError{Code: -32602, Message: "Invalid params.", Data: json.RawMessage(`"bad"`)}, false},
+		{"transient db error", &RPCError{Code: ErrCodeApplicationError, Message: "Application error.", Data: json.RawMessage(`"Database error occurred."`)}, true},
+		{"other -32500", &RPCError{Code: ErrCodeApplicationError, Message: "Application error.", Data: json.RawMessage(`"Something else."`)}, false},
+		{"invalid params", &RPCError{Code: ErrCodeInvalidParams, Message: "Invalid params.", Data: json.RawMessage(`"bad"`)}, false},
 		{"nil", nil, false},
 	}
 	for _, tc := range cases {

@@ -30,7 +30,7 @@ func isTransientDBError(err error) bool {
 	if !errors.As(err, &rpcErr) {
 		return false
 	}
-	return rpcErr.Code == -32500 && strings.Contains(string(rpcErr.Data), transientDBErrText)
+	return rpcErr.Code == ErrCodeApplicationError && strings.Contains(string(rpcErr.Data), transientDBErrText)
 }
 
 // backoffFor returns the delay before retry attempt n (n >= 1): exponential

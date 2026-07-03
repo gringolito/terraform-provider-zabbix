@@ -76,7 +76,7 @@ func TestHostGroupCreate_Success(t *testing.T) {
 func TestHostGroupCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostgroup.create": rpcErr(t, -32602, "Invalid params."),
+		"hostgroup.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.HostGroupCreate(t.Context(), c, "duplicate")
 	if err == nil {
@@ -120,7 +120,7 @@ func TestHostGroupGet_NotFound(t *testing.T) {
 func TestHostGroupGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostgroup.get": rpcErr(t, -32500, "Application error."),
+		"hostgroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostGroupGet(t.Context(), c, "1")
 	if err == nil {
@@ -181,7 +181,7 @@ func TestHostGroupGetByName_Multiple(t *testing.T) {
 func TestHostGroupGetByName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostgroup.get": rpcErr(t, -32500, "Application error."),
+		"hostgroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostGroupGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -204,7 +204,7 @@ func TestHostGroupUpdate_Success(t *testing.T) {
 func TestHostGroupUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostgroup.update": rpcErr(t, -32602, "Invalid params."),
+		"hostgroup.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.HostGroupUpdate(t.Context(), c, "1", "x"); err == nil {
 		t.Fatal("expected error, got nil")
@@ -226,7 +226,7 @@ func TestHostGroupDelete_Success(t *testing.T) {
 func TestHostGroupDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"hostgroup.delete": rpcErr(t, -32500, "Cannot delete host group."),
+		"hostgroup.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete host group."),
 	})
 	if err := client.HostGroupDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

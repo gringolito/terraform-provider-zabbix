@@ -162,7 +162,7 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"jsonrpc": "2.0",
 			"error": map[string]any{
-				"code":    -32602,
+				"code":    client.ErrCodeInvalidParams,
 				"message": "Invalid params.",
 				"data":    "No permissions to referred object or it does not exist!",
 			},
@@ -184,8 +184,8 @@ func TestCall_ErrorEnvelopePreservedVerbatim(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected *client.RPCError, got %T: %v", err, err)
 	}
-	if rpcErr.Code != -32602 {
-		t.Errorf("Code = %d, want -32602", rpcErr.Code)
+	if rpcErr.Code != client.ErrCodeInvalidParams {
+		t.Errorf("Code = %d, want client.ErrCodeInvalidParams", rpcErr.Code)
 	}
 	if rpcErr.Message != "Invalid params." {
 		t.Errorf("Message = %q, want %q", rpcErr.Message, "Invalid params.")

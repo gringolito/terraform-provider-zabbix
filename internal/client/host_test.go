@@ -33,7 +33,7 @@ func TestHostCreate_Success(t *testing.T) {
 func TestHostCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.create": rpcErr(t, -32602, "Invalid params."),
+		"host.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	h := client.Host{Host: "dup", Groups: []client.HostGroupRef{{GroupID: "1"}}}
 	_, err := client.HostCreate(t.Context(), c, h)
@@ -144,7 +144,7 @@ func TestHostGet_InventoryDisabled(t *testing.T) {
 func TestHostGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.get": rpcErr(t, -32500, "Application error."),
+		"host.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostGet(t.Context(), c, "1")
 	if err == nil {
@@ -228,7 +228,7 @@ func TestHostGetByTechnicalName_Multiple(t *testing.T) {
 func TestHostGetByTechnicalName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.get": rpcErr(t, -32500, "Application error."),
+		"host.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostGetByTechnicalName(t.Context(), c, "x")
 	if err == nil {
@@ -256,7 +256,7 @@ func TestHostUpdate_Success(t *testing.T) {
 func TestHostUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.update": rpcErr(t, -32602, "Invalid params."),
+		"host.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	h := client.Host{HostID: "1", Host: "x", Groups: []client.HostGroupRef{{GroupID: "1"}}}
 	if err := client.HostUpdate(t.Context(), c, h); err == nil {
@@ -279,7 +279,7 @@ func TestHostDelete_Success(t *testing.T) {
 func TestHostDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.delete": rpcErr(t, -32500, "Cannot delete host."),
+		"host.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete host."),
 	})
 	if err := client.HostDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")
@@ -301,7 +301,7 @@ func TestHostTemplateLinkAdd_Success(t *testing.T) {
 func TestHostTemplateLinkAdd_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.massadd": rpcErr(t, -32602, "Invalid params."),
+		"host.massadd": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.HostTemplateLinkAdd(t.Context(), c, "10", []string{"20"}); err == nil {
 		t.Fatal("expected error, got nil")
@@ -382,7 +382,7 @@ func TestHostTemplateLinkRemove_Unlink_Success(t *testing.T) {
 func TestHostTemplateLinkRemove_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.massremove": rpcErr(t, -32500, "Application error."),
+		"host.massremove": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	if err := client.HostTemplateLinkRemove(t.Context(), c, "10", "20", false); err == nil {
 		t.Fatal("expected error, got nil")
@@ -430,7 +430,7 @@ func TestHostGetTemplates_NotFound(t *testing.T) {
 func TestHostGetTemplates_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"host.get": rpcErr(t, -32500, "Application error."),
+		"host.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.HostGetTemplates(t.Context(), c, "1")
 	if err == nil {

@@ -26,7 +26,7 @@ func TestTemplateGroupCreate_Success(t *testing.T) {
 func TestTemplateGroupCreate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.create": rpcErr(t, -32602, "Invalid params."),
+		"templategroup.create": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	_, err := client.TemplateGroupCreate(t.Context(), c, "duplicate")
 	if err == nil {
@@ -70,7 +70,7 @@ func TestTemplateGroupGet_NotFound(t *testing.T) {
 func TestTemplateGroupGet_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.get": rpcErr(t, -32500, "Application error."),
+		"templategroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGroupGet(t.Context(), c, "1")
 	if err == nil {
@@ -131,7 +131,7 @@ func TestTemplateGroupGetByName_Multiple(t *testing.T) {
 func TestTemplateGroupGetByName_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.get": rpcErr(t, -32500, "Application error."),
+		"templategroup.get": rpcErr(t, client.ErrCodeApplicationError, "Application error."),
 	})
 	_, err := client.TemplateGroupGetByName(t.Context(), c, "x")
 	if err == nil {
@@ -154,7 +154,7 @@ func TestTemplateGroupUpdate_Success(t *testing.T) {
 func TestTemplateGroupUpdate_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.update": rpcErr(t, -32602, "Invalid params."),
+		"templategroup.update": rpcErr(t, client.ErrCodeInvalidParams, "Invalid params."),
 	})
 	if err := client.TemplateGroupUpdate(t.Context(), c, "1", "x"); err == nil {
 		t.Fatal("expected error, got nil")
@@ -176,7 +176,7 @@ func TestTemplateGroupDelete_Success(t *testing.T) {
 func TestTemplateGroupDelete_ErrorEnvelope(t *testing.T) {
 	t.Parallel()
 	c := newTestClient(t, map[string]http.HandlerFunc{
-		"templategroup.delete": rpcErr(t, -32500, "Cannot delete template group."),
+		"templategroup.delete": rpcErr(t, client.ErrCodeApplicationError, "Cannot delete template group."),
 	})
 	if err := client.TemplateGroupDelete(t.Context(), c, "1"); err == nil {
 		t.Fatal("expected error, got nil")

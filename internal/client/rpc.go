@@ -19,6 +19,16 @@ type rpcResponse struct {
 	ID      int             `json:"id"`
 }
 
+// Zabbix JSON-RPC error codes.
+const (
+	// ErrCodeApplicationError is returned for server-side failures, including
+	// transient database errors, permission checks, and business-rule violations.
+	ErrCodeApplicationError = -32500
+	// ErrCodeInvalidParams is returned when the request parameters fail
+	// validation (unknown field, wrong type, missing required value, etc.).
+	ErrCodeInvalidParams = -32602
+)
+
 // RPCError represents a Zabbix JSON-RPC error envelope, preserved verbatim.
 type RPCError struct {
 	Code    int             `json:"code"`
